@@ -2,7 +2,7 @@
 # Makefile of main.asm (x=[1,2,3...])
 ##################################################
 
-SRC:=main.asm
+SRC:=main.asm run.asm
 BIN:=$(subst .asm,.com,$(SRC))
 
 .PHONY : everything

@@ -1,6 +1,5 @@
 ; ==========================================
-; pmtest.asm
-; 编译方法：nasm pmtest.asm -o pmtest.com
+; 编译方法：nasm main.asm -o main.com
 ; ==========================================
 
 %include	"pm.inc"	; 常量, 宏, 以及一些说明
