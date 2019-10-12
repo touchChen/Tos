@@ -139,13 +139,11 @@ LABEL_BEGIN:
         mov	[SPValueInRealMode], sp
  
         call    DispStr
-  
+
         mov     di, (80 * 2 + 0) * 2
-        mov     ax, cs
-        mov     al, ah
-        call    DispALReal
-        mov     ax, cs
-        call    DispALReal
+        push    cs
+        call    DispInt
+        add     sp, 2         
 
 
 	; 初始化 16 位代码段描述符
@@ -158,7 +156,6 @@ LABEL_BEGIN:
 	mov	byte [LABEL_DESC_CODE16 + 4], al
 	mov	byte [LABEL_DESC_CODE16 + 7], ah
 
-
 	; 初始化 32 位代码段描述符
 	xor	eax, eax
 	mov	ax, cs
@@ -168,7 +165,6 @@ LABEL_BEGIN:
 	shr	eax, 16
 	mov	byte [LABEL_DESC_CODE32 + 4], al
 	mov	byte [LABEL_DESC_CODE32 + 7], ah
-
 
         ; 初始化数据段描述符
 	xor	eax, eax
@@ -180,8 +176,6 @@ LABEL_BEGIN:
 	mov	byte [LABEL_DESC_DATA + 4], al
 	mov	byte [LABEL_DESC_DATA + 7], ah
 
-
-
         ; 初始化堆栈段描述符
 	xor	eax, eax
 	mov	ax, ds
@@ -192,8 +186,7 @@ LABEL_BEGIN:
 	mov	byte [LABEL_DESC_STACK32 + 4], al
 	mov	byte [LABEL_DESC_STACK32 + 7], ah
 
-
-
+        
         ; 初始化堆栈段描述符(STACK3)
 	xor	eax, eax
 	mov	ax, ds
@@ -215,7 +208,6 @@ LABEL_BEGIN:
 	mov	byte [LABEL_DESC_LDT + 4], al
 	mov	byte [LABEL_DESC_LDT + 7], ah
 
-
         ; 初始化 LDT 中的描述符
 	xor	eax, eax
 	mov	ax, ds
@@ -225,7 +217,6 @@ LABEL_BEGIN:
 	shr	eax, 16
 	mov	byte [LABEL_LDT_DESC_CODEA + 4], al
 	mov	byte [LABEL_LDT_DESC_CODEA + 7], ah
-
 
 
 	; 初始化测试调用门的代码段描述符
@@ -311,9 +302,9 @@ DispStr:
 	int	10h			; 10h 号中断
 	ret
 
-
 BootMessage:		db	"Hello, this in real model!"
 lenMessage:             equ     $ - BootMessage
+
 
 
 DispALReal:
@@ -352,6 +343,19 @@ DispALReal:
 DISPLAYSEG	equ 0xb800
 
 
+DispInt:
+        mov     bx,  sp
+        add     bx,  2
+
+        mov     ax, [ss:bx]       
+	shr	ax, 8
+	call	DispALReal
+
+        mov     ax, [ss:bx]
+        call	DispALReal
+
+        ret
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -386,13 +390,14 @@ LABEL_SEG_CODE32:
 	mov	ax, SelectorData
 	mov	ds, ax			; 数据段选择子
 
-
+        
+        ; 堆栈
         mov	ax, SelectorStack32
 	mov	ss, ax			; 堆栈段选择子
-
 	mov	esp, TopOfStack
 
-
+        
+        jmp	SelectorCode16:0
         ;call    SelectorCodeRing3:0
 
         
