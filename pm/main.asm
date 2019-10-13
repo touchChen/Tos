@@ -296,7 +296,6 @@ LABEL_REAL_ENTRY:		; 从保护模式跳回到实模式就到了这里
 LABEL_SEG_CODE32:
 	mov	ax, SelectorData
 	mov	ds, ax			; 数据段选择子
-	;mov	ax, SelectorData
 	mov	es, ax
 	mov	ax, SelectorVideo
 	mov	gs, ax			; 视频段选择子
@@ -318,14 +317,8 @@ LABEL_SEG_CODE32:
 	call	DispStr
 	add	esp, 4
 
-	push	szMemChkTitle
-	call	DispStr
-	add	esp, 4
-
-	call	DispMemSize		; 显示内存信息
-
+	call    DispMem		        ; 显示内存信息
 	call	SetupPaging		; 启动分页机制
-  
         call    PagingDemo
 
 	; 到此停止
@@ -405,9 +398,6 @@ SetRealmode8259A:
 
 	ret
 ; SetRealmode8259A ---------------------------------------------------------------------------------------------
-
-
-
 io_delay:
 	nop
 	nop
@@ -630,6 +620,16 @@ OffsetBar		equ	bar - $$
 LenBar			equ	$ - bar
 
 
+
+
+DispMem:
+        push	szMemChkTitle
+	call	DispStr
+	add	esp, 4
+
+	call	DispMemSize
+        
+        ret
 
 
 DispMemSize:

@@ -396,17 +396,14 @@ LABEL_SEG_CODE32:
 	mov	ss, ax			; 堆栈段选择子
 	mov	esp, TopOfStack
 
-        
-        jmp	SelectorCode16:0
         ;call    SelectorCodeRing3:0
-
         
         ; 下面显示一个字符串
 	mov	ah, 0Ch			; 0000: 黑底    1100: 红字
 	xor	esi, esi
 	xor	edi, edi
 	mov	esi, OffsetPMMessage	; 源数据偏移
-	mov	edi, (80 * 10 + 0) * 2	; 目的数据偏移。屏幕第 10 行, 第 0 列。
+	mov	edi, (80 * 3 + 0) * 2	; 目的数据偏移。屏幕第 10 行, 第 0 列。
 	cld
 .1:
 	lodsb
@@ -416,28 +413,11 @@ LABEL_SEG_CODE32:
 	add	edi, 2
 	jmp	.1
 .2:	; 显示完毕 到此停止
-	;jmp	$
-
+	
 	;jmp     SelectorCodeT:0
         
-        
-        mov     edi, (80 * 12 + 0) * 2
-        mov     ax,  cs
-        mov     al,  ah
-
-        call    DispAL
-        mov     ax,  cs        
-        call    DispAL
-
-
-
-        mov     edi, (80 * 13 + 0) * 2
-        mov     ax,  ss
-        mov     al,  ah
-
-        call    DispAL
-        mov     ax,  ss        
-        call    DispAL
+        jmp	SelectorCode16:0
+      
 
 
         ; Load LDT

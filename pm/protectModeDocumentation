@@ -9,3 +9,8 @@
 
 
 选择子 为2个字节
+
+lodsb: mov al, [ds:ei] 
+       add ei,1 or sub ei,1
+
+cld: df=0 复位
