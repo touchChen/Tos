@@ -23,11 +23,6 @@ LABEL_DESC_CODE_DEST: Descriptor    0,   SegCodeDestLen-1,       DA_C + DA_32; �
 LABEL_DESC_CODE_RING3: Descriptor   0,  SegCodeRing3Len-1,       DA_C + DA_32 + DA_DPL3
 LABEL_DESC_STACK3:     Descriptor   0,        TopOfStack3,       DA_DRWA+DA_32+DA_DPL3
 LABEL_DESC_TSS:        Descriptor   0,           TSSLen-1,       DA_386TSS	   ;TSS
-
-LABEL_DESC_CODE_T:     Descriptor   0,    SegCodeTLen - 1,       DA_C + DA_32; 非一致代码段
-
-
-
 ; 门                           目标选择子,   偏移,    DCount,    属性
 LABEL_CALL_GATE:   Gate SelectorCodeDest,       0,         0,   DA_386CGate + DA_DPL3
 ; GDT 结束
@@ -49,8 +44,6 @@ SelectorCodeRing3	equ	LABEL_DESC_CODE_RING3	- LABEL_GDT + SA_RPL3
 SelectorCallGate	equ	LABEL_CALL_GATE 	- LABEL_GDT + SA_RPL3
 SelectorStack3		equ	LABEL_DESC_STACK3	- LABEL_GDT + SA_RPL3
 SelectorTSS		equ	LABEL_DESC_TSS		- LABEL_GDT
-
-SelectorCodeT		equ	LABEL_DESC_CODE_T	- LABEL_GDT
 ; END of [SECTION .gdt]
 
 
@@ -143,7 +136,7 @@ LABEL_BEGIN:
         mov     di, (80 * 2 + 0) * 2
         push    cs
         call    DispInt
-        add     sp, 2         
+        ;add     sp, 2         
 
 
 	; 初始化 16 位代码段描述符
@@ -218,7 +211,16 @@ LABEL_BEGIN:
 	mov	byte [LABEL_LDT_DESC_CODEA + 4], al
 	mov	byte [LABEL_LDT_DESC_CODEA + 7], ah
 
+        xor	eax, eax
+	mov	ax, ds
+	shl	eax, 4
+	add	eax, LABEL_CODE_RETURN
+	mov	word [LABEL_LDT_DESC_CODE_RETURN + 2], ax
+	shr	eax, 16
+	mov	byte [LABEL_LDT_DESC_CODE_RETURN + 4], al
+	mov	byte [LABEL_LDT_DESC_CODE_RETURN + 7], ah
 
+     
 	; 初始化测试调用门的代码段描述符
 	xor	eax, eax
 	mov	ax, cs
@@ -252,16 +254,7 @@ LABEL_BEGIN:
 	mov	byte [LABEL_DESC_TSS + 7], ah
 
 
-        ; 初始化T描述符
-	xor	eax, eax
-	mov	ax, ds
-	shl	eax, 4
-	add	eax, LABEL_CODE_T
-	mov	word [LABEL_DESC_CODE_T + 2], ax
-	shr	eax, 16
-	mov	byte [LABEL_DESC_CODE_T + 4], al
-	mov	byte [LABEL_DESC_CODE_T + 7], ah
-
+     
 
 	; 为加载 GDTR 作准备
 	xor	eax, eax
@@ -344,7 +337,7 @@ DISPLAYSEG	equ 0xb800
 
 
 DispInt:
-        mov     bx,  sp
+        mov     bx,  sp      ; 当前sp指向压入的ip(返回后的下条指令)
         add     bx,  2
 
         mov     ax, [ss:bx]       
@@ -354,7 +347,7 @@ DispInt:
         mov     ax, [ss:bx]
         call	DispALReal
 
-        ret
+        ret     2  
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -398,27 +391,24 @@ LABEL_SEG_CODE32:
 
         call    DisMessage
 
-        call    SelectorCodeRing3:0
-	;jmp     SelectorCodeT:0
-
+        ;call    SelectorCodeRing3:0
+	
         ; Load LDT
 	mov	ax, SelectorLDT
 	lldt	ax
 
 	call	SelectorLDTCodeA:0	; 跳入局部任务
         
-        jmp	SelectorCode16:0
-        ;jmp     SelectorCodeT:0
-
 
 	mov	ax, SelectorTSS
-	ltr	ax                  ; 在任务内发生特权级变换时要切换堆栈，而内层堆栈的指针存放在当前任务的TSS中，所以要设置任务状态段寄存器 TR。
+	ltr	ax                  ;在任务内发生特权级变换时要切换堆栈，而内层堆栈的指针存放在当前任务的TSS中，所以要设置任务状态段寄存器 TR。
         push	SelectorStack3
 	push	TopOfStack3
 	push	SelectorCodeRing3
 	push	0
 	retf
-
+   
+        jmp	SelectorCode16:0
 
 
 DisMessage:
@@ -509,11 +499,13 @@ ALIGN	32
 LABEL_LDT:
 ;                            段基址       段界限      属性
 LABEL_LDT_DESC_CODEA: Descriptor 0, CodeALen - 1, DA_C + DA_32 ; Code, 32 位
+LABEL_LDT_DESC_CODE_RETURN: Descriptor 0, CodeReturnLen - 1, DA_C + DA_32 ; Code, 32 位
 
 LDTLen		equ	$ - LABEL_LDT
 
 ; LDT 选择子
 SelectorLDTCodeA	equ	LABEL_LDT_DESC_CODEA	- LABEL_LDT + SA_TIL
+SelectorLDTCodeReturn	equ	LABEL_LDT_DESC_CODE_RETURN	- LABEL_LDT + SA_TIL
 ; END of [SECTION .ldt]
 
 
@@ -530,11 +522,22 @@ LABEL_CODE_A:
 	mov	al, 'L'
 	mov	[gs:edi], ax
 
-
         retf
 
 CodeALen	equ	$ - LABEL_CODE_A
 ; END of [SECTION .la]
+
+
+; CodeReturn (LDT, 32 位代码段)
+[SECTION .lr]
+ALIGN	32
+[BITS	32]
+LABEL_CODE_RETURN:
+	jmp	SelectorCode16:0
+
+CodeReturnLen	equ	$ - LABEL_CODE_RETURN
+; END of [SECTION .lr]
+
 
 
 [SECTION .sdest]; 调用门目标段
@@ -544,15 +547,14 @@ LABEL_SEG_CODE_DEST:
 	mov	ax, SelectorVideo
 	mov	gs, ax			; 视频段选择子(目的)
 
-	mov	edi, (80 * 22 + 0) * 2	; 屏幕第 12 行, 第 0 列。
+	mov	edi, (80 * 7 + 0) * 2	; 屏幕第 12 行, 第 0 列。
 	mov	ah, 0Ch			; 0000: 黑底    1100: 红字
-	mov	al, 'C'
+	mov	al, 'G'
 	mov	[gs:edi], ax
 
+	call	SelectorLDTCodeReturn:0	; 跳入局部任务
 	;retf
-	jmp	SelectorCode16:0
-
-
+	
 SegCodeDestLen	equ	$ - LABEL_SEG_CODE_DEST
 ; END of [SECTION .sdest]
 
@@ -565,29 +567,15 @@ LABEL_CODE_RING3:
 	mov	ax, SelectorVideo
 	mov	gs, ax
 
-	mov	edi, (80 * 23 + 0) * 2
+	mov	edi, (80 * 6 + 0) * 2
 	mov	ah, 0Ch
 	mov	al, '3'
 	mov	[gs:edi], ax
 
-	;jmp	$
         call	SelectorCallGate:0
-        ;jmp     SelectorCodeT:0
 
 SegCodeRing3Len	equ	$ - LABEL_CODE_RING3
 ; END of [SECTION .ring3]
 
-
-
-; CodeT
-[SECTION .T]
-ALIGN	32
-[BITS	32]
-LABEL_CODE_T:
-	
-        jmp	SelectorCode16:0
-
-SegCodeTLen	equ	$ - LABEL_CODE_T
-; END of [SECTION .T]
 
 
