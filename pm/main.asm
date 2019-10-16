@@ -69,7 +69,7 @@ SelectorLDT		equ	LABEL_DESC_LDT		- LABEL_GDT
 SelectorCodeDest	equ	LABEL_DESC_CODE_DEST	- LABEL_GDT
 SelectorCodeRing2	equ	LABEL_DESC_CODE_RING2	- LABEL_GDT + SA_RPL2
 SelectorCodeRing3	equ	LABEL_DESC_CODE_RING3	- LABEL_GDT + SA_RPL3
-SelectorCallGate	equ	LABEL_CALL_GATE 	- LABEL_GDT + SA_RPL2
+SelectorCallGate	equ	LABEL_CALL_GATE 	- LABEL_GDT + SA_RPL0
 SelectorStack2		equ	LABEL_DESC_STACK2	- LABEL_GDT + SA_RPL2
 SelectorStack3		equ	LABEL_DESC_STACK3	- LABEL_GDT + SA_RPL3
 SelectorTSS		equ	LABEL_DESC_TSS		- LABEL_GDT
@@ -669,6 +669,7 @@ PagingDemo:
 
        ret
 
+
 ; 启动分页机制 --------------------------------------------------------------
 SetupPaging:
 	; 根据内存大小计算应初始化多少PDE以及多少页表
@@ -695,6 +696,7 @@ SetupPaging:
 .1:
 	stosd
 	add	eax, 4096		; 为了简化, 所有页表在内存中是连续的.
+
 	loop	.1
 
 	; 再初始化所有页表
@@ -926,6 +928,7 @@ ALIGN	32
 [BITS	32]
 LABEL_CODE_A:
 	mov	ax, SelectorVideo
+
 	mov	gs, ax			; 视频段选择子(目的)
 
 	mov	edi, (80 * 2 + 50) * 2	; 屏幕第 10 行, 第 0 列。
@@ -995,6 +998,7 @@ LABEL_CODE_RING2:
 
 SegCodeRing2Len	equ	$ - LABEL_CODE_RING2
 ; END of [SECTION .ring2]
+
 
 
 ; CodeRing3
