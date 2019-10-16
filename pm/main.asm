@@ -39,7 +39,9 @@ LABEL_DESC_FLAT_RW:     Descriptor             0,           0fffffh, DA_DRW|DA_L
 ; 新增加
 LABEL_DESC_LDT:         Descriptor             0,         LDTLen - 1, DA_LDT	                   ; LDT
 LABEL_DESC_CODE_DEST:   Descriptor             0,   SegCodeDestLen-1, DA_C + DA_32                 ; 非一致代码段,32
+LABEL_DESC_CODE_RING2:  Descriptor             0,  SegCodeRing2Len-1, DA_C + DA_32 + DA_DPL2
 LABEL_DESC_CODE_RING3:  Descriptor             0,  SegCodeRing3Len-1, DA_C + DA_32 + DA_DPL3
+LABEL_DESC_STACK2:      Descriptor             0,        TopOfStack2, DA_DRWA + DA_32 + DA_DPL2
 LABEL_DESC_STACK3:      Descriptor             0,        TopOfStack3, DA_DRWA + DA_32 + DA_DPL3
 LABEL_DESC_TSS:         Descriptor             0,           TSSLen-1, DA_386TSS	                   ;TSS
 ; 门                              目标选择子,           偏移,  DCount,    属性
@@ -65,8 +67,10 @@ SelectorFlatC		equ	LABEL_DESC_FLAT_C	- LABEL_GDT
 
 SelectorLDT		equ	LABEL_DESC_LDT		- LABEL_GDT
 SelectorCodeDest	equ	LABEL_DESC_CODE_DEST	- LABEL_GDT
+SelectorCodeRing2	equ	LABEL_DESC_CODE_RING2	- LABEL_GDT + SA_RPL2
 SelectorCodeRing3	equ	LABEL_DESC_CODE_RING3	- LABEL_GDT + SA_RPL3
-SelectorCallGate	equ	LABEL_CALL_GATE 	- LABEL_GDT + SA_RPL3
+SelectorCallGate	equ	LABEL_CALL_GATE 	- LABEL_GDT + SA_RPL2
+SelectorStack2		equ	LABEL_DESC_STACK2	- LABEL_GDT + SA_RPL2
 SelectorStack3		equ	LABEL_DESC_STACK3	- LABEL_GDT + SA_RPL3
 SelectorTSS		equ	LABEL_DESC_TSS		- LABEL_GDT
 
@@ -153,7 +157,7 @@ DataLen			equ	$ - LABEL_DATA
 
 
 ; 全局堆栈段
-[SECTION .gs]
+[SECTION .ss]
 ALIGN	32
 [BITS	32]
 LABEL_STACK:
@@ -161,7 +165,17 @@ LABEL_STACK:
 
 TopOfStack	equ	$ - LABEL_STACK - 1
 
-; END of [SECTION .gs]
+; END of [SECTION .ss]
+
+
+; 堆栈段ring2
+[SECTION .s2]
+ALIGN	32
+[BITS	32]
+LABEL_STACK2:
+	times 512 db 0
+TopOfStack2	equ	$ - LABEL_STACK2 - 1
+; END of [SECTION .s2]
 
 
 ; 堆栈段ring3
@@ -184,8 +198,8 @@ LABEL_TSS:
 		DD	SelectorStack		; 
 		DD	0			; 1 级堆栈
 		DD	0			; 
-		DD	0			; 2 级堆栈
-		DD	0			; 
+		DD	TopOfStack2		; 2 级堆栈
+		DD	SelectorStack2		; 
 		DD	0			; CR3
 		DD	0			; EIP
 		DD	0			; EFLAGS
@@ -282,6 +296,15 @@ LABEL_MEM_CHK_OK:
 	mov	byte [LABEL_DESC_STACK + 4], al
 	mov	byte [LABEL_DESC_STACK + 7], ah
 
+        xor	eax, eax
+	mov	ax, ds
+	shl	eax, 4
+	add	eax, LABEL_STACK2
+	mov	word [LABEL_DESC_STACK2 + 2], ax
+	shr	eax, 16
+	mov	byte [LABEL_DESC_STACK2 + 4], al
+	mov	byte [LABEL_DESC_STACK2 + 7], ah
+
 	xor	eax, eax
 	mov	ax, ds
 	shl	eax, 4
@@ -321,8 +344,6 @@ LABEL_MEM_CHK_OK:
 	mov	byte [LABEL_LDT_DESC_CODE_RETURN + 4], al
 	mov	byte [LABEL_LDT_DESC_CODE_RETURN + 7], ah
 
-
-
         ; 初始化测试调用门的代码段描述符
 	xor	eax, eax
 	mov	ax, cs
@@ -332,6 +353,17 @@ LABEL_MEM_CHK_OK:
 	shr	eax, 16
 	mov	byte [LABEL_DESC_CODE_DEST + 4], al
 	mov	byte [LABEL_DESC_CODE_DEST + 7], ah
+
+
+        ; 初始化Ring2描述符
+	xor	eax, eax
+	mov	ax, ds
+	shl	eax, 4
+	add	eax, LABEL_CODE_RING2
+	mov	word [LABEL_DESC_CODE_RING2 + 2], ax
+	shr	eax, 16
+	mov	byte [LABEL_DESC_CODE_RING2 + 4], al
+	mov	byte [LABEL_DESC_CODE_RING2 + 7], ah
 
 
         ; 初始化Ring3描述符
@@ -475,9 +507,9 @@ LABEL_SEG_CODE32:
        
         mov	ax, SelectorTSS
 	ltr	ax                  ;在任务内发生特权级变换时要切换堆栈，而内层堆栈的指针存放在当前任务的TSS中，所以要设置任务状态段寄存器 TR。
-        push	SelectorStack3
-	push	TopOfStack3
-	push	SelectorCodeRing3
+        push	SelectorStack2
+	push	TopOfStack2
+	push	SelectorCodeRing2
 	push	0
 	retf
 
@@ -939,6 +971,30 @@ LABEL_SEG_CODE_DEST:
 	
 SegCodeDestLen	equ	$ - LABEL_SEG_CODE_DEST
 ; END of [SECTION .sdest]
+
+
+; CodeRing2
+[SECTION .ring2]
+ALIGN	32
+[BITS	32]
+LABEL_CODE_RING2:
+	mov	ax, SelectorVideo
+	mov	gs, ax
+
+	mov	edi, (80 * 2 + 65) * 2
+	mov	ah, 0Ch
+	mov	al, '2'
+	mov	[gs:edi], ax
+        ;call	SelectorCallGate:0
+ 
+        push	SelectorStack3
+	push	TopOfStack3
+	push	SelectorCodeRing3
+	push	0
+	retf
+
+SegCodeRing2Len	equ	$ - LABEL_CODE_RING2
+; END of [SECTION .ring2]
 
 
 ; CodeRing3
