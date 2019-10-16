@@ -480,8 +480,6 @@ LABEL_SEG_CODE32:
 	mov	esp, TopOfStack
 
 
-        ;call    SelectorCodeDest:0     
-   
         ; Load LDT
 	mov	ax, SelectorLDT
 	lldt	ax
