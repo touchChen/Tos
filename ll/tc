@@ -1,0 +1,15 @@
+
+rdesktop -f -a 16 ty.yk5jin.com:33889
+
+win + Alt
+
+ctrl + alt + enter
+
+
+
+vi -b 文件名
+:%!xxd
+:!xxd -r
+
+
+xxd -u -a -g 1 -c 16 -s +0x2600 -l 512 x.img
