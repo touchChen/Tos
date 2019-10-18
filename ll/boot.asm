@@ -18,8 +18,8 @@ OffsetOfLoader		equ	0100h	; LOADER.BIN 被加载到的位置 ---- 偏移地址
 RootDirSectors		equ	14	; 根目录占用空间
 SectorNoOfRootDirectory	equ	19	; Root Directory 的第一个扇区号
 SectorNoOfFAT1		equ	1	; FAT1 的第一个扇区号 = BPB_RsvdSecCnt
-DeltaSectorNo		equ	17	; DeltaSectorNo = BPB_RsvdSecCnt + (BPB_NumFATs * FATSz) - 2
-					; 文件的开始Sector号 = DirEntry中的开始Sector号 + 根目录占用Sector数目 + DeltaSectorNo
+SectorDataArea          equ     33      ; 数据区开始的第一个扇区号
+SectorFakeDataArea      equ     31      ; fat项+该值=数据区的扇区
 ;================================================================================================
 
 
@@ -82,13 +82,12 @@ LABEL_SEARCH_IN_ROOT_DIR_BEGIN:
 	mov	ax, [wSectorNo]		; ax <- Root Directory 中的某 Sector 号
 	mov	cl, 1
 	call	ReadSector              ;从第 ax 个 Sector 开始, 将 cl 个 Sector 读入 es:bx 中
-
-	;mov	si, LoaderFileName	; ds:si -> "LOADER  BIN"
+	
 	mov	di, OffsetOfLoader	; es:di -> BaseOfLoader:0100
 	cld
 	mov	dx, 10h  ; 一个扇区最多有10h个文件(32字节)，512=10h*32
 LABEL_SEARCH_FOR_LOADERBIN:
-        mov	si, LoaderFileName
+        mov	si, LoaderFileName ; ds:si -> "LOADER  BIN"  要与 es:di 上被载入内存的文件名比对
 	cmp	dx, 0				   ; `. 循环次数控制,
 	jz	LABEL_GOTO_NEXT_SECTOR_IN_ROOT_DIR ;  / 如果已经读完了一个 Sector,
 	dec	dx				   ; /  就跳到下一个 Sector
@@ -103,7 +102,7 @@ LABEL_CMP_FILENAME:
 	jmp	LABEL_DIFFERENT		; 只要发现不一样的字符就表明本 DirectoryEntry
 					; 不是我们要找的 LOADER.BIN
 LABEL_GO_ON:
-	inc	di
+	inc	di    ; 指向载入内存空间每个文件名的字符，一个扇区10h个文件项，每个文件项目的前11位是文件名
 	jmp	LABEL_CMP_FILENAME	; 继续循环
 
 LABEL_DIFFERENT:
@@ -127,13 +126,12 @@ LABEL_NO_LOADERBIN:
 %endif
 
 LABEL_FILENAME_FOUND:			; 找到 LOADER.BIN 后便来到这里继续
-	mov	ax, RootDirSectors
 	and	di, 0FFE0h		; di -> 当前条目的开始
-	add	di, 01Ah		; di -> 首 Sector
+	add	di, 01Ah		; di -> 首 Sector  文件开始的第一个簇
 	mov	cx, word [es:di]
 	push	cx			; 保存此 Sector 在 FAT 中的序号
-	add	cx, ax
-	add	cx, DeltaSectorNo	; cl <- LOADER.BIN的起始扇区号(0-based)
+	
+	add	cx, SectorFakeDataArea	; cx -> fat 对应 数据区中的扇区号
 	mov	ax, BaseOfLoader
 	mov	es, ax			; es <- BaseOfLoader
 	mov	bx, OffsetOfLoader	; bx <- OffsetOfLoader
@@ -152,14 +150,15 @@ LABEL_GOON_LOADING_FILE:
 	mov	cl, 1
 	call	ReadSector
 	pop	ax			; 取出此 Sector 在 FAT 中的序号
-	call	GetFATEntry
+	call	GetFATEntry             ; 获取下个fat项，存放站ax中
 	cmp	ax, 0FFFh
 	jz	LABEL_FILE_LOADED
 	push	ax			; 保存 Sector 在 FAT 中的序号
-	mov	dx, RootDirSectors
-	add	ax, dx
-	add	ax, DeltaSectorNo
-	add	bx, [BPB_BytsPerSec]
+	;mov	dx, RootDirSectors
+	;add	ax, dx
+	;add	ax, DeltaSectorNo
+	add	bx, [BPB_BytsPerSec]    ; 存储地址增加一个扇区
+        add     ax, SectorFakeDataArea
 	jmp	LABEL_GOON_LOADING_FILE
 LABEL_FILE_LOADED:
 
@@ -292,7 +291,7 @@ LABEL_EVEN:;偶数
 	call	ReadSector ; 读取 FATEntry 所在的扇区, 一次读两个, 避免在边界
 			   ; 发生错误, 因为一个 FATEntry 可能跨越两个扇区
 	pop	dx
-	add	bx, dx
+	add	bx, dx ; bx包含12位fat值的内存空间地址
 	mov	ax, [es:bx]
 	cmp	byte [bOdd], 1
 	jnz	LABEL_EVEN_2
