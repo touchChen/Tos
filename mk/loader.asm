@@ -74,11 +74,12 @@ LABEL_SEARCH_IN_ROOT_DIR_BEGIN:
 	mov	cl, 1
 	call	ReadSector
 
-	mov	si, KernelFileName	; ds:si -> "KERNEL  BIN"
+	
 	mov	di, OffsetOfKernelFile	; es:di -> BaseOfKernelFile:???? = BaseOfKernelFile*10h+????
 	cld
 	mov	dx, 10h
 LABEL_SEARCH_FOR_KERNELBIN:
+        mov	si, KernelFileName	; ds:si -> "KERNEL  BIN"
 	cmp	dx, 0					; ┓
 	jz	LABEL_GOTO_NEXT_SECTOR_IN_ROOT_DIR	; ┣ 循环次数控制, 如果已经读完了一个 Sector, 就跳到下一个 Sector
 	dec	dx					; ┛
@@ -97,8 +98,7 @@ LABEL_GO_ON:
 
 LABEL_DIFFERENT:
 	and	di, 0FFE0h		; else┓	这时di的值不知道是什么, di &= e0 为了让它是 20h 的倍数
-	add	di, 20h			;     ┃
-	mov	si, KernelFileName	;     ┣ di += 20h  下一个目录条目
+	add	di, 20h			;     ┣ di += 20h  下一个目录条目                                           
 	jmp	LABEL_SEARCH_FOR_KERNELBIN;   ┛
 
 LABEL_GOTO_NEXT_SECTOR_IN_ROOT_DIR:
@@ -111,7 +111,6 @@ LABEL_NO_KERNELBIN:
 	jmp	$			; 没有找到 KERNEL.BIN, 死循环在这里
 
 LABEL_FILENAME_FOUND:			; 找到 KERNEL.BIN 后便来到这里继续
-	mov	ax, RootDirSectors
 	and	di, 0FFE0h		; di -> 当前条目的开始
 
 	push	eax
@@ -122,8 +121,8 @@ LABEL_FILENAME_FOUND:			; 找到 KERNEL.BIN 后便来到这里继续
 	add	di, 01Ah		; di -> 首 Sector
 	mov	cx, word [es:di]
 	push	cx			; 保存此 Sector 在 FAT 中的序号
-	add	cx, ax
-	add	cx, DeltaSectorNo	; 这时 cl 里面是 LOADER.BIN 的起始扇区号 (从 0 开始数的序号)
+
+	add	cx, SectorFakeDataArea	; cx -> fat 对应 数据区中的扇区号
 	mov	ax, BaseOfKernelFile
 	mov	es, ax			; es <- BaseOfKernelFile
 	mov	bx, OffsetOfKernelFile	; bx <- OffsetOfKernelFile	于是, es:bx = BaseOfKernelFile:OffsetOfKernelFile = BaseOfKernelFile * 10h + OffsetOfKernelFile
@@ -146,19 +145,17 @@ LABEL_GOON_LOADING_FILE:
 	cmp	ax, 0FFFh
 	jz	LABEL_FILE_LOADED
 	push	ax			; 保存 Sector 在 FAT 中的序号
-	mov	dx, RootDirSectors
-	add	ax, dx
-	add	ax, DeltaSectorNo
 	add	bx, [BPB_BytsPerSec]
+        add     ax, SectorFakeDataArea
 	jmp	LABEL_GOON_LOADING_FILE
 LABEL_FILE_LOADED:
 
 	call	KillMotor		; 关闭软驱马达
-
 	mov	dh, 1			; "Ready."
 	call	DispStrRealMode		; 显示字符串
 
-        jmp     $
+        ;jmp     BaseOfKernelFile:OffsetOfKernelFile
+        ;jmp     $
 	
 ; 下面准备跳入保护模式 -------------------------------------------
 
@@ -329,6 +326,13 @@ KillMotor:
 ;----------------------------------------------------------------------------
 
 
+
+
+
+
+
+
+
 ; 从此以后的代码在保护模式下执行 ----------------------------------------------------
 ; 32 位代码段. 由实模式跳入 ---------------------------------------------------------
 [SECTION .s32]
@@ -354,11 +358,13 @@ LABEL_PM_START:
 	call	DispMemInfo
 	call	SetupPaging
 
-	;mov	ah, 0Fh				; 0000: 黑底    1111: 白字
-	;mov	al, 'P'
-	;mov	[gs:((80 * 0 + 39) * 2)], ax	; 屏幕第 0 行, 第 39 列。
+        call	InitKernel
 
-	call	InitKernel
+	mov	ah, 0Fh				; 0000: 黑底    1111: 白字
+	mov	al, 'P'
+	mov	[gs:((80 * 0 + 39) * 2)], ax	; 屏幕第 0 行, 第 39 列。
+
+	
 
 	;jmp	$
 
@@ -393,7 +399,7 @@ LABEL_PM_START:
 	;              ┣━━━━━━━━━━━━━━━━━━┫
 	;              ┃□□□□□□□□□□□□□□□□□□┃
 	;       9FC00h ┃□□extended BIOS data area (EBDA)□┃
-	;              ┣━━━━━━━━━━━━━━━━━━┫
+	;              ┣━━━━━━━━━━━━━━━━━━┫   我的bochs 显示是 9F000
 	;              ┃■■■■■■■■■■■■■■■■■■┃
 	;       90000h ┃■■■■■■■LOADER.BIN■■■■■■┃ somewhere in LOADER ← esp
 	;              ┣━━━━━━━━━━━━━━━━━━┫
@@ -711,11 +717,19 @@ SetupPaging:
 ; --------------------------------------------------------------------------------------------
 InitKernel:	; 遍历每一个 Program Header，根据 Program Header 中的信息来确定把什么放进内存，放到什么位置，以及放多少。
 	xor	esi, esi
-	mov	cx, word [BaseOfKernelFilePhyAddr + 2Ch]; ┓ ecx <- pELFHdr->e_phnum
+	mov	cx, word [BaseOfKernelFilePhyAddr + 2Ch]; ┓ ecx <- pELFHdr->e_phnum  Program header table 中的条数
 	movzx	ecx, cx					; ┛
-	mov	esi, [BaseOfKernelFilePhyAddr + 1Ch]	; esi <- pELFHdr->e_phoff
+	mov	esi, [BaseOfKernelFilePhyAddr + 1Ch]	; esi <- pELFHdr->e_phoff    Program header table 中elf文件中的偏移
 	add	esi, BaseOfKernelFilePhyAddr		; esi <- OffsetOfKernel + pELFHdr->e_phoff
 .Begin:
+
+
+        ;push	dword [esi + 08h]	
+	;call	DispInt			
+	;add	esp, 4	
+
+        ;jmp     $
+
 	mov	eax, [esi + 0]
 	cmp	eax, 0				; PT_NULL
 	jz	.NoAction

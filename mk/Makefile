@@ -8,7 +8,7 @@ CC		= gcc
 LD		= ld
 ASMFLAGS	= -f elf
 CFLAGS		= -c  -m32  -fno-stack-protector
-LDFLAGS		= -s  -m elf_i386 
+LDFLAGS		= -s  -m elf_i386 -Ttext 0x30400 
 
 
 BOOT:=boot.asm
