@@ -1,3 +1,6 @@
 #pm
 *.com
 *.txt
+
+#obj
+*.o
