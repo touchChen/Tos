@@ -154,7 +154,6 @@ LABEL_FILE_LOADED:
 	mov	dh, 1			; "Ready."
 	call	DispStrRealMode		; 显示字符串
 
-        ;jmp     BaseOfKernelFile:OffsetOfKernelFile
         ;jmp     $
 	
 ; 下面准备跳入保护模式 -------------------------------------------
