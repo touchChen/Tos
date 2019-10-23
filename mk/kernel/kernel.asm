@@ -68,6 +68,8 @@ _start:
 	call	cstart		; 在此函数中改变了gdt_ptr，让它指向新的GDT
 	lgdt	[gdt_ptr]	; 使用新的GDT
         
+        push    cs
+        call    disp_int
 
         push    csinit
         call    disp_int

@@ -43,7 +43,7 @@ clean :
 	#rm -f $(OBJS) $(BOOT) $(KERNEL)
 
 realclean :
-	rm -f $(OBJS) $(BOOT) $(KERNEL)
+	rm -f $(OBJS) $(BOOT) $(KERNEL) $(DASMOUTPUT)
 
 disasm :
 	$(DASM) $(DASMFLAGS) $(KERNEL) > $(DASMOUTPUT)
