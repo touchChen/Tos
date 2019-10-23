@@ -1,69 +1,79 @@
-##################################################
-# Makefile
-##################################################
+# Entry point of Orange'S
+# It must have the same value with 'KernelEntryPointPhyAddr' in load.inc!
+ENTRYPOINT	= 0x30400
+
+# Offset of entry point in kernel file
+# It depends on ENTRYPOINT
+ENTRYOFFSET	=   0x400
 
 # Programs, flags, etc.
 ASM		= nasm
+DASM		= ndisasm
 CC		= gcc
 LD		= ld
-ASMFLAGS	= -f elf
-CFLAGS		= -c  -m32  -fno-stack-protector -fno-builtin
-LDFLAGS		= -s  -m elf_i386 -Ttext 0x30400 
+ASMBFLAGS	= -I boot/include/
+ASMKFLAGS	= -I include/ -f elf
+CFLAGS		= -I include/ -c -fno-builtin
+LDFLAGS		= -s -Ttext $(ENTRYPOINT)
+DASMFLAGS	= -u -o $(ENTRYPOINT) -e $(ENTRYOFFSET)
 
+# This Program
+BOOT    	= boot/boot.bin boot/loader.bin
+KERNEL	        = kernel.bin
+OBJS		= kernel/kernel.o kernel/start.o lib/klib.o lib/string.o
+DASMOUTPUT	= kernel.bin.asm
 
-BOOT:=boot.asm
-LDR:=loader.asm
-STRING:=string.asm
-KLIB:=klib.asm
-KERNEL:=kernel.asm
-BOOT_BIN:=$(subst .asm,.bin,$(BOOT))
-LDR_BIN:=$(subst .asm,.bin,$(LDR))
-KERNEL_BIN:=$(subst .asm,.bin,$(KERNEL))
-KERNEL_O:=$(subst .asm,.o,$(KERNEL))
-STRING_O:=$(subst .asm,.o,$(STRING))
-KLIB_O:=$(subst .asm,.o,$(KLIB))
-START:=start.c
-START_O:=$(subst .c,.o,$(START))
+IMG             = x.img
+FLOPPY          = /mnt/fd/
 
+# All Phony Targets
+.PHONY : everything final image clean realclean disasm all buildimg
 
+# Default starting position
+everything : $(BOOT) $(KERNEL)
 
-IMG:=x.img
-FLOPPY:=/mnt/fd/
+all : realclean everything
 
-.PHONY : everything
+final : all clean
 
-everything : $(BOOT_BIN) $(LDR_BIN) $(KERNEL_BIN)
-	dd if=$(BOOT_BIN) of=$(IMG) bs=512 count=1 conv=notrunc
-	sudo mount -o loop $(IMG) $(FLOPPY)
-	sudo cp $(LDR_BIN) $(FLOPPY) -v
-	sudo cp $(KERNEL_BIN) $(FLOPPY) -v
-	sudo umount $(FLOPPY)
+image : final buildimg
 
 clean :
-	rm -f $(BOOT_BIN) $(LDR_BIN) $(KERNEL_BIN) *.o
+	rm -f $(OBJS)
+	#rm -f $(OBJS) $(BOOT) $(KERNEL)
 
-$(BOOT_BIN) : $(BOOT)
-	$(ASM) $< -o $@
+realclean :
+	rm -f $(OBJS) $(BOOT) $(KERNEL)
 
-$(LDR_BIN) : $(LDR)
-	$(ASM) $< -o $@
+disasm :
+	$(DASM) $(DASMFLAGS) $(KERNEL) > $(DASMOUTPUT)
 
-$(KERNEL_O) : $(KERNEL)
-	$(ASM) $(ASMFLAGS) -o $@ $< 
+# We assume that "x.img" exists in current folder
+buildimg :
+	dd if=boot/boot.bin of=$(IMG) bs=512 count=1 conv=notrunc
+	sudo mount -o loop $(IMG) $(FLOPPY)
+	sudo cp -fv boot/loader.bin $(FLOPPY)
+	sudo cp -fv kernel.bin $(FLOPPY)
+	sudo umount $(FLOPPY)
 
-$(STRING_O) : $(STRING)
-	$(ASM) $(ASMFLAGS) -o $@ $< 
+boot/boot.bin : boot/boot.asm boot/include/load.inc boot/include/fat12hdr.inc
+	$(ASM) $(ASMBFLAGS) -o $@ $<
 
-$(KLIB_O) : $(KLIB)
-	$(ASM) $(ASMFLAGS) -o $@ $< 
+boot/loader.bin : boot/loader.asm boot/include/load.inc \
+			boot/include/fat12hdr.inc boot/include/pm.inc
+	$(ASM) $(ASMBFLAGS) -o $@ $<
 
-$(START_O): $(START)
+$(KERNEL) : $(OBJS)
+	$(LD) $(LDFLAGS) -o $(KERNEL) $(OBJS)
+
+kernel/kernel.o : kernel/kernel.asm
+	$(ASM) $(ASMKFLAGS) -o $@ $<
+
+kernel/start.o : kernel/start.c include/type.h include/const.h include/protect.h
 	$(CC) $(CFLAGS) -o $@ $<
 
-$(KERNEL_BIN) : $(KERNEL_O) $(STRING_O) $(START_O) $(KLIB_O)
-	$(LD) $(LDFLAGS) -o $@  $(KERNEL_O) $(STRING_O) $(START_O) $(KLIB_O)
+lib/klib.o : lib/klib.asm
+	$(ASM) $(ASMKFLAGS) -o $@ $<
 
-
-
-
-
+lib/string.o : lib/string.asm
+	$(ASM) $(ASMKFLAGS) -o $@ $<
