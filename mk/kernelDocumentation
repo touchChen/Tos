@@ -1,0 +1,20 @@
+1、整个流程： 1）boot 加载 loader
+              2）loader 加载 kernel
+			  3）kernel 开始使用 c语言
+			  
+2、文件格式： 1）boot 与 loader 是 fat12
+              2）kernel 是 elf
+			  
+			  
+c语言 数组的地址与数值名一样
+
+resb 指令
+
+popfd 指令
+
+eflags 寄存器
+
+
+跨代码段调整，各个寄存器的差异
+
+bochs 调试，跳到指定的位置，加载的loader、kernel都放在指定的位置
