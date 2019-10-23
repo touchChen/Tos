@@ -723,7 +723,8 @@ InitKernel:	; 遍历每一个 Program Header，根据 Program Header 中的信�
 .Begin:
 
 
-        ;push	dword [esi + 08h]	
+        ;push	dword [esi + 08h]
+        ;push    ecx	
 	;call	DispInt			
 	;add	esp, 4	
 

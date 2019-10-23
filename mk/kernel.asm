@@ -4,8 +4,11 @@ SELECTOR_KERNEL_CS	equ	8
 ; 导入函数
 extern	cstart
 
+extern  disp_str
+
 ; 导入全局变量
 extern	gdt_ptr
+extern  disp_int
 
 [SECTION .bss]
 StackSpace		resb	2 * 1024
@@ -55,18 +58,25 @@ _start:
 	; 因为编译器有可能编译出使用它们的代码, 而编译器默认它们是一样的. 比如串拷贝操作会用到 ds 和 es.
 	;
 	;
-
-
+        
+ 
+        
 	; 把 esp 从 LOADER 挪到 KERNEL
 	mov	esp, StackTop	; 堆栈在 bss 段中
 
 	sgdt	[gdt_ptr]	; cstart() 中将会用到 gdt_ptr
 	call	cstart		; 在此函数中改变了gdt_ptr，让它指向新的GDT
 	lgdt	[gdt_ptr]	; 使用新的GDT
+        
+
+        push    csinit
+        call    disp_int
+        ;jmp     $
 
 	;lidt	[idt_ptr]
 
 	jmp	SELECTOR_KERNEL_CS:csinit
+        
 csinit:		; “这个跳转指令强制使用刚刚初始化的结构”——<<OS:D&I 2nd>> P90.
 
 	push	0
