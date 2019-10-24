@@ -11,8 +11,11 @@ extern	gdt_ptr
 extern  disp_int
 
 [SECTION .bss]
-StackSpace		resb	2 * 1024
+StackSpace		resb	2 * 1024   ;声明未初始化的存储空间
 StackTop:		; 栈顶
+
+[SECTION .data]
+
 
 [section .text]	; 代码在此
 
@@ -29,7 +32,7 @@ _start:
 	;              ┃■■■■Page Directory Table■■■■┃ PageDirBase = 1M
 	;    00100000h ┣━━━━━━━━━━━━━━━━━━┫
 	;              ┃□□□□ Hardware  Reserved □□□□┃ B8000h ← gs
-	;       9FC00h ┣━━━━━━━━━━━━━━━━━━┫
+	;       9F000h ┣━━━━━━━━━━━━━━━━━━┫
 	;              ┃■■■■■■■LOADER.BIN■■■■■■┃ somewhere in LOADER ← esp
 	;       90000h ┣━━━━━━━━━━━━━━━━━━┫
 	;              ┃■■■■■■■KERNEL.BIN■■■■■■┃
@@ -68,13 +71,6 @@ _start:
 	call	cstart		; 在此函数中改变了gdt_ptr，让它指向新的GDT
 	lgdt	[gdt_ptr]	; 使用新的GDT
         
-        push    cs
-        call    disp_int
-
-        push    csinit
-        call    disp_int
-        ;jmp     $
-
 	;lidt	[idt_ptr]
 
 	jmp	SELECTOR_KERNEL_CS:csinit

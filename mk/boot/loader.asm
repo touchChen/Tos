@@ -146,7 +146,7 @@ LABEL_GOON_LOADING_FILE:
 	jz	LABEL_FILE_LOADED
 	push	ax			; 保存 Sector 在 FAT 中的序号
 	add	bx, [BPB_BytsPerSec]
-        add     ax, SectorFakeDataArea
+        add     ax, SectorFakeDataArea  ; -> ax: fat值对应真实的数据区所在的扇区号
 	jmp	LABEL_GOON_LOADING_FILE
 LABEL_FILE_LOADED:
 
@@ -265,7 +265,7 @@ ReadSector:
 ; 函数名: GetFATEntry
 ;----------------------------------------------------------------------------
 ; 作用:
-;	找到序号为 ax 的 Sector 在 FAT 中的条目, 结果放在 ax 中
+;	找到序号为 ax 的 Sector 在 FAT 中的条目, 结果放在 ax 中, “进与出都是只是ax”
 ;	需要注意的是, 中间需要读 FAT 的扇区到 es:bx 处, 所以函数一开始保存了 es 和 bx
 GetFATEntry:
 	push	es
@@ -283,7 +283,7 @@ GetFATEntry:
 	cmp	dx, 0
 	jz	LABEL_EVEN
 	mov	byte [bOdd], 1
-LABEL_EVEN:;偶数
+LABEL_EVEN:;偶数 
 	xor	dx, dx			; 现在 ax 中是 FATEntry 在 FAT 中的偏移量. 下面来计算 FATEntry 在哪个扇区中(FAT占用不止一个扇区)
 	mov	bx, [BPB_BytsPerSec]
 	div	bx			; dx:ax / BPB_BytsPerSec  ==>	ax <- 商   (FATEntry 所在的扇区相对于 FAT 来说的扇区号)
@@ -350,6 +350,8 @@ LABEL_PM_START:
 	mov	ss, ax
 	mov	esp, TopOfStack
 
+
+
 	push	szMemChkTitle
 	call	DispStr
 	add	esp, 4
@@ -364,7 +366,6 @@ LABEL_PM_START:
 	mov	[gs:((80 * 0 + 39) * 2)], ax	; 屏幕第 0 行, 第 39 列。
 
 	
-
 	;jmp	$
 
 	;***************************************************************
@@ -397,8 +398,8 @@ LABEL_PM_START:
 	;       A0000h ┃□□□Display adapter reserved□□□┃
 	;              ┣━━━━━━━━━━━━━━━━━━┫
 	;              ┃□□□□□□□□□□□□□□□□□□┃
-	;       9FC00h ┃□□extended BIOS data area (EBDA)□┃
-	;              ┣━━━━━━━━━━━━━━━━━━┫   我的bochs 显示是 9F000
+	;       9F000h ┃□□extended BIOS data area (EBDA)□┃
+	;              ┣━━━━━━━━━━━━━━━━━━┫   我的bochs 显示是 9F000,原先的例子中是9FC00h
 	;              ┃■■■■■■■■■■■■■■■■■■┃
 	;       90000h ┃■■■■■■■LOADER.BIN■■■■■■┃ somewhere in LOADER ← esp
 	;              ┣━━━━━━━━━━━━━━━━━━┫
