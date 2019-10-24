@@ -22,3 +22,8 @@ bochs 调试，跳到指定的位置，加载的loader、kernel都放在指定�
 
 
 在保护模式下，段寄存器的值为选择子的值，在loader模块 jmp 到kernel 模块的过程中，寄存器的值没变
+
+
+中断堆栈 eflags 的相关性
+
+
