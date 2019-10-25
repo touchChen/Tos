@@ -1,0 +1,7 @@
+1、bximage   Interactive Disk Image Creation, Conversion, Resize and Redolog Commit Tool for Bochs.
+
+2、debug：
+   1）  c：执行
+   2）  r：内存
+   3）sreg：cpu的全部
+   
