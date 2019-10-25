@@ -12,7 +12,7 @@ BaseOfLoaderPhyAddr	equ	BaseOfLoader * 10h	; LOADER.BIN 被加载到的位置 --
 
 
 BaseOfKernelFile	equ	 08000h	; KERNEL.BIN 被加载到的位置 ----  段地址
-OffsetOfKernelFile	equ	  0100h	; KERNEL.BIN 被加载到的位置 ---- 偏移地址
+OffsetOfKernelFile	equ	  010h	; KERNEL.BIN 被加载到的位置 ---- 偏移地址
 
 BaseOfKernelFilePhyAddr	equ	BaseOfKernelFile * 10h + OffsetOfKernelFile
 KernelEntryPointPhyAddr	equ	030400h	; 注意：1、必须与 MAKEFILE 中参数 -Ttext 的值相等!!

@@ -63,6 +63,7 @@ LABEL_START:			; <--- 从这里开始 *************
 	xor	ah, ah	; ┓
 	xor	dl, dl	; ┣ 软驱复位
 	int	13h	; ┛
+
 LABEL_SEARCH_IN_ROOT_DIR_BEGIN:
 	cmp	word [wRootDirSizeForLoop], 0	; ┓
 	jz	LABEL_NO_KERNELBIN		; ┣ 判断根目录区是不是已经读完, 如果读完表示没有找到 KERNEL.BIN
