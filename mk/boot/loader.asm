@@ -70,7 +70,7 @@ LABEL_SEARCH_IN_ROOT_DIR_BEGIN:
 	dec	word [wRootDirSizeForLoop]	; ┛
 	mov	ax, BaseOfKernelFile
 	mov	es, ax			; es <- BaseOfKernelFile
-	mov	bx, OffsetOfKernelFile	; bx <- OffsetOfKernelFile	于是, es:bx = BaseOfKernelFile:OffsetOfKernelFile = BaseOfKernelFile * 10h + OffsetOfKernelFile
+	mov	bx, OffsetOfKernelFile	; bx <- OffsetOfKernelFile	于是, es:bx = BaseOfKernelFile:OffsetOfKernelFile
 	mov	ax, [wSectorNo]		; ax <- Root Directory 中的某 Sector 号
 	mov	cl, 1
 	call	ReadSector
