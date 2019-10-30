@@ -19,7 +19,7 @@ DASMFLAGS	= -u -o $(ENTRYPOINT) -e $(ENTRYOFFSET)
 # This Program
 BOOT    	= boot/boot.bin boot/loader.bin
 KERNEL	        = kernel.bin
-OBJS		= kernel/kernel.o kernel/start.o kernel/protect.o kernel/i8259.o lib/klib.o lib/string.o
+OBJS		= kernel/kernel.o kernel/start.o kernel/protect.o kernel/i8259.o kernel/main.o lib/klib.o lib/klibc.o lib/string.o
 DASMOUTPUT	= kernel.bin.asm
 
 IMG             = x.img
@@ -68,17 +68,23 @@ $(KERNEL) : $(OBJS)
 kernel/kernel.o : kernel/kernel.asm
 	$(ASM) $(ASMKFLAGS) -o $@ $<
 
-kernel/start.o : kernel/start.c include/type.h include/const.h include/protect.h include/proto.h include/global.h
+kernel/start.o : kernel/start.c 
 	$(CC) $(CFLAGS) -o $@ $<
 
-kernel/i8259.o : kernel/i8259.c include/type.h include/const.h include/protect.h include/proto.h
+kernel/i8259.o : kernel/i8259.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-kernel/protect.o : kernel/protect.c include/type.h include/const.h include/protect.h include/proto.h include/interrupt.h  include/global.h
+kernel/protect.o : kernel/protect.c 
+	$(CC) $(CFLAGS) -o $@ $<
+#include/type.h include/const.h include/protect.h include/proto.h include/interrupt.h  include/global.h
+kernel/main.o  : kernel/main.c 
 	$(CC) $(CFLAGS) -o $@ $<
 
 lib/klib.o : lib/klib.asm
 	$(ASM) $(ASMKFLAGS) -o $@ $<
+
+lib/klibc.o : lib/klibc.c include/type.h include/const.h include/proto.h 
+	$(CC) $(CFLAGS) -o $@ $<
 
 lib/string.o : lib/string.asm
 	$(ASM) $(ASMKFLAGS) -o $@ $<

@@ -1,18 +1,18 @@
-
-SELECTOR_KERNEL_CS	equ	8
-
+%include "sconst.inc"
 ; 导入函数
 extern	cstart
 extern  disp_str
 ;extern  disp_int
+extern  disp_int_c
 extern	exception_handler
 extern	spurious_irq
+extern  kernel_main
 
 ; 导入全局变量
 extern	gdt_ptr
 extern  idt_ptr
-;extern	disp_pos
-extern	disp_int
+extern	p_proc_ready
+extern	tss
  
 
 
@@ -22,12 +22,14 @@ StackTop:		; 栈顶
 
 [SECTION .data]
 tip  db   "please press any key ",0Ah,0h
+cc   dd   0x3f
 
 
 [section .text]	; 代码在此
 
 global _start	; 导出 _start
 
+global restart
 
 global	divide_error
 global	single_step_exception
@@ -121,24 +123,21 @@ _start:
         
 csinit:		; “这个跳转指令强制使用刚刚初始化的结构”——<<OS:D&I 2nd>> P90.
 
-	;push	0
-	;popfd	; Pop top of stack into EFLAGS
+        ;mov    eax, cc
+	;push   eax
+        ;call  disp_int_c
+        ;add   esp, 4
 
-        ;ud2
+        
+        xor	eax, eax
+	mov	ax, SELECTOR_TSS
+	ltr	ax
 
-        ;jmp  0x99:0
- 
-        sti
-       
-        push  tip
-        call  disp_str
-        add   esp, 4
-
+        jmp    kernel_main
         
 	hlt
         
-        
-        hlt
+
 
 
 
@@ -293,3 +292,24 @@ exception:
 	call	exception_handler
 	add	esp, 4*2	; 让栈顶指向 EIP，堆栈中从顶向下依次是：EIP、CS、EFLAGS
 	hlt
+
+
+
+; ====================================================================================
+;                                   restart
+; ====================================================================================
+restart:
+	mov	esp, [p_proc_ready]
+	lldt	[esp + P_LDT_SEL] 
+	lea	eax, [esp + P_STACKTOP]
+	mov	dword [tss + TSS3_S_SP0], eax
+
+	pop	gs
+	pop	fs
+	pop	es
+	pop	ds
+	popad
+
+	add	esp, 4
+
+	iretd
