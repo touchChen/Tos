@@ -24,6 +24,7 @@
    2）低到高跳转：在通过门实现的情况下 CPL<=门.DPL、 门.RPL<=门.DPL、  目标.DPL<=CPL
 
 
+
 调用门与中断门和陷阱门不同，在中断门和陷阱门中BYTE4的低5位变成了保留位，而不再是Param Count,(没必要传参数)
 表示Type的4位变成了0XE(中断门)或0xF(陷阱门)
 
@@ -32,8 +33,10 @@
 
 lodsb: mov al, [ds:ei] 
        add ei,1 or sub ei,1
-
 cld: df=0 复位
+
+中断EOI
+
 
 jmp\call 区别：1）call 涉及到堆栈， 包含短调用和长调用
               2) call 有返回的过程，jmp则没有，使用jmp后，要考虑执行代码在哪里结束

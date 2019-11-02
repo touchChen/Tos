@@ -29,10 +29,10 @@ PUBLIC int kernel_main()
 	p_proc->regs.gs	= (SELECTOR_KERNEL_GS & SA_RPL_MASK) | RPL_TASK;
 	p_proc->regs.eip= (u32)TestA;
 	p_proc->regs.esp= (u32) task_stack + STACK_SIZE_TOTAL;
-	p_proc->regs.eflags = 0x1202;	// IF=1, IOPL=1, bit 2 is always 1.
+	p_proc->regs.eflags = 0x0202;	// IF=1, IOPL=1, bit 2 is always 1. default 0x1202
 
 	p_proc_ready	= proc_table;
-        disp_str("before of  restart process.....\n");
+       
         restart();
 	while(1){}
 }
@@ -44,10 +44,10 @@ void TestA()
 {
 	int i = 0;
 	while(1){
-		disp_str("A");
-		disp_int(i++);
+		//disp_str("A");
+		disp_int_c(i++);
 		disp_str(".");
-		delay(1000);
+		delay(10);
                 i%=10;
               
 	}

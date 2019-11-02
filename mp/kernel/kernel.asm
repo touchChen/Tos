@@ -21,8 +21,9 @@ StackSpace		resb	2 * 1024   ;声明未初始化的存储空间
 StackTop:		; 栈顶
 
 [SECTION .data]
-tip  db   "please press any key ",0Ah,0h
-cc   dd   0x3f
+tip        db      "please press any key ",0Ah,0h
+kernel_int_t_message    db    "$T$T.",0h 
+
 
 
 [section .text]	; 代码在此
@@ -123,16 +124,11 @@ _start:
         
 csinit:		; “这个跳转指令强制使用刚刚初始化的结构”——<<OS:D&I 2nd>> P90.
 
-        ;mov    eax, cc
-	;push   eax
-        ;call  disp_int_c
-        ;add   esp, 4
-
-        
+       
         xor	eax, eax
 	mov	ax, SELECTOR_TSS
 	ltr	ax
-
+        
         jmp    kernel_main
         
 	hlt
@@ -152,8 +148,42 @@ csinit:		; “这个跳转指令强制使用刚刚初始化的结构”——<<O
 ; ---------------------------------
 
 ALIGN   16
-hwint00:                ; Interrupt routine for irq 0 (the clock).
-        hwint_master    0
+hwint00:
+       
+        sub	esp, 4
+	pushad		; `.
+	push	ds	;  |
+	push	es	;  | 保存原寄存器值
+	push	fs	;  |
+	push	gs	; /
+	mov	dx, ss
+	mov	ds, dx
+	mov	es, dx
+	
+	mov	esp, StackTop		; 切到内核栈
+
+	;inc	byte [gs:0]		; 改变屏幕第 0 行, 第 0 列的字符
+
+	mov	al, EOI			; `. reenable
+	out	INT_M_CTL, al		; /  master 8259
+
+        push    kernel_int_t_message
+        call	disp_str
+	add	esp, 4
+	
+	mov	esp, [p_proc_ready]	; 离开内核栈
+
+	lea	eax, [esp + P_STACKTOP]
+	mov	dword [tss + TSS3_S_SP0], eax
+
+	pop	gs	; `.
+	pop	fs	;  |
+	pop	es	;  | 恢复原寄存器值
+	pop	ds	;  |
+	popad		; /
+	add	esp, 4
+
+	iretd
 
 ALIGN   16
 hwint01:                ; Interrupt routine for irq 1 (keyboard)
@@ -300,8 +330,8 @@ exception:
 ; ====================================================================================
 restart:
 	mov	esp, [p_proc_ready]
-	lldt	[esp + P_LDT_SEL] 
-	lea	eax, [esp + P_STACKTOP]
+	lldt	[esp + P_LDT_SEL]
+	lea	eax, [esp + P_STACKTOP]   ; 栈顶， 高 -> 低
 	mov	dword [tss + TSS3_S_SP0], eax
 
 	pop	gs
