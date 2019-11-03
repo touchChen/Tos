@@ -7,12 +7,14 @@ extern  disp_int_c
 extern	exception_handler
 extern	spurious_irq
 extern  kernel_main
+extern	delay
 
 ; 导入全局变量
 extern	gdt_ptr
 extern  idt_ptr
 extern	p_proc_ready
 extern	tss
+extern  k_reenter
  
 
 
@@ -22,7 +24,7 @@ StackTop:		; 栈顶
 
 [SECTION .data]
 tip        db      "please press any key ",0Ah,0h
-kernel_int_t_message    db    "$T$T.",0h 
+kernel_int_t_message    db    "~",0h 
 
 
 
@@ -159,22 +161,42 @@ hwint00:
 	mov	dx, ss
 	mov	ds, dx
 	mov	es, dx
-	
-	mov	esp, StackTop		; 切到内核栈
 
-	;inc	byte [gs:0]		; 改变屏幕第 0 行, 第 0 列的字符
+        inc	byte [gs:0]		; 改变屏幕第 0 行, 第 0 列的字符
 
 	mov	al, EOI			; `. reenable
 	out	INT_M_CTL, al		; /  master 8259
 
+
+
+        inc	dword [k_reenter]
+	cmp	dword [k_reenter], 0
+	jne	.re_enter
+	
+	mov	esp, StackTop		; 切到内核栈
+        
+        sti
+	
         push    kernel_int_t_message
         call	disp_str
 	add	esp, 4
+
+       
+	push	10
+	call	delay
+	add	esp, 4
+
+        cli
+
 	
 	mov	esp, [p_proc_ready]	; 离开内核栈
 
 	lea	eax, [esp + P_STACKTOP]
 	mov	dword [tss + TSS3_S_SP0], eax
+
+
+.re_enter:	; 如果(k_reenter != 0)，会跳转到这里
+	dec	dword [k_reenter]
 
 	pop	gs	; `.
 	pop	fs	;  |

@@ -12,11 +12,8 @@ EXTERN	GATE		idt[IDT_SIZE];
 EXTERN	TSS		tss;
 EXTERN	PROCESS*	p_proc_ready;
 
-extern	PROCESS		proc_table[];
-extern	char		task_stack[];
+EXTERN	PROCESS		proc_table[NR_TASKS];
 
+EXTERN	char		task_stack[STACK_SIZE_TOTAL];
 
-PUBLIC	PROCESS		proc_table[NR_TASKS];
-
-PUBLIC	char		task_stack[STACK_SIZE_TOTAL];
-
+EXTERN	u32		k_reenter;
