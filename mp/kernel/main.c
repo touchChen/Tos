@@ -55,7 +55,7 @@ PUBLIC int kernel_main()
 		selector_ldt += 1 << 3;
 	}
 
-	k_reenter = -1;
+	k_reenter = 0;
 
 	p_proc_ready	= proc_table; 
 	restart();
