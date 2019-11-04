@@ -7,5 +7,6 @@ typedef	unsigned char		u8;
 
  /* typedef  返回类型(*新类型)(参数表)*/
 typedef	void (*int_handler)();   /* typedef  定义了新类型*/
+typedef	void (*task_f)();
 
 #endif /* _TOS_TYPE_H_ */

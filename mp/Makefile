@@ -19,7 +19,7 @@ DASMFLAGS	= -u -o $(ENTRYPOINT) -e $(ENTRYOFFSET)
 # This Program
 BOOT    	= boot/boot.bin boot/loader.bin
 KERNEL	        = kernel.bin
-OBJS		= kernel/kernel.o kernel/start.o kernel/protect.o kernel/i8259.o kernel/main.o lib/klib.o lib/klibc.o lib/string.o
+OBJS		= kernel/kernel.o kernel/start.o kernel/protect.o kernel/i8259.o kernel/clock.o kernel/main.o lib/klib.o lib/klibc.o lib/string.o
 DASMOUTPUT	= kernel.bin.asm
 
 IMG             = x.img
@@ -76,6 +76,10 @@ kernel/i8259.o : kernel/i8259.c
 
 kernel/protect.o : kernel/protect.c 
 	$(CC) $(CFLAGS) -o $@ $<
+
+kernel/clock.o : kernel/clock.c 
+	$(CC) $(CFLAGS) -o $@ $<
+
 #include/type.h include/const.h include/protect.h include/proto.h include/interrupt.h  include/global.h
 kernel/main.o  : kernel/main.c 
 	$(CC) $(CFLAGS) -o $@ $<

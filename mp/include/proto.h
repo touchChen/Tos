@@ -13,6 +13,10 @@ PUBLIC void     delay(int time);
 PUBLIC int      kernel_main();
 PUBLIC void     restart();
 PUBLIC u32      seg2phys(u16 seg);
+PUBLIC char*    strcpy(char* p_dst, char* p_src);
 
 PUBLIC void     TestA();
+PUBLIC void     TestB();
+PUBLIC void     TestC();
+PUBLIC void     clock_handler(int irq);
 PUBLIC void     spurious_irq(int irq);

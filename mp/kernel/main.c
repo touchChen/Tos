@@ -22,14 +22,16 @@ PUBLIC int kernel_main()
 		strcpy(p_proc->p_name, p_task->name);	// name of the process
 		p_proc->pid = i;			// pid
 
-		p_proc->ldt_sel = selector_ldt;
+		p_proc->ldt_sel = selector_ldt;  //在GDT中选择子
 
-		memcpy(&p_proc->ldts[0], &gdt[SELECTOR_KERNEL_CS >> 3],
+		memcpy(&p_proc->ldts[0], &gdt[SELECTOR_KERNEL_CS >> 3],     
 		       sizeof(DESCRIPTOR));
-		p_proc->ldts[0].attr1 = DA_C | PRIVILEGE_TASK << 5;
+		p_proc->ldts[0].attr1 = DA_C | PRIVILEGE_TASK << 5;         //左移5位->DPL
 		memcpy(&p_proc->ldts[1], &gdt[SELECTOR_KERNEL_DS >> 3],
 		       sizeof(DESCRIPTOR));
 		p_proc->ldts[1].attr1 = DA_DRW | PRIVILEGE_TASK << 5;
+
+
 		p_proc->regs.cs	= ((8 * 0) & SA_RPL_MASK & SA_TI_MASK)
 			| SA_TIL | RPL_TASK;
 		p_proc->regs.ds	= ((8 * 1) & SA_RPL_MASK & SA_TI_MASK)
@@ -44,8 +46,8 @@ PUBLIC int kernel_main()
 			| RPL_TASK;
 
 		p_proc->regs.eip = (u32)p_task->initial_eip;
-		p_proc->regs.esp = (u32)p_task_stack;
-		p_proc->regs.eflags = 0x1202; /* IF=1, IOPL=1 */
+		p_proc->regs.esp = (u32)p_task_stack;  //进程中的esp
+		p_proc->regs.eflags = 0x0202;	// IF=1, IOPL=1, bit 2 is always 1. default 0x1202
 
 		p_task_stack -= p_task->stacksize;
 		p_proc++;
@@ -100,9 +102,10 @@ void TestA()
 {
 	int i = 0;
 	while(1){
+                disp_str("|A");
 		disp_int_c(i++);
 		disp_str(".");
-		delay(1);
+		delay(10);
                 i%=10;
               
 	}
@@ -113,12 +116,29 @@ void TestA()
  *======================================================================*/
 void TestB()
 {
-	int i = 0x1000;
+	int i = 0;
 	while(1){
-		disp_str("B");
-		disp_int(i++);
+		disp_str("@B");
+		disp_int_c(i++);
+		disp_str(".");
+		delay(2);
+                i%=256;
+	}
+}
+
+
+/*======================================================================*
+                               TestC
+ *======================================================================*/
+void TestC()
+{
+	int i = 0;
+	while(1){
+		disp_str("%C");
+		disp_int_c(i++);
 		disp_str(".");
 		delay(1);
+                i%=256;
 	}
 }
 

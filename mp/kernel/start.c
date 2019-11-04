@@ -6,6 +6,7 @@
 #include "proc.h"
 #include "global.h"
 
+
 PUBLIC void cstart()
 {
 	 disp_pos = 0;

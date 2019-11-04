@@ -8,6 +8,7 @@ extern	exception_handler
 extern	spurious_irq
 extern  kernel_main
 extern	delay
+extern  clock_handler
 
 ; 导入全局变量
 extern	gdt_ptr
@@ -162,7 +163,7 @@ hwint00:
 	mov	ds, dx
 	mov	es, dx
 
-        inc	byte [gs:0]		; 改变屏幕第 0 行, 第 0 列的字符
+        ;inc	byte [gs:0]		; 改变屏幕第 0 行, 第 0 列的字符
 
 	mov	al, EOI			; `. reenable
 	out	INT_M_CTL, al		; /  master 8259
@@ -182,11 +183,15 @@ hwint00:
 	add	esp, 4
 
        
-	push	10
+	push	100
 	call	delay
 	add	esp, 4
 
         cli
+
+        push    0
+        call    clock_handler
+        add     esp, 4
 
 	
 	mov	esp, [p_proc_ready]	; 离开内核栈
