@@ -23,6 +23,12 @@
    1) 高到低跳转，通过ret 实现, 调用的逆过程
    2）低到高跳转：在通过门实现的情况下 CPL<=门.DPL、 门.RPL<=门.DPL、  目标.DPL<=CPL
 
+5、堆栈
+   1) 短调用(call、ret)，入栈出栈的值只有ip(eip)
+   2) 长调用(call、retf), 入栈出栈的值包含cs、ip(eip);如果有特权级改变，还要先入栈ss、esp，再压入cs、ip(eip);
+      出栈是逆过程
+   3）中断(int、iretd), 入栈顺序: ss、esp、eflags、cs、eip
+
 
 
 调用门与中断门和陷阱门不同，在中断门和陷阱门中BYTE4的低5位变成了保留位，而不再是Param Count,(没必要传参数)

@@ -172,28 +172,48 @@ hwint00:
 
         inc	dword [k_reenter]
 	cmp	dword [k_reenter], 0
-	jne	.re_enter
+	;jne	.re_enter
+        jne     .1
 	
-	mov	esp, StackTop		; 切到内核栈
-        
-        sti
-	
-        push    kernel_int_t_message
-        call	disp_str
-	add	esp, 4
 
+	mov	esp, StackTop		; 切到内核栈
+
+        sti
        
-	push	100
+        push	2
 	call	delay
 	add	esp, 4
-
+       
         cli
+
+        push   .restart_p
+        jmp    .2
+
+
+.1:
+        push    .re_enter
+
+.2:       
+        sti
+
+        ;push    kernel_int_t_message
+        ;call	disp_str
+	;add	esp, 4
+  
+	;push	50
+	;call	delay
+	;add	esp, 4
 
         push    0
         call    clock_handler
         add     esp, 4
 
-	
+        cli
+
+        
+        ret
+
+.restart_p	
 	mov	esp, [p_proc_ready]	; 离开内核栈
 
 	lea	eax, [esp + P_STACKTOP]
@@ -205,7 +225,7 @@ hwint00:
 
 	pop	gs	; `.
 	pop	fs	;  |
-	pop	es	;  | 恢复原寄存器值
+	pop	es	;  | 恢复原寄存器值，，重点理解“恢复”
 	pop	ds	;  |
 	popad		; /
 	add	esp, 4
@@ -361,7 +381,7 @@ restart:
 	lea	eax, [esp + P_STACKTOP]   ; 栈顶， 高 -> 低
 	mov	dword [tss + TSS3_S_SP0], eax
 
-	pop	gs
+	pop	gs     ;pop 指令，使地址往高地址移动
 	pop	fs
 	pop	es
 	pop	ds

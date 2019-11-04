@@ -105,9 +105,8 @@ void TestA()
                 disp_str("|A");
 		disp_int_c(i++);
 		disp_str(".");
-		delay(10);
-                i%=10;
-              
+		delay(1);
+                i%=256;           
 	}
 }
 
