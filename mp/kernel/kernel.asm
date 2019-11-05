@@ -168,7 +168,7 @@ hwint00:		; Interrupt routine for irq 0 (the clock).  p236
 
         sti 
  
-        push    3
+        push    100
         call    delay
         add     esp, 4
 
@@ -378,3 +378,4 @@ reenter:
 	add	esp, 4
 
 	iretd
+

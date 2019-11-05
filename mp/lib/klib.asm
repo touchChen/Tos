@@ -46,6 +46,10 @@ disp_str:
 	jmp	.1
 
 .2:
+        cmp     edi, 4000
+        jb      .4
+        sub     edi, 1120
+.4:
 	mov	[disp_pos], edi
 
 	pop	ebp

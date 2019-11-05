@@ -14,7 +14,7 @@ PUBLIC void clock_handler(int irq)
 {
         if(k_reenter!=0)
         {
-            disp_str("~");
+            //disp_str("~");
             return;
         }
 
