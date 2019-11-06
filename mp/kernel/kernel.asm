@@ -28,7 +28,6 @@ tip        db      "please press any key ",0Ah,0h
 kernel_int_t_message    db    "^",0h 
 
 
-
 [section .text]	; 代码在此
 
 global _start	; 导出 _start
@@ -154,35 +153,46 @@ csinit:		; “这个跳转指令强制使用刚刚初始化的结构”——<<O
 ALIGN	16
 hwint00:		; Interrupt routine for irq 0 (the clock).  p236
 	call	save
-
-	mov	al, EOI			; `. reenable
-	out	INT_M_CTL, al		; /  master 8259
         
+        in      al, INT_M_CTLMASK
+        or      al, 1
+        out     INT_M_CTLMASK, al
+
+        mov	al, EOI			; `. reenable
+	out	INT_M_CTL, al		; /  master 8259
+
         cmp     dword [k_reenter], 0        ;if(k_reenter ==0)
         jne     .1 
         ;测试
+
+
+        sti
+        
+	;push    10
+        ;call    delay
+        ;add     esp, 4
+       
         push    kernel_int_t_message
         call    disp_str
         add     esp, 4
 
-
-        sti 
- 
-        push    100
-        call    delay
-        add     esp, 4
-
         cli
+
         ;end 测试
 .1:
-
-	sti
-
+	
+        sti
+        
 	push	0					
 	call	clock_handler
 	add	esp, 4
 
-	cli
+        cli
+
+
+        in      al, INT_M_CTLMASK
+        and     al, 0xFE
+        out     INT_M_CTLMASK, al	
 
 	ret
 
@@ -340,16 +350,11 @@ save:
         mov     es, dx
 
         mov     eax, esp                    ;eax = 进程表起始地址
-        mov     ebx, eax ;测试过程中添加
-
         inc     dword [k_reenter]           ;k_reenter++;
         cmp     dword [k_reenter], 0        ;if(k_reenter ==0)
         jne     .1                          ;{
         mov     esp, StackTop               ;  mov esp, StackTop <--切换到内核栈
         push    restart                     ;  push restart
- 
-        
-        mov     eax, ebx
         jmp     [eax + RETADR - P_STACKBASE];  return;  RETADR:call 下一句指令;
 .1:                                         ;} else { 已经在内核栈，不需要再切换
         push    reenter                     ;  push restart_reenter
