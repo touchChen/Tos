@@ -19,7 +19,7 @@ DASMFLAGS	= -u -o $(ENTRYPOINT) -e $(ENTRYOFFSET)
 # This Program
 BOOT    	= boot/boot.bin boot/loader.bin
 KERNEL	        = kernel.bin
-OBJS		= kernel/kernel.o kernel/start.o kernel/protect.o kernel/i8259.o kernel/clock.o kernel/main.o lib/klib.o lib/klibc.o lib/string.o
+OBJS		= kernel/kernel.o kernel/start.o kernel/protect.o kernel/i8259.o kernel/clock.o kernel/main.o lib/klib.o lib/klibc.o lib/string.o # 注意连接的头
 DASMOUTPUT	= kernel.bin.asm
 
 IMG             = x.img

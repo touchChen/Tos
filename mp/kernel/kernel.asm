@@ -16,6 +16,7 @@ extern  idt_ptr
 extern	p_proc_ready
 extern	tss
 extern  k_reenter
+extern  irq_table
  
 
 
@@ -112,7 +113,7 @@ _start:
         
  
         
-        
+        xor	eax, eax
 	; 把 esp 从 LOADER 挪到 KERNEL
 	mov	esp, StackTop	; 堆栈在 bss 段中
 
@@ -124,9 +125,7 @@ _start:
 
 	jmp	SELECTOR_KERNEL_CS:csinit
         
-csinit:		; “这个跳转指令强制使用刚刚初始化的结构”——<<OS:D&I 2nd>> P90.
-
-       
+csinit:		; “这个跳转指令强制使用刚刚初始化的结构”——<<OS:D&I 2nd>> P90.        
         xor	eax, eax
 	mov	ax, SELECTOR_TSS
 	ltr	ax
@@ -137,26 +136,35 @@ csinit:		; “这个跳转指令强制使用刚刚初始化的结构”——<<O
         
 
 
-
-
 ; 中断和异常 -- 硬件中断
 ; ---------------------------------
-%macro  hwint_master    1
-        push    %1
-        call    spurious_irq
-        add     esp, 4
-        hlt
+%macro	hwint_master	1
+	call	save
+	in	al, INT_M_CTLMASK	; `.
+	or	al, (1 << %1)		;  | 屏蔽当前中断
+	out	INT_M_CTLMASK, al	; /
+	mov	al, EOI			; `. 置EOI位
+	out	INT_M_CTL, al		; /
+	sti	; CPU在响应中断的过程中会自动关中断，这句之后就允许响应新的中断
+	push	%1			; `.
+	call	[irq_table + 4 * %1]	;  | 中断处理程序
+	pop	ecx			; /
+	cli
+	in	al, INT_M_CTLMASK	; `.
+	and	al, ~(1 << %1)		;  | 恢复接受当前中断
+	out	INT_M_CTLMASK, al	; /
+	ret
 %endmacro
-; ---------------------------------
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ALIGN	16
-hwint00:		; Interrupt routine for irq 0 (the clock).  p236
+hwint00:		; Interrupt routine for irq 0 (the clock)   .p240
 	call	save
         
-        in      al, INT_M_CTLMASK
-        or      al, 1
-        out     INT_M_CTLMASK, al
+        ;in      al, INT_M_CTLMASK      ;` .
+        ;or      al, 1                  ;  |  屏蔽中断
+        ;out     INT_M_CTLMASK, al      ;  /
 
         mov	al, EOI			; `. reenable
 	out	INT_M_CTL, al		; /  master 8259
@@ -168,9 +176,9 @@ hwint00:		; Interrupt routine for irq 0 (the clock).  p236
 
         sti
         
-	;push    10
-        ;call    delay
-        ;add     esp, 4
+	push    100
+        call    delay
+        add     esp, 4
        
         push    kernel_int_t_message
         call    disp_str
@@ -196,11 +204,15 @@ hwint00:		; Interrupt routine for irq 0 (the clock).  p236
 
 	ret
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ALIGN   16
+hwint000:                ; Interrupt routine for irq 0 (clock)
+        hwint_master    0
 
 ALIGN   16
 hwint01:                ; Interrupt routine for irq 1 (keyboard)
         hwint_master    1
-
 ALIGN   16
 hwint02:                ; Interrupt routine for irq 2 (cascade!)
         hwint_master    2

@@ -25,7 +25,10 @@ EXTERN	u32		k_reenter;
 PUBLIC TASK  task_table[NR_TASKS] = {{TestA, STACK_SIZE_TESTA, "TestA"},
 				     {TestB, STACK_SIZE_TESTB, "TestB"},
                                      {TestC, STACK_SIZE_TESTC, "TestC"}};
+
+PUBLIC irq_handler  irq_table[NR_IRQ];
 #else
-EXTERN TASK  task_table[NR_TASKS];
+EXTERN TASK  task_table[];
+EXTERN irq_handler  irq_table[];
 
 #endif

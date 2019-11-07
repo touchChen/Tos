@@ -2,6 +2,8 @@
 #include "const.h"
 #include "protect.h"
 #include "proto.h"
+#include "proc.h"
+#include "global.h"
 
 
 /*======================================================================*
@@ -34,8 +36,26 @@ PUBLIC void init_8259A()
 	out_byte(INT_S_CTLMASK,	0x1);
 
 	/* Master 8259, OCW1.  */
-	out_byte(INT_M_CTLMASK,	0xFC);
+	out_byte(INT_M_CTLMASK,	0xFF);
 
 	/* Slave  8259, OCW1.  */
 	out_byte(INT_S_CTLMASK,	0xFF);
+
+
+        int i;
+	for (i = 0; i < NR_IRQ; i++)
+        {
+            irq_table[i] = spurious_irq;
+        }
+		
 }
+
+/*======================================================================*
+                           put_irq_handler
+ *======================================================================*/
+PUBLIC void put_irq_handler(int irq, irq_handler handler)
+{
+	disable_irq(irq);
+	irq_table[irq] = handler;
+}
+
