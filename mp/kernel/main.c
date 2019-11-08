@@ -83,6 +83,7 @@ void TestA()
 {
 	int i = 0;
 	while(1){
+                get_ticks();
                 disp_str("|A");
 		disp_int_c(i++);
 		disp_str(".");

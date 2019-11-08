@@ -23,5 +23,8 @@ PUBLIC void     clock_handler(int irq);
 PUBLIC void     put_irq_handler(int irq, irq_handler handler);
 PUBLIC void     spurious_irq(int irq);
 
-PUBLIC u32      disable_irq(int irq);
+PUBLIC int      disable_irq(int irq);
 PUBLIC void     enable_irq(int irq);
+PUBLIC int      get_ticks();
+PUBLIC void     sys_call(); 
+PUBLIC int      sys_get_ticks();
