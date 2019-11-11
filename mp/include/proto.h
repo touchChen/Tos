@@ -28,3 +28,4 @@ PUBLIC void     enable_irq(int irq);
 PUBLIC int      get_ticks();
 PUBLIC void     sys_call(); 
 PUBLIC int      sys_get_ticks();
+PUBLIC void     schedule();

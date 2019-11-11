@@ -16,6 +16,7 @@ EXTERN	PROCESS		proc_table[NR_TASKS];
 
 EXTERN	char		task_stack[STACK_SIZE_TOTAL];
 EXTERN	u32		k_reenter;
+EXTERN  int             ticks;
 
 
 

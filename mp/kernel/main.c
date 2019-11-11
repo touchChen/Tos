@@ -14,10 +14,7 @@ PRIVATE void process_start();
 PUBLIC int kernel_main()
 {
 	disp_str("-----\"kernel_main\" begins-----\n");
-        
-        put_irq_handler(CLOCK_IRQ, clock_handler);
-        enable_irq(CLOCK_IRQ);
-        
+               
         enable_irq(KEYBOARD_IRQ);
 
         process_start();
@@ -69,9 +66,25 @@ PRIVATE void process_start()
 		selector_ldt += 1 << 3;
 	}
 
-	k_reenter = 0;
 
-	p_proc_ready	= proc_table; 
+	proc_table[0].ticks = proc_table[0].priority = 150;
+	proc_table[1].ticks = proc_table[1].priority =  50;
+	proc_table[2].ticks = proc_table[2].priority =  30;
+
+
+	k_reenter = 0;
+        ticks = 0;
+       
+        /* 初始化 8253 PIT */
+        out_byte(TIMER_MODE, RATE_GENERATOR);
+        out_byte(TIMER0, (u8) (TIMER_FREQ/HZ) );
+        out_byte(TIMER0, (u8) ((TIMER_FREQ/HZ) >> 8));
+
+        put_irq_handler(CLOCK_IRQ, clock_handler);
+        enable_irq(CLOCK_IRQ);
+
+	p_proc_ready = proc_table; 
+
 	restart();
 	
 }
@@ -81,14 +94,11 @@ PRIVATE void process_start()
  *======================================================================*/
 void TestA()
 {
-	int i = 0;
 	while(1){
-                get_ticks();
-                disp_str("|A");
-		disp_int_c(i++);
+                disp_str("A");
+		//disp_int_c(get_ticks());
 		disp_str(".");
-		delay(1);
-                i%=256;           
+		milli_delay(10);      
 	}
 }
 
@@ -97,13 +107,11 @@ void TestA()
  *======================================================================*/
 void TestB()
 {
-	int i = 0;
 	while(1){
-		disp_str("@B");
-		disp_int_c(i++);
+		disp_str("B");
+		//disp_int_c(get_ticks());
 		disp_str(".");
-		delay(2);
-                i%=256;
+		milli_delay(10);
 	}
 }
 
@@ -113,13 +121,11 @@ void TestB()
  *======================================================================*/
 void TestC()
 {
-	int i = 0;
 	while(1){
-		disp_str("%C");
-		disp_int_c(i++);
+		disp_str("C");
+		//disp_int_c(get_ticks());
 		disp_str(".");
-		delay(1);
-                i%=256;
+		milli_delay(10);
 	}
 }
 

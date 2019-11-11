@@ -367,7 +367,7 @@ save:
         inc     dword [k_reenter]           ;k_reenter++;
         cmp     dword [k_reenter], 0        ;if(k_reenter ==0)
         jne     .1                          ;{
-        mov     esi, StackTop               ;  mov esp, StackTop <--切换到内核栈
+        mov     esp, StackTop               ;  mov esp, StackTop <--切换到内核栈
         push    restart                     ;  push restart
         jmp     [esi + RETADR - P_STACKBASE];  return;  RETADR:call 下一句指令;
 .1:                                         ;} else { 已经在内核栈，不需要再切换
