@@ -1,3 +1,7 @@
+#ifndef	_TOS_PROC_H_
+#define	_TOS_PROC_H_
+
+
 /*********************************************************
 ************** process 进程 ******************************
 *********************************************************/
@@ -39,13 +43,14 @@ typedef struct s_proc {
 
 typedef struct s_task {
 	task_f	initial_eip;
+        int     priority;
 	int	stacksize;
 	char	name[32];
 }TASK;
 
 
 /* Number of tasks */
-#define NR_TASKS	3
+#define NR_TASKS	4
 
 /* system call */
 #define NR_SYS_CALL     1
@@ -54,8 +59,14 @@ typedef struct s_task {
 #define STACK_SIZE_TESTA	0x8000
 #define STACK_SIZE_TESTB	0x8000
 #define STACK_SIZE_TESTC	0x8000
+#define STACK_SIZE_TTY		0x8000
 
 #define STACK_SIZE_TOTAL	(STACK_SIZE_TESTA + \
                                  STACK_SIZE_TESTC + \
-				STACK_SIZE_TESTB)
+				 STACK_SIZE_TESTB + \
+                                 STACK_SIZE_TTY)
+
+
+#endif /* _TOS_PROC_H_ */
+
 

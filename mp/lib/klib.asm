@@ -2,6 +2,9 @@
 
 extern  disp_pos
 
+extern  clear_disp
+extern  clear_last_row
+
 [SECTION .text]
 
 ; 导出函数
@@ -15,6 +18,9 @@ global  in_byte
 
 global  enable_irq
 global  disable_irq
+
+global  enable_int
+global  disable_int
 
 
 
@@ -52,11 +58,16 @@ disp_str:
 
 .2:
         cmp     edi, 4000
-        jb      .4
-        sub     edi, 1120
-.4:
-	mov	[disp_pos], edi
-
+        ja      .4
+        mov	[disp_pos], edi
+        jmp     .5   
+        
+.4:     
+        push    7
+        call    clear_last_row
+        add     esp, 4         
+	
+.5:
 	pop	ebp
 	ret
 
@@ -266,4 +277,20 @@ enable_8:
         out     INT_S_CTLMASK, al       ; clear bit at slave 8259
         popf
         ret
+
+
+; ========================================================================
+;		   void disable_int();
+; ========================================================================
+disable_int:
+	cli
+	ret
+
+; ========================================================================
+;		   void enable_int();
+; ========================================================================
+enable_int:
+	sti
+	ret
+
 

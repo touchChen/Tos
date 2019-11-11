@@ -6,7 +6,7 @@
 #include "global.h"
 
 
-PRIVATE void process_start();
+PRIVATE void init_process();
 
 /*======================================================================*
                             kernel_main
@@ -14,15 +14,24 @@ PRIVATE void process_start();
 PUBLIC int kernel_main()
 {
 	disp_str("-----\"kernel_main\" begins-----\n");
-               
-        enable_irq(KEYBOARD_IRQ);
 
-        process_start();
-	while(1){}
+        k_reenter = 0;
+        ticks = 0;
+                      
+        init_process();
+        p_proc_ready = proc_table; 
+
+        init_clock();
+        init_keyboard();
+
+	restart();
+
+        disp_str("-----\"kernel\" Never run to here-----\n");
+        while(1){}
 }
 
 
-PRIVATE void process_start()
+PRIVATE void init_process()
 {
         TASK*		p_task		= task_table;
 	PROCESS*	p_proc		= proc_table;
@@ -32,6 +41,7 @@ PRIVATE void process_start()
 	for(i=0;i<NR_TASKS;i++){
 		strcpy(p_proc->p_name, p_task->name);	// name of the process
 		p_proc->pid = i;			// pid
+                p_proc->priority = p_proc->ticks = p_task->priority;
 
 		p_proc->ldt_sel = selector_ldt;  //在GDT中选择子
 
@@ -58,35 +68,14 @@ PRIVATE void process_start()
 
 		p_proc->regs.eip = (u32)p_task->initial_eip;
 		p_proc->regs.esp = (u32)p_task_stack;  //进程中的esp
-		p_proc->regs.eflags = 0x0202;	// IF=1, IOPL=1, bit 2 is always 1. default 0x1202
+		p_proc->regs.eflags = 0x2202;	// IF=1, IOPL=1, bit 2 is always 1. default 0x1202  0x0202
 
 		p_task_stack -= p_task->stacksize;
 		p_proc++;
 		p_task++;
 		selector_ldt += 1 << 3;
 	}
-
-
-	proc_table[0].ticks = proc_table[0].priority = 150;
-	proc_table[1].ticks = proc_table[1].priority =  50;
-	proc_table[2].ticks = proc_table[2].priority =  30;
-
-
-	k_reenter = 0;
-        ticks = 0;
-       
-        /* 初始化 8253 PIT */
-        out_byte(TIMER_MODE, RATE_GENERATOR);
-        out_byte(TIMER0, (u8) (TIMER_FREQ/HZ) );
-        out_byte(TIMER0, (u8) ((TIMER_FREQ/HZ) >> 8));
-
-        put_irq_handler(CLOCK_IRQ, clock_handler);
-        enable_irq(CLOCK_IRQ);
-
-	p_proc_ready = proc_table; 
-
-	restart();
-	
+        
 }
 
 /*======================================================================*
@@ -98,7 +87,7 @@ void TestA()
                 disp_str("A");
 		//disp_int_c(get_ticks());
 		disp_str(".");
-		milli_delay(10);      
+		milli_delay(1000);      
 	}
 }
 
@@ -111,7 +100,7 @@ void TestB()
 		disp_str("B");
 		//disp_int_c(get_ticks());
 		disp_str(".");
-		milli_delay(10);
+		milli_delay(1000);
 	}
 }
 
@@ -125,7 +114,7 @@ void TestC()
 		disp_str("C");
 		//disp_int_c(get_ticks());
 		disp_str(".");
-		milli_delay(10);
+		milli_delay(1000);
 	}
 }
 

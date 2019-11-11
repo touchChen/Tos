@@ -215,6 +215,7 @@ hwint00:                ; Interrupt routine for irq 0 (clock)
 ALIGN   16
 hwint01:                ; Interrupt routine for irq 1 (keyboard)
         hwint_master    1
+
 ALIGN   16
 hwint02:                ; Interrupt routine for irq 2 (cascade!)
         hwint_master    2

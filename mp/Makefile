@@ -20,7 +20,8 @@ DASMFLAGS	= -u -o $(ENTRYPOINT) -e $(ENTRYOFFSET)
 BOOT    	= boot/boot.bin boot/loader.bin
 KERNEL	        = kernel.bin
 OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
-                  kernel/i8259.o kernel/clock.o kernel/syscall.o kernel/proc.o \
+                  kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/syscall.o \
+                  kernel/proc.o kernel/tty.o \
                   lib/klib.o lib/klibc.o lib/string.o # 注意连接的头
 DASMOUTPUT	= kernel.bin.asm
 
@@ -80,6 +81,12 @@ kernel/protect.o : kernel/protect.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 kernel/clock.o : kernel/clock.c 
+	$(CC) $(CFLAGS) -o $@ $<
+
+kernel/keyboard.o : kernel/keyboard.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+kernel/tty.o : kernel/tty.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 #include/type.h include/const.h include/protect.h include/proto.h include/interrupt.h  include/global.h

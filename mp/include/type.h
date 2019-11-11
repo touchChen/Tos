@@ -12,4 +12,5 @@ typedef void (*irq_handler) (int irq);
 
 typedef void* system_call;    /*太通用了*/
 
+
 #endif /* _TOS_TYPE_H_ */

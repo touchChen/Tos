@@ -1,7 +1,9 @@
 #include "type.h"
 #include "const.h"
+#include "protect.h"
 #include "proto.h"
-
+#include "proc.h"
+#include "global.h"
 
 
 /*======================================================================*
@@ -48,6 +50,30 @@ PUBLIC void disp_int_c(int input)
 	char output[16];
 	itoa(output, input);
 	disp_str(output);
+}
+
+
+PUBLIC void clear_disp()
+{
+        int i;
+        disp_pos = 0;
+	for (i = 0; i < 80*25; i++) {
+		disp_str(" ");
+	}
+	disp_pos = 0;
+
+}
+
+PUBLIC void clear_last_row(int row)
+{
+      int r = 25 - row;
+      int i;
+      
+      disp_pos = r*80*2;
+      for (i=r*80; i < 80*25; i++) {
+		disp_str(" ");
+      }
+      disp_pos = r*80*2;
 }
 
 /*======================================================================*

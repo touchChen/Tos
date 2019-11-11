@@ -12,7 +12,7 @@
 PUBLIC void schedule()
 {
 	PROCESS* p;
-	int	 greatest_ticks = 0;
+	int greatest_ticks = 0;
 
 	while (!greatest_ticks) {
 		for (p = proc_table; p < proc_table+NR_TASKS; p++) {
