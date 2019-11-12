@@ -34,5 +34,4 @@ PUBLIC	system_call  sys_call_table[NR_SYS_CALL] = {sys_get_ticks};
 EXTERN TASK  task_table[];
 EXTERN irq_handler  irq_table[];
 EXTERN system_call  sys_call_table[];
-
 #endif

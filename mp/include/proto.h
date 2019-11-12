@@ -37,3 +37,4 @@ PUBLIC void     enable_int();
 PUBLIC void     disable_int();
 PUBLIC void     keyboard_read();
 PUBLIC void     task_tty();
+PUBLIC void     in_process(u32 key);
