@@ -42,7 +42,6 @@ image : final buildimg
 
 clean :
 	rm -f $(OBJS)
-	#rm -f $(OBJS) $(BOOT) $(KERNEL)
 
 realclean :
 	rm -f $(OBJS) $(BOOT) $(KERNEL) $(DASMOUTPUT)

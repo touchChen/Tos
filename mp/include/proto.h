@@ -28,6 +28,7 @@ PUBLIC void     enable_irq(int irq);
 PUBLIC int      get_ticks();
 PUBLIC void     sys_call(); 
 PUBLIC int      sys_get_ticks();
+PUBLIC void     milli_delay(int milli_sec);
 PUBLIC void     schedule();
 PUBLIC void     clear_disp();
 PUBLIC void     clear_last_row(int row);
@@ -38,3 +39,4 @@ PUBLIC void     disable_int();
 PUBLIC void     keyboard_read();
 PUBLIC void     task_tty();
 PUBLIC void     in_process(u32 key);
+
