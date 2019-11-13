@@ -1,17 +1,16 @@
-#define GLOBAL_VARIABLES_HERE
 #include "type.h"
 #include "const.h"
 #include "protect.h"
-#include "proto.h"
 #include "proc.h"
+#include "tty.h"
+#include "console.h"
+#include "proto.h"
 #include "global.h"
 
 
 PUBLIC void cstart()
 {
-	 disp_pos = 0;
-         disp_str("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-		 "-----\"cstart\" begin-----\n");
+	 disp_pos = 15*2*80;
 	/* 将 LOADER 中的 GDT 复制到新的 GDT 中 */
 	memcpy(gdt,				   /* New GDT */
 	       (void*)(*((u32*)(&gdt_ptr[2]))),    /* Base  of Old GDT 后4位是段基地址 */
@@ -36,5 +35,4 @@ PUBLIC void cstart()
         init_prot();
 
 
-        disp_str("-----\"cstart\" end-----\n");
 }

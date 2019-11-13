@@ -1,9 +1,11 @@
 #include "type.h"
 #include "const.h"
 #include "protect.h"
-#include "proto.h"
 #include "proc.h"
+#include "tty.h"
+#include "console.h"
 #include "global.h"
+#include "proto.h"
 
 
 PRIVATE void init_process();
@@ -13,8 +15,6 @@ PRIVATE void init_process();
  *======================================================================*/
 PUBLIC int kernel_main()
 {
-	disp_str("-----\"kernel_main\" begins-----\n");
-
         k_reenter = 0;
         ticks = 0;
                       
@@ -22,7 +22,6 @@ PUBLIC int kernel_main()
         p_proc_ready = proc_table; 
 
         init_clock();
-        init_keyboard();
 
 	restart();
 
@@ -82,7 +81,8 @@ PRIVATE void init_process()
                                TestA
  *======================================================================*/
 void TestA()
-{
+{       
+        milli_delay(1000);
 	while(1){
                 disp_str("A");
 		//disp_int_c(get_ticks());

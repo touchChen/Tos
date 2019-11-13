@@ -1,13 +1,15 @@
 #include "type.h"
 #include "const.h"
 #include "protect.h"
-#include "proto.h"
 #include "proc.h"
+#include "tty.h"
+#include "console.h"
 #include "global.h"
+#include "proto.h"
 #include "keyboard.h"
 #include "keymap.h"
 
-PRIVATE KB_INPUT  kb_in;    // p283
+PRIVATE KB_INPUT  kb_in;    // p297
 
 PRIVATE	int	code_with_E0;
 PRIVATE	int	shift_l;	/* l shift state */
@@ -57,6 +59,8 @@ PUBLIC void init_keyboard()
 
         put_irq_handler(KEYBOARD_IRQ, keyboard_handler);/*设定键盘中断处理程序*/
         enable_irq(KEYBOARD_IRQ);                       /*开键盘中断*/
+
+        set_disp_pos_cursor();
 }
 
 
@@ -64,7 +68,7 @@ PUBLIC void init_keyboard()
 /*======================================================================*
                            keyboard_read
 *======================================================================*/
-PUBLIC void keyboard_read()
+PUBLIC void keyboard_read(TTY* p_tty)
 {
 	u8	scan_code;
 	char	output[2];
@@ -173,7 +177,7 @@ PUBLIC void keyboard_read()
 				key |= alt_l	? FLAG_ALT_L	: 0;
 				key |= alt_r	? FLAG_ALT_R	: 0;
 			
-				in_process(key);
+				in_process(p_tty, key);
 			}
 		}//end else
 	}//end if

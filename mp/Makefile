@@ -21,7 +21,7 @@ BOOT    	= boot/boot.bin boot/loader.bin
 KERNEL	        = kernel.bin
 OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
                   kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/syscall.o \
-                  kernel/proc.o kernel/tty.o \
+                  kernel/proc.o kernel/tty.o kernel/console.o kernel/global.o \
                   lib/klib.o lib/klibc.o lib/string.o # 注意连接的头
 DASMOUTPUT	= kernel.bin.asm
 
@@ -88,6 +88,9 @@ kernel/keyboard.o : kernel/keyboard.c
 kernel/tty.o : kernel/tty.c
 	$(CC) $(CFLAGS) -o $@ $<
 
+kernel/console.o : kernel/console.c
+	$(CC) $(CFLAGS) -o $@ $<
+
 #include/type.h include/const.h include/protect.h include/proto.h include/interrupt.h  include/global.h
 kernel/main.o  : kernel/main.c 
 	$(CC) $(CFLAGS) -o $@ $<
@@ -95,7 +98,10 @@ kernel/main.o  : kernel/main.c
 kernel/syscall.o : kernel/syscall.asm
 	$(ASM) $(ASMKFLAGS) -o $@ $<
 
-kernel/proc.o: kernel/proc.c
+kernel/proc.o : kernel/proc.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+kernel/global.o : kernel/global.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 lib/klib.o : lib/klib.asm

@@ -18,20 +18,18 @@ EXTERN	char		task_stack[STACK_SIZE_TOTAL];
 EXTERN	u32		k_reenter;
 EXTERN  int             ticks;
 
+EXTERN  irq_handler     irq_table[NR_IRQ];
+
+
+
+EXTERN  TASK            task_table[];
+EXTERN	TTY		tty_table[];
+EXTERN  CONSOLE         console_table[];
+
+
+EXTERN  int             nr_current_console;
 
 
 
 
-#ifdef	GLOBAL_VARIABLES_HERE
-PUBLIC  TASK  task_table[NR_TASKS] = {{TestA, 0, STACK_SIZE_TESTA, "TestA"},
-				     {TestB, 0, STACK_SIZE_TESTB, "TestB"},
-                                     {TestC, 0, STACK_SIZE_TESTC, "TestC"},
-                                     {task_tty, 2000, STACK_SIZE_TTY, "tty"}};
 
-PUBLIC  irq_handler  irq_table[NR_IRQ];
-PUBLIC	system_call  sys_call_table[NR_SYS_CALL] = {sys_get_ticks};
-#else
-EXTERN TASK  task_table[];
-EXTERN irq_handler  irq_table[];
-EXTERN system_call  sys_call_table[];
-#endif

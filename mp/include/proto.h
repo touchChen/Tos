@@ -36,7 +36,11 @@ PUBLIC void     init_clock();
 PUBLIC void     init_keyboard();
 PUBLIC void     enable_int();
 PUBLIC void     disable_int();
-PUBLIC void     keyboard_read();
+PUBLIC void     keyboard_read(TTY* p_tty);
 PUBLIC void     task_tty();
-PUBLIC void     in_process(u32 key);
+PUBLIC void     in_process(TTY* p_tty, u32 key);
+PUBLIC void     set_disp_pos_cursor();
+
+PUBLIC int      is_current_console(CONSOLE* p_con);
+PUBLIC void     out_char(CONSOLE* p_con, char ch);
 
