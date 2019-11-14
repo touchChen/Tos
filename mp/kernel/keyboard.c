@@ -9,7 +9,7 @@
 #include "keyboard.h"
 #include "keymap.h"
 
-PRIVATE KB_INPUT  kb_in;    // p297
+PRIVATE KB_INPUT  kb_in;    // p303
 
 PRIVATE	int	code_with_E0;
 PRIVATE	int	shift_l;	/* l shift state */

@@ -84,7 +84,8 @@ void TestA()
 {       
         milli_delay(1000);
 	while(1){
-                disp_str("A");
+                //disp_str("A");
+                disp_int_c(disp_pos);
 		//disp_int_c(get_ticks());
 		disp_str(".");
 		milli_delay(1000);      
