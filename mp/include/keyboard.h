@@ -9,15 +9,15 @@
 #define MAP_COLS	3	/* Number of columns in keymap */
 #define NR_SCAN_CODES	0x80	/* Number of scan codes (rows in keymap) */
 
-#define FLAG_BREAK	0x0080		/* Break Code			*/
-#define FLAG_EXT	0x0100		/* Normal function keys		*/
-#define FLAG_SHIFT_L	0x0200		/* Shift key			*/
-#define FLAG_SHIFT_R	0x0400		/* Shift key			*/
-#define FLAG_CTRL_L	0x0800		/* Control key			*/
-#define FLAG_CTRL_R	0x1000		/* Control key			*/
-#define FLAG_ALT_L	0x2000		/* Alternate key		*/
-#define FLAG_ALT_R	0x4000		/* Alternate key		*/
-#define FLAG_PAD	0x8000		/* keys in num pad		*/
+#define FLAG_BREAK	0x0080		/* Break Code			*/ // 扫描码(scan code) 按0x80分为 make code 和 break code
+#define FLAG_EXT	0x0100		/* Normal function keys		*/ //`.
+#define FLAG_SHIFT_L	0x0200		/* Shift key			*/ //  `
+#define FLAG_SHIFT_R	0x0400		/* Shift key			*/ //   标识
+#define FLAG_CTRL_L	0x0800		/* Control key			*/ //    |
+#define FLAG_CTRL_R	0x1000		/* Control key			*/ //    |
+#define FLAG_ALT_L	0x2000		/* Alternate key		*/ //    |
+#define FLAG_ALT_R	0x4000		/* Alternate key		*/ //    /
+#define FLAG_PAD	0x8000		/* keys in num pad		*/ //   /
 
 #define MASK_RAW	0x01FF		/* raw key value = code passed to tty & MASK_RAW
 					   the value can be found either in the keymap column 0
