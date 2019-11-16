@@ -50,7 +50,12 @@ typedef struct s_task {
 
 
 /* Number of tasks */
-#define NR_TASKS	4
+#define NR_TASKS	1
+
+/* Number of user proc */
+#define NR_PROCS	3
+
+#define NR_TASKS_AND_PROCS    (NR_TASKS + NR_PROCS)
 
 /* system call */
 #define NR_SYS_CALL     1

@@ -63,7 +63,7 @@ disp_str:
         jmp     .5   
         
 .4:     
-        push    7
+        push    10
         call    clear_last_row
         add     esp, 4         
 	
