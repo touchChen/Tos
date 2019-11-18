@@ -57,6 +57,7 @@ PRIVATE void init_process()
 		strcpy(p_proc->p_name, p_task->name);	// name of the process
 		p_proc->pid = i;			// pid
                 p_proc->priority = p_proc->ticks = p_task->priority;
+                p_proc->nr_tty = p_task->tty;
 
 		p_proc->ldt_sel = selector_ldt;  //在GDT中选择子 一个进程一个选择子
 
@@ -97,13 +98,14 @@ PRIVATE void init_process()
  *======================================================================*/
 void TestA()
 {       
-        milli_delay(1000);
 	while(1){
                 //disp_str("A");
-                disp_int_c(disp_pos);
+                //disp_int_c(disp_pos);
 		//disp_int_c(get_ticks());
-		disp_str(".");
-		milli_delay(1000);      
+                printf("this is A.");
+		//disp_str(".");
+                printf("\n");
+		milli_delay(2000);      
 	}
 }
 
@@ -113,10 +115,10 @@ void TestA()
 void TestB()
 {
 	while(1){
-		disp_str("B");
+		//disp_str("B");
 		//disp_int_c(get_ticks());
-		disp_str(".");
-		milli_delay(1000);
+                printf("ticks:%x.\n",get_ticks());
+		milli_delay(2000);
 	}
 }
 
@@ -127,10 +129,8 @@ void TestB()
 void TestC()
 {
 	while(1){
-		disp_str("C");
-		//disp_int_c(get_ticks());
-		disp_str(".");
-		milli_delay(1000);
+		printf("disp_pos:%x.\n",disp_pos);
+		milli_delay(2000);
 	}
 }
 

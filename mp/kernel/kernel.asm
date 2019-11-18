@@ -384,9 +384,16 @@ sys_call:                             ; 没有往堆栈里读取数据
         call    save
 
         sti
+        
+        ; 参数
+        push	dword [p_proc_ready]
+        push	ecx
+	push	ebx
 
         call    [sys_call_table + eax * 4]
-        mov     [esi + EAXREG - P_STACKBASE], eax
+        add	esp, 4 * 3
+
+        mov     [esi + EAXREG - P_STACKBASE], eax  ; 返回值
 
         cli
 

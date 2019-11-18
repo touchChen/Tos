@@ -22,6 +22,7 @@ KERNEL	        = kernel.bin
 OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
                   kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/syscall.o \
                   kernel/proc.o kernel/tty.o kernel/console.o kernel/global.o \
+                  kernel/printf.o \
                   lib/klib.o lib/klibc.o lib/string.o # 注意连接的头
 DASMOUTPUT	= kernel.bin.asm
 
@@ -102,6 +103,9 @@ kernel/proc.o : kernel/proc.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 kernel/global.o : kernel/global.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+kernel/printf.o : kernel/printf.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 lib/klib.o : lib/klib.asm

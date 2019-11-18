@@ -9,11 +9,13 @@ PUBLIC void	memset(void* p_dst, char ch, int size);
 PUBLIC void     init_prot();
 PUBLIC void     disp_int(int input);
 PUBLIC void     disp_int_c(int input);
+PUBLIC char*    itoa(char * str, int num);
 PUBLIC void     delay(int time);
 PUBLIC int      kernel_main();
 PUBLIC void     restart();
 PUBLIC u32      seg2phys(u16 seg);
 PUBLIC char*    strcpy(char* p_dst, char* p_src);
+PUBLIC int      strlen(char* p_str);
 
 PUBLIC void     TestA();
 PUBLIC void     TestB();
@@ -48,4 +50,9 @@ PUBLIC void     set_video_start_addr(u32 addr);
 PUBLIC void     select_console(int nr_console);
 PUBLIC void     scroll_screen(CONSOLE* p_con, int direction);
 PUBLIC void     flush(CONSOLE* p_con);
+
+
+PUBLIC int printf(const char *fmt, ...);
+PUBLIC  int     sys_write(char* buf, int len, PROCESS* p_proc);
+PUBLIC  void    write(char* buf, int len);
 
