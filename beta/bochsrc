@@ -1,0 +1,25 @@
+megs: 32
+cpu: cpuid_limit_winnt=0
+
+memory: guest=32, host=16
+
+romimage: file=/usr/local/share/bochs/BIOS-bochs-latest, options=fastboot
+
+vgaromimage: file=/usr/local/share/bochs/VGABIOS-lgpl-latest
+
+mouse: enabled=0
+
+#ata0: enabled=1,ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
+#ata0-master: type=disk, mode=flat, path="c.img"
+#floppya: 1_44=a.img, status=inserted
+floppya: 1_44=x.img, status=inserted
+
+#ata0-master: type=disk, path=c.img, cylinders=306, heads=4, spt=17
+#boot: c
+
+boot: a
+#boot: disk
+
+log: log.txt
+
+keyboard: keymap=/usr/local/share/bochs/keymaps/x11-pc-us.map
