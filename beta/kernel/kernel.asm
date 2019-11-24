@@ -2,7 +2,6 @@
 ; 导入函数
 extern	cstart
 extern  disp_str
-;extern  disp_int
 extern  disp_int_c
 extern	exception_handler
 extern	spurious_irq
@@ -360,11 +359,17 @@ save:
         push    es      ;  | 保存原寄存器值
         push    fs      ;  |
         push    gs      ; /
+
+        mov     esi, edx
+
         mov     dx, ss
         mov     ds, dx
         mov     es, dx
+        
+        mov     edx, esi
 
-        mov     esi, esp                    ;eax = 进程表起始地址
+
+        mov     esi, esp                    ;esi = 进程表起始地址
         inc     dword [k_reenter]           ;k_reenter++;
         cmp     dword [k_reenter], 0        ;if(k_reenter ==0)
         jne     .1                          ;{
@@ -387,11 +392,13 @@ sys_call:                             ; 没有往堆栈里读取数据
         
         ; 参数
         push	dword [p_proc_ready]
+        push    edx
         push	ecx
 	push	ebx
 
-        call    [sys_call_table + eax * 4]
-        add	esp, 4 * 3
+        call    [sys_call_table + eax * 4]   ; system_call的指针类型为：void*, 函数指针
+                                             ; 地址增量 eax*4
+        add	esp, 4 * 4          ; 系统调用 4 个参数
 
         mov     [esi + EAXREG - P_STACKBASE], eax  ; 返回值
 

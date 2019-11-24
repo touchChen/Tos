@@ -2,6 +2,17 @@
 #define	_TOS_CONST_H_
 
 
+/* the assert macro */
+#define ASSERT
+#ifdef ASSERT
+void assertion_failure(char *exp, char *file, char *base_file, int line);
+#define assert(exp)  if (exp) ; \
+        else assertion_failure(#exp, __FILE__, __BASE_FILE__, __LINE__)
+#else
+#define assert(exp)
+#endif
+
+
 /* EXTERN is defined as extern except in global.c */
 #define EXTERN extern
 
@@ -96,5 +107,29 @@
 #define	V_MEM_BASE	0xB8000	/* base of color video memory */
 #define	V_MEM_SIZE	0x8000	/* 32K: B8000H -> BFFFFH */
 
+/* Process */
+#define SENDING   0x02	/* set when proc trying to send */
+#define RECEIVING 0x04	/* set when proc trying to recv */
+
+
+
+/**
+ * @enum msgtype
+ * @brief MESSAGE types
+ */
+enum msgtype {
+	/* 
+	 * when hard interrupt occurs, a msg (with type==HARD_INT) will
+	 * be sent to some tasks
+	 */
+	HARD_INT = 1,
+
+	/* SYS task */
+	GET_TICKS,
+};
+
+#define	RETVAL		u.m3.m3i1
+
+#define	STR_DEFAULT_LEN	1024
 
 #endif /* _TOS_CONST_H_ */

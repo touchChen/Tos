@@ -52,7 +52,29 @@ PUBLIC void     scroll_screen(CONSOLE* p_con, int direction);
 PUBLIC void     flush(CONSOLE* p_con);
 
 
-PUBLIC int printf(const char *fmt, ...);
-PUBLIC  int     sys_write(char* buf, int len, PROCESS* p_proc);
-PUBLIC  void    write(char* buf, int len);
+PUBLIC int      printf(const char *fmt, ...);
+#define	printl	printf
+PUBLIC int      sys_write(char* buf, int len, PROCESS* p_proc);
+PUBLIC void     write(char* buf, int len);
+
+
+PUBLIC void*    va2la(int pid, void* va);
+PUBLIC void     panic(const char *fmt, ...);
+
+PUBLIC int      sendrec(int function, int src_dest, MESSAGE* msg);
+PUBLIC void     printx(char* s);
+
+PUBLIC int      sys_sendrec(int function, int src_dest, MESSAGE* m, PROCESS* p);
+PUBLIC int      sprintf(char *buf, const char *fmt, ...);
+
+
+
+/**
+ * `phys_copy' and `phys_set' are used only in the kernel, where segments
+ * are all flat (based on 0). In the meanwhile, currently linear address
+ * space is mapped to the identical physical address space. Therefore,
+ * a `physical copy' will be as same as a common copy, so does `phys_set'.
+ */
+#define	phys_copy	memcpy
+#define	phys_set	memset
 

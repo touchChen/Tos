@@ -23,7 +23,7 @@ OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
                   kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/syscall.o \
                   kernel/proc.o kernel/tty.o kernel/console.o kernel/global.o \
                   kernel/printf.o \
-                  lib/klib.o lib/klibc.o lib/string.o # 注意连接的头
+                  lib/klib.o lib/klibc.o lib/string.o lib/misc.o # 注意连接的头
 DASMOUTPUT	= kernel.bin.asm
 
 IMG             = x.img
@@ -112,6 +112,9 @@ lib/klib.o : lib/klib.asm
 	$(ASM) $(ASMKFLAGS) -o $@ $<
 
 lib/klibc.o : lib/klibc.c include/type.h include/const.h include/proto.h 
+	$(CC) $(CFLAGS) -o $@ $<
+
+lib/misc.o : lib/misc.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 lib/string.o : lib/string.asm

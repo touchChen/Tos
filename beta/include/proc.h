@@ -27,6 +27,8 @@ typedef struct s_stackframe {
 }STACK_FRAME;
 
 
+
+
 typedef struct s_proc {
 	STACK_FRAME regs;          /* process registers saved in stack frame */
 
@@ -39,6 +41,25 @@ typedef struct s_proc {
 	u32 pid;                   /* process id passed in from MM */
 	char p_name[16];           /* name of the process */
 
+        int  p_flags;              /**
+				    * process flags. A proc is runnable iff p_flags==0
+				    */
+        MESSAGE * p_msg;
+	int p_recvfrom;
+	int p_sendto;
+
+	int has_int_msg;           /**
+				    * nonzero if an INTERRUPT occurred when
+				    * the task is not ready to deal with it.
+				    */
+
+	struct s_proc * q_sending;    /**
+				       * queue of procs sending messages to this proc
+				       */
+	struct s_proc * next_sending; /**
+				       * next proc in the sending queue (q_sending)
+				       */
+
         int nr_tty;
 }PROCESS;
 
@@ -50,6 +71,9 @@ typedef struct s_task {
 	int	stacksize;
 	char	name[32];
 }TASK;
+
+
+#define proc2pid(x) (x - proc_table)
 
 
 /* Number of tasks */
@@ -76,6 +100,21 @@ typedef struct s_task {
                                  STACK_SIZE_TESTC + \
 				 STACK_SIZE_TESTB + \
                                  STACK_SIZE_TTY)
+
+#define ANY		(NR_TASKS + NR_PROCS + 10)
+#define NO_TASK		(NR_TASKS + NR_PROCS + 20)
+
+/* ipc */
+#define SEND		1
+#define RECEIVE		2
+#define BOTH		3	/* BOTH = (SEND | RECEIVE) */
+
+/* magic chars used by `printx' */
+#define MAG_CH_PANIC	'\002'
+#define MAG_CH_ASSERT	'\003'
+
+#define INVALID_DRIVER	-20
+#define INTERRUPT	-10
 
 
 #endif /* _TOS_PROC_H_ */

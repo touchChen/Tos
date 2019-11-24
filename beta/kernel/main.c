@@ -85,6 +85,15 @@ PRIVATE void init_process()
 		//p_proc->regs.eflags = 0x2202;	// IF=1, IOPL=1, bit 2 is always 1. default 0x1202  0x0202
 		p_proc->regs.eflags = eflags;
 
+
+		p_proc->p_flags = 0;
+		p_proc->p_msg = 0;
+		p_proc->p_recvfrom = NO_TASK;
+		p_proc->p_sendto = NO_TASK;
+		p_proc->has_int_msg = 0;
+		p_proc->q_sending = 0;
+		p_proc->next_sending = 0;
+
 		p_task_stack -= p_task->stacksize;
 		p_proc++;
 		p_task++;
@@ -102,10 +111,10 @@ void TestA()
                 //disp_str("A");
                 //disp_int_c(disp_pos);
 		//disp_int_c(get_ticks());
-                printf("this is A.");
+                printf("A.");
 		//disp_str(".");
-                printf("\n");
-		milli_delay(2000);      
+                //printf("\n");
+		//milli_delay(2000);      
 	}
 }
 
@@ -117,8 +126,9 @@ void TestB()
 	while(1){
 		//disp_str("B");
 		//disp_int_c(get_ticks());
-                printf("ticks:%x.\n",get_ticks());
-		milli_delay(2000);
+                //printf("ticks:%x.\n",get_ticks());
+		//milli_delay(2000);
+                printf("B.");
 	}
 }
 
@@ -129,8 +139,9 @@ void TestB()
 void TestC()
 {
 	while(1){
-		printf("disp_pos:%x.\n",disp_pos);
-		milli_delay(2000);
+                printf("C.");
+		//printf("disp_pos:%x.\n",disp_pos);
+		//milli_delay(2000);
 	}
 }
 
