@@ -11,9 +11,6 @@
 PRIVATE void set_cursor(unsigned int position);
 
 
-/*======================================================================*
-			   init_screen
- *======================================================================*/
 PUBLIC void init_screen(TTY* p_tty)
 {
 	int nr_tty = p_tty - tty_table;

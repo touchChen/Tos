@@ -125,7 +125,7 @@ void TestB()
 		//disp_int_c(get_ticks());
                 //printf("ticks:%x.\n",get_ticks());
                 printf("B.");
-                milli_delay(2000);
+                milli_delay(1000);
 	}
 }
 
@@ -135,7 +135,7 @@ void TestC()
 {
 	while(1){
                 printf("C.");
-                milli_delay(2000);
+                milli_delay(1000);
 		//printf("disp_pos:%x.\n",disp_pos);
 		
 	}

@@ -7,17 +7,13 @@
 #include "global.h"
 #include "proto.h"
 
-
-
 PRIVATE void block(PROCESS* p);
 PRIVATE void unblock(PROCESS* p);
 PRIVATE int  msg_send(PROCESS* current, int dest, MESSAGE* m);
 PRIVATE int  msg_receive(PROCESS* current, int src, MESSAGE* m);
 PRIVATE int  deadlock(int src, int dest);
 
-/*======================================================================*
-                              schedule
- *======================================================================*/
+
 PUBLIC void schedule()
 {
 	PROCESS* p;
@@ -46,9 +42,7 @@ PUBLIC void schedule()
 	}
 }
 
-/*======================================================================*
-                           sys_get_ticks
- *======================================================================*/
+
 PUBLIC int sys_get_ticks()
 {
 	return ticks;
@@ -146,9 +140,7 @@ PUBLIC int send_recv(int function, int src_dest, MESSAGE* msg)
 	return ret;
 }
 
-/*****************************************************************************
- *				  ldt_seg_linear
- *****************************************************************************/
+
 /**
  * <Ring 0~1> Calculate the linear address of a certain segment of a given
  * proc.

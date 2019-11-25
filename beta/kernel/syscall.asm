@@ -17,6 +17,11 @@ global	sendrec
 bits 32
 [section .text]
 
+
+
+; ====================================================================================
+;                          int get_ticks();
+; ====================================================================================
 get_ticks:
 	mov	eax, _NR_get_ticks
 	int	INT_VECTOR_SYS_CALL
@@ -35,7 +40,7 @@ write:
 
 
 ; ====================================================================================
-;                  sendrec(int function, int src_dest, MESSAGE* msg);
+;                    int sendrec(int function, int src_dest, MESSAGE* msg);
 ; ====================================================================================
 ; Never call sendrec() directly, call send_recv() instead.
 sendrec:

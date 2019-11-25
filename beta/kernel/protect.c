@@ -16,14 +16,14 @@ PRIVATE void init_descriptor(DESCRIPTOR * p_desc, u32 base, u32 limit, u16 attri
 
 
 
-/*======================================================================*
-                            init_prot
- *======================================================================*/
 PUBLIC void init_prot()
 {
 	init_8259A();
 
 	// 全部初始化成中断门(没有陷阱门)
+        /****************************************************
+         **  异常
+         ***************************************************/
 	init_idt_desc(INT_VECTOR_DIVIDE,	DA_386IGate,
 		      divide_error,		PRIVILEGE_KRNL);
 
@@ -75,7 +75,9 @@ PUBLIC void init_prot()
 
 
 
-
+        /****************************************************
+         **  硬件中断
+         ***************************************************/
 
         init_idt_desc(INT_VECTOR_IRQ0 + 0,      DA_386IGate,
                       hwint00,                  PRIVILEGE_KRNL);
@@ -125,6 +127,11 @@ PUBLIC void init_prot()
         init_idt_desc(INT_VECTOR_IRQ8 + 7,      DA_386IGate,
                       hwint15,                  PRIVILEGE_KRNL);
 
+
+     
+        /****************************************************
+         **  系统中断
+         ***************************************************/
 
         init_idt_desc(INT_VECTOR_SYS_CALL,	DA_386IGate,
 		      sys_call,			PRIVILEGE_USER);
@@ -265,9 +272,7 @@ PUBLIC void exception_handler(int vec_no,int err_code,int eip,int cs,int eflags)
 	}
 }
 
-/*======================================================================*
-                           spurious_irq
- *======================================================================*/
+
 PUBLIC void spurious_irq(int irq)
 {
         disp_str("spurious_irq: ");

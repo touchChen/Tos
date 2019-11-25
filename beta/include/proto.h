@@ -2,34 +2,26 @@ PUBLIC void	out_byte(u16 port, u8 value);
 PUBLIC u8	in_byte(u16 port);
 PUBLIC void	disp_str(char * info);
 PUBLIC void	disp_color_str(char * info, int color);
-PUBLIC void	init_prot();
+
 PUBLIC void	init_8259A();
 PUBLIC void*	memcpy(void* pDst, void* pSrc, int iSize);
 PUBLIC void	memset(void* p_dst, char ch, int size);
-PUBLIC void     init_prot();
+
 PUBLIC void     disp_int(int input);
 PUBLIC void     disp_int_c(int input);
 PUBLIC char*    itoa(char * str, int num);
 PUBLIC void     delay(int time);
 
-PUBLIC void     restart();
-PUBLIC u32      seg2phys(u16 seg);
+
+
 PUBLIC char*    strcpy(char* p_dst, char* p_src);
 PUBLIC int      strlen(char* p_str);
 
-
-
-
 PUBLIC void     put_irq_handler(int irq, irq_handler handler);
-PUBLIC void     spurious_irq(int irq);
 
 PUBLIC int      disable_irq(int irq);
 PUBLIC void     enable_irq(int irq);
-PUBLIC int      get_ticks();
-PUBLIC void     sys_call(); 
-PUBLIC int      sys_get_ticks();
 
-PUBLIC void     schedule();
 PUBLIC void     clear_disp();
 PUBLIC void     clear_last_row(int row);
 
@@ -52,18 +44,24 @@ PUBLIC void     flush(CONSOLE* p_con);
 
 
 PUBLIC int      sys_write(char* buf, int len, PROCESS* p_proc);
-PUBLIC void     write(char* buf, int len);
-
-
-PUBLIC void*    va2la(int pid, void* va);
-
-
-PUBLIC int      sendrec(int function, int src_dest, MESSAGE* msg);
-PUBLIC void     printx(char* s);
-
-PUBLIC int      sys_sendrec(int function, int src_dest, MESSAGE* m, PROCESS* p);
 PUBLIC int      sys_printx(int _unused1, int _unused2, char* s, PROCESS* p_proc);
 
+
+
+/****** kernel.asm ******/ // _start 内核进口
+PUBLIC void  restart();  // 进程入口
+PUBLIC void  sys_call(); // 系统中断
+
+
+/****** start.c ******/
+PUBLIC void cstart();  // kernel.asm 跳转 到此函数，c语言开端
+
+
+/****** protect.c ******/ //保护模式
+PUBLIC void init_prot();
+PUBLIC u32 seg2phys(u16 seg);
+PUBLIC void spurious_irq(int irq);
+PUBLIC void exception_handler(int vec_no,int err_code,int eip,int cs,int eflags);
 
 
 /****** clock.c  ******/  //时钟中断
@@ -78,6 +76,28 @@ PUBLIC int kernel_main();
 PUBLIC void TestA();
 PUBLIC void TestB();
 PUBLIC void TestC();
+
+
+/****** syscall.asm ******/
+PUBLIC void printx(char* s);
+PUBLIC int sendrec(int function, int src_dest, MESSAGE* msg);
+PUBLIC int get_ticks();
+PUBLIC void write(char* buf, int len);
+
+
+/****** proc.c ******/   //进程
+PUBLIC void schedule();
+PUBLIC int sys_sendrec(int function, int src_dest, MESSAGE* m, PROCESS* p);
+PUBLIC int sys_get_ticks();
+
+PUBLIC int send_recv(int function, int src_dest, MESSAGE* msg);
+
+PUBLIC int ldt_seg_linear(PROCESS* p, int idx); // ldt段的段基址
+PUBLIC void* va2la(int pid, void* va); // 虚拟地址转线性地址
+PUBLIC void reset_msg(MESSAGE* p);
+PUBLIC void dump_proc(PROCESS* p);
+PUBLIC void dump_msg(const char * title, MESSAGE* m);
+
 
 
 /****** mics.c ******/  // lib/mics.c
