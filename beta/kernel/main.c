@@ -10,9 +10,9 @@
 
 PRIVATE void init_process();
 
-/*======================================================================*
-                            kernel_main
- *======================================================================*/
+/*
+ * 内核主程序
+ */
 PUBLIC int kernel_main()
 {
         k_reenter = 0;
@@ -103,45 +103,41 @@ PRIVATE void init_process()
 }
 
 /*======================================================================*
-                               TestA
+                               Test 用户进程
  *======================================================================*/
 void TestA()
 {       
+        char ss[] = "hello world";
 	while(1){
-                //disp_str("A");
-                //disp_int_c(disp_pos);
-		//disp_int_c(get_ticks());
-                printf("A.");
-		//disp_str(".");
-                //printf("\n");
-		//milli_delay(2000);      
+                 assert(0);
+                //panic("error:%20s in TestA",ss);
+                //printf("A.");
+                //printf("ticks:%x.\n",get_ticks());
+		milli_delay(1000);      
 	}
 }
 
-/*======================================================================*
-                               TestB
- *======================================================================*/
+
 void TestB()
 {
 	while(1){
 		//disp_str("B");
 		//disp_int_c(get_ticks());
                 //printf("ticks:%x.\n",get_ticks());
-		//milli_delay(2000);
                 printf("B.");
+                milli_delay(2000);
 	}
 }
 
 
-/*======================================================================*
-                               TestC
- *======================================================================*/
+
 void TestC()
 {
 	while(1){
                 printf("C.");
+                milli_delay(2000);
 		//printf("disp_pos:%x.\n",disp_pos);
-		//milli_delay(2000);
+		
 	}
 }
 

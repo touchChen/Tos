@@ -85,7 +85,7 @@ typedef struct s_task {
 #define NR_TASKS_AND_PROCS    (NR_TASKS + NR_PROCS)
 
 /* system call */
-#define NR_SYS_CALL     2
+#define NR_SYS_CALL     3
 
 /* TTY */
 #define NR_CONSOLES	3	

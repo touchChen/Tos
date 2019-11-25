@@ -17,9 +17,10 @@ PRIVATE void tty_do_write(TTY* p_tty);
 PRIVATE void put_key(TTY* p_tty, u32 key);
 
 
-/*======================================================================*
-                           task_tty
- *======================================================================*/
+/************************************************************************
+ *                            
+ *
+ ***********************************************************************/
 PUBLIC void task_tty()
 { 
         TTY*	p_tty; 
@@ -33,7 +34,8 @@ PUBLIC void task_tty()
         select_console(0);  
 
 	while (1) {
-		for (p_tty=TTY_FIRST;p_tty<TTY_END;p_tty++) {
+		for (p_tty=TTY_FIRST;p_tty<TTY_END;p_tty++) 
+                {
 			tty_do_read(p_tty);
 			tty_do_write(p_tty);
 		}
@@ -209,9 +211,10 @@ PUBLIC int sys_write(char* buf, int len, PROCESS* p_proc)
 }
 
 
-/*======================================================================*
-                              sys_printx
-*======================================================================*/
+/************************************************************************
+ * char* s  检测 s[0] is MAG_CH key                           
+ *
+ ***********************************************************************/
 PUBLIC int sys_printx(int _unused1, int _unused2, char* s, PROCESS* p_proc)
 {
 	const char * p;

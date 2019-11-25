@@ -7,9 +7,7 @@
 #include "global.h"
 #include "proto.h"
 
-/*****************************************************************************
- *                                spin
- *****************************************************************************/
+
 PUBLIC void spin(char * func_name)
 {
 	printl("\nspinning in %s ...\n", func_name);
@@ -18,8 +16,7 @@ PUBLIC void spin(char * func_name)
 
 
 /*****************************************************************************
- *                           assertion_failure
- *************************************************************************//**
+ *
  * Invoked by assert().
  *
  * @param exp       The failure expression itself.
@@ -41,7 +38,7 @@ PUBLIC void assertion_failure(char *exp, char *file, char *base_file, int line)
 	 * 
 	 * We use a forever loop to prevent the proc from going on:
 	 */
-	spin("assertion_failure()");
+	spin("assertion_failure()");  // 系统进程步会到这一步，用户进程就运行这里为止
 
 	/* should never arrive here */
         __asm__ __volatile__("ud2");

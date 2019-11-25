@@ -11,17 +11,15 @@ PUBLIC void     disp_int(int input);
 PUBLIC void     disp_int_c(int input);
 PUBLIC char*    itoa(char * str, int num);
 PUBLIC void     delay(int time);
-PUBLIC int      kernel_main();
+
 PUBLIC void     restart();
 PUBLIC u32      seg2phys(u16 seg);
 PUBLIC char*    strcpy(char* p_dst, char* p_src);
 PUBLIC int      strlen(char* p_str);
 
-PUBLIC void     TestA();
-PUBLIC void     TestB();
-PUBLIC void     TestC();
 
-PUBLIC void     clock_handler(int irq);
+
+
 PUBLIC void     put_irq_handler(int irq, irq_handler handler);
 PUBLIC void     spurious_irq(int irq);
 
@@ -30,11 +28,11 @@ PUBLIC void     enable_irq(int irq);
 PUBLIC int      get_ticks();
 PUBLIC void     sys_call(); 
 PUBLIC int      sys_get_ticks();
-PUBLIC void     milli_delay(int milli_sec);
+
 PUBLIC void     schedule();
 PUBLIC void     clear_disp();
 PUBLIC void     clear_last_row(int row);
-PUBLIC void     init_clock();
+
 PUBLIC void     init_keyboard();
 PUBLIC void     enable_int();
 PUBLIC void     disable_int();
@@ -52,20 +50,46 @@ PUBLIC void     scroll_screen(CONSOLE* p_con, int direction);
 PUBLIC void     flush(CONSOLE* p_con);
 
 
-PUBLIC int      printf(const char *fmt, ...);
-#define	printl	printf
+
 PUBLIC int      sys_write(char* buf, int len, PROCESS* p_proc);
 PUBLIC void     write(char* buf, int len);
 
 
 PUBLIC void*    va2la(int pid, void* va);
-PUBLIC void     panic(const char *fmt, ...);
+
 
 PUBLIC int      sendrec(int function, int src_dest, MESSAGE* msg);
 PUBLIC void     printx(char* s);
 
 PUBLIC int      sys_sendrec(int function, int src_dest, MESSAGE* m, PROCESS* p);
-PUBLIC int      sprintf(char *buf, const char *fmt, ...);
+PUBLIC int      sys_printx(int _unused1, int _unused2, char* s, PROCESS* p_proc);
+
+
+
+/****** clock.c  ******/  //时钟中断
+PUBLIC void init_clock();
+PUBLIC void clock_handler(int irq);
+PUBLIC void milli_delay(int milli_sec);
+
+
+/****** main.c ******/
+PUBLIC int kernel_main();
+
+PUBLIC void TestA();
+PUBLIC void TestB();
+PUBLIC void TestC();
+
+
+/****** mics.c ******/  // lib/mics.c
+PUBLIC void spin(char * func_name);
+PUBLIC void assertion_failure(char *exp, char *file, char *base_file, int line);
+
+
+/****** printf.c ******/
+PUBLIC int printf(const char *fmt, ...);
+#define	printl	printf
+PUBLIC int sprintf(char *buf, const char *fmt, ...);
+PUBLIC void panic(const char *fmt, ...);
 
 
 
