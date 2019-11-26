@@ -77,7 +77,7 @@ typedef struct s_task {
 
 
 /* Number of tasks */
-#define NR_TASKS	1
+#define NR_TASKS	2
 
 /* Number of user proc */
 #define NR_PROCS	3
@@ -95,11 +95,13 @@ typedef struct s_task {
 #define STACK_SIZE_TESTB	0x8000
 #define STACK_SIZE_TESTC	0x8000
 #define STACK_SIZE_TTY		0x8000
+#define STACK_SIZE_SYS		0x8000
 
 #define STACK_SIZE_TOTAL	(STACK_SIZE_TESTA + \
                                  STACK_SIZE_TESTC + \
 				 STACK_SIZE_TESTB + \
-                                 STACK_SIZE_TTY)
+                                 STACK_SIZE_TTY + \
+                                 STACK_SIZE_SYS)
 
 #define ANY		(NR_TASKS + NR_PROCS + 10)
 #define NO_TASK		(NR_TASKS + NR_PROCS + 20)
@@ -115,6 +117,8 @@ typedef struct s_task {
 
 #define INVALID_DRIVER	-20
 #define INTERRUPT	-10
+#define TASK_TTY	0
+#define TASK_SYS	1
 
 
 #endif /* _TOS_PROC_H_ */

@@ -10,7 +10,8 @@
 #include "proto.h"
 
 
-PUBLIC  TASK  task_table[NR_TASKS] = {{task_tty, 2000, 0, STACK_SIZE_TTY, "tty"}};  //进程体、时间片、tty、堆栈、进程名
+PUBLIC  TASK  task_table[NR_TASKS] = {{task_tty, 2000, 0, STACK_SIZE_TTY, "tty"},  //进程体、时间片、tty、堆栈、进程名
+                                      {task_sys, 2000, 0, STACK_SIZE_SYS, "sys"}};
 
 PUBLIC  TASK  user_proc_table[NR_PROCS] = {{TestA, 10, 0, STACK_SIZE_TESTA, "TestA"},
 					   {TestB, 10, 0, STACK_SIZE_TESTB, "TestB"},

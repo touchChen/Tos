@@ -102,6 +102,16 @@ PRIVATE void init_process()
         
 }
 
+
+PUBLIC int get_u_ticks()
+{
+	MESSAGE msg;
+	reset_msg(&msg);
+	msg.type = GET_TICKS;
+	send_recv(BOTH, TASK_SYS, &msg);
+	return msg.RETVAL;
+}
+
 /*======================================================================*
                                Test 用户进程
  *======================================================================*/
@@ -109,10 +119,10 @@ void TestA()
 {       
         char ss[] = "hello world";
 	while(1){
-                 assert(0);
+                // assert(0);
                 //panic("error:%20s in TestA",ss);
                 //printf("A.");
-                //printf("ticks:%x.\n",get_ticks());
+                printf("ticks:%x.\n",get_u_ticks());
 		milli_delay(1000);      
 	}
 }
