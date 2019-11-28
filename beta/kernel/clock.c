@@ -8,14 +8,17 @@
 #include "global.h"
 
 
-
-
+/************************************************
+ *
+ * 时钟中断
+ * idt 已初始化， 修改 irq_table 中的指向
+ ***********************************************/
 PUBLIC void clock_handler(int irq)
 {
         ticks ++;
         p_proc_ready->ticks--;
 
-        if(k_reenter!=0)
+        if(k_reenter!=0) // k_reenter >0,即是重入，不进行调度
         {
             return;
         }
@@ -34,9 +37,10 @@ PUBLIC void milli_delay(int milli_sec)
 
 PUBLIC void init_clock()
 {
-        /* 初始化 8253 PIT */
+        /* 初始化 8253 PIT */ //可编程间隔定时器 PIT (Programmable Interval Timer)
         out_byte(TIMER_MODE, RATE_GENERATOR);
-        out_byte(TIMER0, (u8) (TIMER_FREQ/HZ) );
+        
+        out_byte(TIMER0, (u8) ((TIMER_FREQ/HZ)&0xff) );
         out_byte(TIMER0, (u8) ((TIMER_FREQ/HZ) >> 8));
 
         put_irq_handler(CLOCK_IRQ, clock_handler);      /* 设定时钟中断处理程序 */

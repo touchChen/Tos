@@ -2,17 +2,6 @@
 #define	_TOS_CONST_H_
 
 
-/* the assert macro */
-#define ASSERT
-#ifdef ASSERT
-void assertion_failure(char *exp, char *file, char *base_file, int line);
-#define assert(exp)  if (exp) ; \
-        else assertion_failure(#exp, __FILE__, __BASE_FILE__, __LINE__)
-#else
-#define assert(exp)
-#endif
-
-
 /* EXTERN is defined as extern except in global.c */
 #define EXTERN extern
 
@@ -24,34 +13,11 @@ void assertion_failure(char *exp, char *file, char *base_file, int line);
 #define	TRUE	1
 #define	FALSE	0
 
-/* Color */
-/*
- * e.g. MAKE_COLOR(BLUE, RED)
- *      MAKE_COLOR(BLACK, RED) | BRIGHT
- *      MAKE_COLOR(BLACK, RED) | BRIGHT | FLASH
- */
-#define BLACK   0x0     /* 0000 */
-#define WHITE   0x7     /* 0111 */
-#define RED     0x4     /* 0100 */
-#define GREEN   0x2     /* 0010 */
-#define BLUE    0x1     /* 0001 */
-#define FLASH   0x80    /* 1000 0000 */
-#define BRIGHT  0x08    /* 0000 1000 */
-#define MAKE_COLOR(x,y) (x | y) /* MAKE_COLOR(Background,Foreground) */
 
 /* GDT 和 IDT 中描述符的个数 */
 #define	GDT_SIZE	128
 #define	IDT_SIZE	256
 
-/* 权限 */
-#define	PRIVILEGE_KRNL	0
-#define	PRIVILEGE_TASK	1
-#define	PRIVILEGE_USER	3
-
-/* RPL */
-#define	RPL_KRNL	SA_RPL0
-#define	RPL_TASK	SA_RPL1
-#define	RPL_USER	SA_RPL3
 
 /* 8259A interrupt controller ports. */
 #define INT_M_CTL       0x20 /* I/O port for interrupt controller       <Master> */
@@ -63,10 +29,8 @@ void assertion_failure(char *exp, char *file, char *base_file, int line);
 /* 8253/8254 PIT (Programmable Interval Timer) */
 #define TIMER0          0x40 /* I/O port for timer channel 0 */
 #define TIMER_MODE      0x43 /* I/O port for timer mode control */
-#define RATE_GENERATOR  0x34 /* 00-11-010-0 :
-			     * Counter0 - LSB then MSB - rate generator - binary
-			     */
-#define TIMER_FREQ     1193182L/* clock frequency for timer in PC and AT */
+#define RATE_GENERATOR  0x36 /* 00-11-010-0 :  Counter0 - LSB then MSB - rate generator - binary */
+#define TIMER_FREQ     1193182L /* clock frequency for timer in PC and AT */
 #define HZ             100  /* clock freq (software settable on IBM-PC) */
 
 
@@ -107,29 +71,6 @@ void assertion_failure(char *exp, char *file, char *base_file, int line);
 #define	V_MEM_BASE	0xB8000	/* base of color video memory */
 #define	V_MEM_SIZE	0x8000	/* 32K: B8000H -> BFFFFH */
 
-/* Process */
-#define SENDING   0x02	/* set when proc trying to send */
-#define RECEIVING 0x04	/* set when proc trying to recv */
 
-
-
-/**
- * @enum msgtype
- * @brief MESSAGE types
- */
-enum msgtype {
-	/* 
-	 * when hard interrupt occurs, a msg (with type==HARD_INT) will
-	 * be sent to some tasks
-	 */
-	HARD_INT = 1,
-
-	/* SYS task */
-	GET_TICKS,
-};
-
-#define	RETVAL		u.m3.m3i1
-
-#define	STR_DEFAULT_LEN	1024
 
 #endif /* _TOS_CONST_H_ */

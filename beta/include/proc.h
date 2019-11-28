@@ -1,6 +1,16 @@
 #ifndef	_TOS_PROC_H_
 #define	_TOS_PROC_H_
 
+/* the assert macro */
+#define ASSERT
+#ifdef ASSERT
+void assertion_failure(char *exp, char *file, char *base_file, int line);
+#define assert(exp)  if (exp) ; \
+        else assertion_failure(#exp, __FILE__, __BASE_FILE__, __LINE__)
+#else
+#define assert(exp)
+#endif
+
 
 /*********************************************************
 ************** process 进程 ******************************
@@ -76,6 +86,11 @@ typedef struct s_task {
 #define proc2pid(x) (x - proc_table)
 
 
+/* Process */
+#define SENDING   0x02	/* set when proc trying to send */
+#define RECEIVING 0x04	/* set when proc trying to recv */
+
+
 /* Number of tasks */
 #define NR_TASKS	2
 
@@ -119,6 +134,26 @@ typedef struct s_task {
 #define INTERRUPT	-10
 #define TASK_TTY	0
 #define TASK_SYS	1
+
+
+/**
+ * @enum msgtype
+ * @brief MESSAGE types
+ */
+enum msgtype {
+	/* 
+	 * when hard interrupt occurs, a msg (with type==HARD_INT) will
+	 * be sent to some tasks
+	 */
+	HARD_INT = 1,
+
+	/* SYS task */
+	GET_TICKS,
+};
+
+#define	RETVAL		u.m3.m3i1
+
+#define	STR_DEFAULT_LEN	1024
 
 
 #endif /* _TOS_PROC_H_ */

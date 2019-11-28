@@ -15,7 +15,7 @@ PRIVATE void init_process();
  */
 PUBLIC int kernel_main()
 {
-        k_reenter = 0;
+        k_reenter = 0;             // 判断是否重入
         ticks = 0;
                       
         init_process();
@@ -122,7 +122,7 @@ void TestA()
                 // assert(0);
                 //panic("error:%20s in TestA",ss);
                 //printf("A.");
-                printf("ticks:%x.\n",get_u_ticks());
+                printf("ticks:%d.",get_u_ticks());
 		milli_delay(1000);      
 	}
 }
@@ -134,8 +134,8 @@ void TestB()
 		//disp_str("B");
 		//disp_int_c(get_ticks());
                 //printf("ticks:%x.\n",get_ticks());
-                printf("B.");
-                milli_delay(1000);
+                printf("B.\n");
+                milli_delay(100000);
 	}
 }
 
@@ -144,8 +144,8 @@ void TestB()
 void TestC()
 {
 	while(1){
-                printf("C.");
-                milli_delay(1000);
+                printf("C.\n");
+                milli_delay(100000);
 		//printf("disp_pos:%x.\n",disp_pos);
 		
 	}
