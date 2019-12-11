@@ -40,7 +40,7 @@ PUBLIC void init_clock()
         /* 初始化 8253 PIT */ //可编程间隔定时器 PIT (Programmable Interval Timer)
         out_byte(TIMER_MODE, RATE_GENERATOR);
         
-        out_byte(TIMER0, (u8) ((TIMER_FREQ/HZ)&0xff) );
+        out_byte(TIMER0, (u8) ((TIMER_FREQ/HZ)&0xff));
         out_byte(TIMER0, (u8) ((TIMER_FREQ/HZ) >> 8));
 
         put_irq_handler(CLOCK_IRQ, clock_handler);      /* 设定时钟中断处理程序 */

@@ -1,13 +1,12 @@
-PUBLIC void	out_byte(u16 port, u8 value);
-PUBLIC u8	in_byte(u16 port);
-PUBLIC void	disp_str(char * info);
-PUBLIC void	disp_color_str(char * info, int color);
 
-PUBLIC void	init_8259A();
+
+
+
+
 PUBLIC void*	memcpy(void* pDst, void* pSrc, int iSize);
 PUBLIC void	memset(void* p_dst, char ch, int size);
 
-PUBLIC void     disp_int(int input);
+
 PUBLIC void     disp_int_c(int input);
 PUBLIC char*    itoa(char * str, int num);
 PUBLIC void     delay(int time);
@@ -17,17 +16,15 @@ PUBLIC void     delay(int time);
 PUBLIC char*    strcpy(char* p_dst, char* p_src);
 PUBLIC int      strlen(char* p_str);
 
-PUBLIC void     put_irq_handler(int irq, irq_handler handler);
 
-PUBLIC int      disable_irq(int irq);
-PUBLIC void     enable_irq(int irq);
+
+
 
 PUBLIC void     clear_disp();
 PUBLIC void     clear_last_row(int row);
 
 PUBLIC void     init_keyboard();
-PUBLIC void     enable_int();
-PUBLIC void     disable_int();
+
 PUBLIC void     keyboard_read(TTY* p_tty);
 PUBLIC void     task_tty();
 PUBLIC void     in_process(TTY* p_tty, u32 key);
@@ -48,9 +45,40 @@ PUBLIC int      sys_printx(int _unused1, int _unused2, char* s, PROCESS* p_proc)
 
 
 
+/*************************** lib ***************************************/
+/****** klib.asm ******/
+PUBLIC void disp_str(char* info);
+PUBLIC void disp_color_str(char* info, int color);
+PUBLIC void out_byte(u16 port, u8 value);
+PUBLIC u8 in_byte(u16 port);
+
+PUBLIC void disp_al(u8 input);
+PUBLIC void disp_int(int input);
+PUBLIC void enable_irq(int irq);  // 开启硬件中断 (irq 中断号)
+PUBLIC int disable_irq(int irq);  // 关闭硬件中断
+PUBLIC void enable_int();  
+PUBLIC void disable_int();
+
+/****** mics.c ******/  
+PUBLIC void spin(char *func_name);
+PUBLIC void assertion_failure(char *exp, char *file, char *base_file, int line);
+
+
+
+
+
+
+
+
+
+/****** i8259.c ******/ //硬件中断，从保护模式进入
+PUBLIC void init_8259A();
+PUBLIC void put_irq_handler(int irq, irq_handler handler);
+
+
 /****** kernel.asm ******/ // _start 内核进口
-PUBLIC void  restart();  // 进程入口
-PUBLIC void  sys_call(); // 系统中断
+PUBLIC void restart();  // 进程入口
+PUBLIC void sys_call(); // 系统中断
 
 
 /****** start.c ******/
@@ -66,19 +94,19 @@ PUBLIC void exception_handler(int vec_no,int err_code,int eip,int cs,int eflags)
 
 /****** clock.c  ******/  //时钟中断
 PUBLIC void init_clock();
-PUBLIC void clock_handler(int irq);
+PUBLIC void clock_handler(int irq);  // --> schedule
 PUBLIC void milli_delay(int milli_sec);
 
 
 /****** main.c ******/
-PUBLIC int kernel_main();
+PUBLIC int kernel_main();  //内核主程序
 
 PUBLIC void TestA();
 PUBLIC void TestB();
 PUBLIC void TestC();
 
 
-/****** syscall.asm ******/
+/****** syscall.asm ******/  //系统中断
 PUBLIC void printx(char* s);
 PUBLIC int sendrec(int function, int src_dest, MESSAGE* msg);
 PUBLIC int get_ticks();
@@ -97,12 +125,6 @@ PUBLIC void* va2la(int pid, void* va); // 虚拟地址转线性地址
 PUBLIC void reset_msg(MESSAGE* p);
 PUBLIC void dump_proc(PROCESS* p);
 PUBLIC void dump_msg(const char * title, MESSAGE* m);
-
-
-
-/****** mics.c ******/  // lib/mics.c
-PUBLIC void spin(char * func_name);
-PUBLIC void assertion_failure(char *exp, char *file, char *base_file, int line);
 
 
 /****** systask.c ******/
