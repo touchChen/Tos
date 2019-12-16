@@ -1,38 +1,12 @@
 
-
-
-
-
-PUBLIC void*	memcpy(void* pDst, void* pSrc, int iSize);
-PUBLIC void	memset(void* p_dst, char ch, int size);
-
-
-PUBLIC void     disp_int_c(int input);
-PUBLIC char*    itoa(char * str, int num);
-PUBLIC void     delay(int time);
-
-
-
-PUBLIC char*    strcpy(char* p_dst, char* p_src);
-PUBLIC int      strlen(char* p_str);
-
-
-
-
-
-PUBLIC void     clear_disp();
-PUBLIC void     clear_last_row(int row);
-
-PUBLIC void     init_keyboard();
-
 PUBLIC void     keyboard_read(TTY* p_tty);
-PUBLIC void     task_tty();
+
 PUBLIC void     in_process(TTY* p_tty, u32 key);
 PUBLIC void     set_disp_pos_cursor();
 
 PUBLIC int      is_current_console(CONSOLE* p_con);
 PUBLIC void     out_char(CONSOLE* p_con, char ch);
-PUBLIC void     init_screen(TTY* p_tty);
+
 PUBLIC void     set_video_start_addr(u32 addr);
 PUBLIC void     select_console(int nr_console);
 PUBLIC void     scroll_screen(CONSOLE* p_con, int direction);
@@ -46,6 +20,13 @@ PUBLIC int      sys_printx(int _unused1, int _unused2, char* s, PROCESS* p_proc)
 
 
 /*************************** lib ***************************************/
+/****** string.asm ******/
+PUBLIC void* memcpy(void* pDst, void* pSrc, int iSize);
+PUBLIC void  memset(void* p_dst, char ch, int size);
+PUBLIC char* strcpy(char* p_dst, char* p_src);
+PUBLIC int strlen(char* p_str);
+
+
 /****** klib.asm ******/
 PUBLIC void disp_str(char* info);
 PUBLIC void disp_color_str(char* info, int color);
@@ -59,15 +40,18 @@ PUBLIC int disable_irq(int irq);  // 关闭硬件中断
 PUBLIC void enable_int();  
 PUBLIC void disable_int();
 
+
+/****** klibc.c ******/  
+PUBLIC char* itoa(char * str, int num);
+PUBLIC void disp_int_c(int input);
+PUBLIC void delay(int time);
+PUBLIC void clear_disp();  //清屏
+PUBLIC void clear_last_row(int row);
+
+
 /****** mics.c ******/  
 PUBLIC void spin(char *func_name);
 PUBLIC void assertion_failure(char *exp, char *file, char *base_file, int line);
-
-
-
-
-
-
 
 
 
@@ -76,7 +60,7 @@ PUBLIC void init_8259A();
 PUBLIC void put_irq_handler(int irq, irq_handler handler);
 
 
-/****** kernel.asm ******/ // _start 内核进口
+/****** kernel.asm ******/ // _start 内核进口 ,调用 cstart, 跳转到 kernel_main
 PUBLIC void restart();  // 进程入口
 PUBLIC void sys_call(); // 系统中断
 
@@ -125,6 +109,18 @@ PUBLIC void* va2la(int pid, void* va); // 虚拟地址转线性地址
 PUBLIC void reset_msg(MESSAGE* p);
 PUBLIC void dump_proc(PROCESS* p);
 PUBLIC void dump_msg(const char * title, MESSAGE* m);
+
+
+/****** keyboard.c ******/
+PUBLIC void init_keyboard();  // task_tty 调用该函数 
+
+
+/****** console.c ******/
+PUBLIC void init_screen(TTY* p_tty);
+
+
+/****** tty.c ******/
+PUBLIC void task_tty();
 
 
 /****** systask.c ******/

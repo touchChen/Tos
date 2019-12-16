@@ -9,7 +9,7 @@
 #include "keyboard.h"
 #include "keymap.h"
 
-PRIVATE KB_INPUT  kb_in;    // p303
+PRIVATE KB_INPUT  kb_in;    
 
 PRIVATE	int	code_with_E0;
 PRIVATE	int	shift_l;	/* l shift state */
@@ -36,9 +36,7 @@ PRIVATE void    set_leds();
 PRIVATE void    kb_wait();
 PRIVATE void    kb_ack();
 
-/*======================================================================*
-                            keyboard_handler
- *======================================================================*/
+
 PUBLIC void keyboard_handler(int irq)
 {
 	u8 scan_code = in_byte(KB_DATA);
@@ -51,13 +49,9 @@ PUBLIC void keyboard_handler(int irq)
 		}
 		kb_in.count++;
 	}
-
 }
 
 
-/*======================================================================*
-                           init_keyboard
-*======================================================================*/
 PUBLIC void init_keyboard()
 {	
 	kb_in.count = 0;
@@ -81,10 +75,6 @@ PUBLIC void init_keyboard()
 }
 
 
-
-/*======================================================================*
-                           keyboard_read
-*======================================================================*/
 PUBLIC void keyboard_read(TTY* p_tty)
 {
 	u8	scan_code;

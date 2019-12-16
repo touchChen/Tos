@@ -123,7 +123,7 @@ void TestA()
                 //panic("error:%20s in TestA",ss);
                 //printf("A.");
                 printf("ticks:%d.",get_u_ticks());
-		milli_delay(10000);      
+		milli_delay(1000);      
 	}
 }
 
