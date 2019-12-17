@@ -40,18 +40,9 @@ PUBLIC void task_tty()
 			tty_do_write(p_tty);
 		}
 	}
-
-        /*
-	while (1) {
-		keyboard_read();
-	}
-       */
 }
 
 
-/*======================================================================*
-			   init_tty
- *======================================================================*/
 PRIVATE void init_tty(TTY* p_tty)
 {
 	p_tty->inbuf_count = 0;
@@ -66,9 +57,7 @@ PRIVATE void init_tty(TTY* p_tty)
 
 
 
-/*======================================================================*
-			      tty_do_read
- *======================================================================*/
+
 PRIVATE void tty_do_read(TTY* p_tty)
 {
 	if (is_current_console(p_tty->p_console)) {
@@ -77,9 +66,7 @@ PRIVATE void tty_do_read(TTY* p_tty)
 }
 
 
-/*======================================================================*
-			      tty_do_write
- *======================================================================*/
+
 PRIVATE void tty_do_write(TTY* p_tty)
 {
 	if (p_tty->inbuf_count) {
@@ -97,9 +84,6 @@ PRIVATE void tty_do_write(TTY* p_tty)
 
 
 
-/*======================================================================*
-				in_process
- *======================================================================*/
 PUBLIC void in_process(TTY* p_tty, u32 key)
 {
         char output[2] = {'\0', '\0'};
@@ -171,9 +155,7 @@ PRIVATE void put_key(TTY* p_tty, u32 key)
 	}
 }
 
-/*======================================================================*
-			    set_cursor
- *======================================================================*/
+
 PUBLIC void set_disp_pos_cursor()
 {
 	disable_int();
@@ -185,9 +167,6 @@ PUBLIC void set_disp_pos_cursor()
 }
 
 
-/*======================================================================*
-                              tty_write
-*======================================================================*/
 PUBLIC void tty_write(TTY* p_tty, char* buf, int len)
 {
         char* p = buf;
@@ -199,9 +178,7 @@ PUBLIC void tty_write(TTY* p_tty, char* buf, int len)
         }
 }
 
-/*======================================================================*
-                              sys_write
-*======================================================================*/
+
 PUBLIC int sys_write(char* buf, int len, PROCESS* p_proc)
 {
         tty_write(&tty_table[p_proc->nr_tty], buf, len);

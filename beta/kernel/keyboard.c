@@ -23,11 +23,9 @@ PRIVATE	int	num_lock;	/* Num Lock	 */
 PRIVATE	int	scroll_lock;	/* Scroll Lock	 */
 PRIVATE	int	column;
 
-
 PRIVATE int	caps_lock;	/* Caps Lock	 */
 PRIVATE int	num_lock;	/* Num Lock	 */
 PRIVATE int	scroll_lock;	/* Scroll Lock	 */
-
 
 
 PRIVATE u8	get_byte_from_kbuf();
@@ -285,9 +283,6 @@ PUBLIC void keyboard_read(TTY* p_tty)
 }
 
 
-/*======================================================================*
-			    get_byte_from_kbuf
- *======================================================================*/
 PRIVATE u8 get_byte_from_kbuf()       /* 从键盘缓冲区中读取下一个字节 */
 {
         u8 scan_code;
@@ -306,10 +301,11 @@ PRIVATE u8 get_byte_from_kbuf()       /* 从键盘缓冲区中读取下一个字
         return scan_code;
 }
 
-/*======================================================================*
-				 kb_wait
- *======================================================================*/
-PRIVATE void kb_wait()	/* 等待 8042 的输入缓冲区空 */
+
+/************************************************************************                           
+ * 等待 8042 的输入缓冲区空
+ ***********************************************************************/
+PRIVATE void kb_wait()	
 {
 	u8 kb_stat;
 
@@ -319,9 +315,6 @@ PRIVATE void kb_wait()	/* 等待 8042 的输入缓冲区空 */
 }
 
 
-/*======================================================================*
-				 kb_ack
- *======================================================================*/
 PRIVATE void kb_ack()
 {
 	u8 kb_read;
@@ -331,12 +324,9 @@ PRIVATE void kb_ack()
 	} while (kb_read =! KB_ACK);
 }
 
-/*======================================================================*
-				 set_leds
- *======================================================================*/
+
 PRIVATE void set_leds()
-{
-        
+{    
 	u8 leds = (caps_lock << 2) | (num_lock << 1) | scroll_lock;
 
 	kb_wait();

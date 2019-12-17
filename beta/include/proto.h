@@ -1,24 +1,4 @@
 
-PUBLIC void     keyboard_read(TTY* p_tty);
-
-PUBLIC void     in_process(TTY* p_tty, u32 key);
-PUBLIC void     set_disp_pos_cursor();
-
-PUBLIC int      is_current_console(CONSOLE* p_con);
-PUBLIC void     out_char(CONSOLE* p_con, char ch);
-
-PUBLIC void     set_video_start_addr(u32 addr);
-PUBLIC void     select_console(int nr_console);
-PUBLIC void     scroll_screen(CONSOLE* p_con, int direction);
-PUBLIC void     flush(CONSOLE* p_con);
-
-
-
-PUBLIC int      sys_write(char* buf, int len, PROCESS* p_proc);
-PUBLIC int      sys_printx(int _unused1, int _unused2, char* s, PROCESS* p_proc);
-
-
-
 /*************************** lib ***************************************/
 /****** string.asm ******/
 PUBLIC void* memcpy(void* pDst, void* pSrc, int iSize);
@@ -52,6 +32,8 @@ PUBLIC void clear_last_row(int row);
 /****** mics.c ******/  
 PUBLIC void spin(char *func_name);
 PUBLIC void assertion_failure(char *exp, char *file, char *base_file, int line);
+
+
 
 
 
@@ -113,14 +95,27 @@ PUBLIC void dump_msg(const char * title, MESSAGE* m);
 
 /****** keyboard.c ******/
 PUBLIC void init_keyboard();  // task_tty 调用该函数 
+PUBLIC void keyboard_read(TTY* p_tty);
 
 
 /****** console.c ******/
 PUBLIC void init_screen(TTY* p_tty);
+PUBLIC void select_console(int nr_console);
+PUBLIC void scroll_screen(CONSOLE* p_con, int direction);
+PUBLIC int is_current_console(CONSOLE* p_con);
+PUBLIC void out_char(CONSOLE* p_con, char ch);
+PUBLIC void set_video_start_addr(u32 addr);
+PUBLIC void flush(CONSOLE* p_con);
 
 
 /****** tty.c ******/
 PUBLIC void task_tty();
+PUBLIC void in_process(TTY* p_tty, u32 key);
+PUBLIC void set_disp_pos_cursor();
+PUBLIC void tty_write(TTY* p_tty, char* buf, int len);
+PUBLIC int sys_write(char* buf, int len, PROCESS* p_proc);
+PUBLIC int sys_printx(int _unused1, int _unused2, char* s, PROCESS* p_proc);
+
 
 
 /****** systask.c ******/

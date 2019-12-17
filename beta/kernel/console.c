@@ -39,10 +39,11 @@ PUBLIC void init_screen(TTY* p_tty)
 	set_cursor(p_tty->p_console->cursor);
 }
 
-/*======================================================================*
-			   select_console
- *======================================================================*/
-PUBLIC void select_console(int nr_console)	/* 0 ~ (NR_CONSOLES - 1) */
+/************************************************************************
+ *                            
+ * nr_console:  0 ~ (NR_CONSOLES - 1) 
+ ***********************************************************************/
+PUBLIC void select_console(int nr_console)	
 {
 	if ((nr_console < 0) || (nr_console >= NR_CONSOLES)) {
 		return;
@@ -57,16 +58,12 @@ PUBLIC void select_console(int nr_console)	/* 0 ~ (NR_CONSOLES - 1) */
         flush(&console_table[nr_console]);
 }
 
-/*======================================================================*
-			   scroll_screen
- *----------------------------------------------------------------------*
- 滚屏.
- *----------------------------------------------------------------------*
- direction:
-	SCR_UP	: 向上滚屏
-	SCR_DN	: 向下滚屏
-	其它	: 不做处理
- *======================================================================*/
+/************************************************************************
+ * 滚屏.
+ * direction:
+ *	SCR_UP	: 向上滚屏
+ *	SCR_DN	: 向下滚屏
+ ************************************************************************/
 PUBLIC void scroll_screen(CONSOLE* p_con, int direction)
 {
 	if (direction == SCR_UP) {
@@ -85,30 +82,20 @@ PUBLIC void scroll_screen(CONSOLE* p_con, int direction)
 	flush(p_con);
 }
 
-/*======================================================================*
-			   is_current_console
-*======================================================================*/
+
 PUBLIC int is_current_console(CONSOLE* p_con)
 {
 	return (p_con == &console_table[nr_current_console]);
 }
 
 
-/*======================================================================*
-			   out_char
- *======================================================================*/
+/************************************************************************
+ * 在屏幕上显示字符
+ ************************************************************************/
 PUBLIC void out_char(CONSOLE* p_con, char ch)
 {
 	u8* p_vmem = (u8*)(V_MEM_BASE + p_con->cursor*2);  //disp_pos tty=0
         
-        /*
-	*p_vmem++ = ch;
-	*p_vmem++ = DEFAULT_CHAR_COLOR;
-	//disp_pos += 2;
-        p_con->cursor ++;
-                     
-	set_cursor(p_con->cursor);
-        */
 
         switch(ch) {
 		case '\n':
@@ -139,9 +126,7 @@ PUBLIC void out_char(CONSOLE* p_con, char ch)
 	flush(p_con);
 }
 
-/*======================================================================*
-			    set_cursor
- *======================================================================*/
+
 PRIVATE void set_cursor(unsigned int position)
 {
 	disable_int();
@@ -153,9 +138,6 @@ PRIVATE void set_cursor(unsigned int position)
 }
 
 
-/*======================================================================*
-			  set_video_start_addr
- *======================================================================*/
 PUBLIC void set_video_start_addr(u32 addr)
 {
 	disable_int();
@@ -166,9 +148,7 @@ PUBLIC void set_video_start_addr(u32 addr)
 	enable_int();
 }
 
-/*======================================================================*
-                           flush
-*======================================================================*/
+
 PUBLIC void flush(CONSOLE* p_con)
 {
         set_cursor(p_con->cursor);
