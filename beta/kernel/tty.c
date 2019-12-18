@@ -239,7 +239,7 @@ PUBLIC int sys_printx(int _unused1, int _unused2, char* s, PROCESS* p_proc)
 					v++;
 					*v++ = GRAY_CHAR;
 				}
-				q = p + 1;
+				q = p + 1;  //重新开始
 			}
 		}
 

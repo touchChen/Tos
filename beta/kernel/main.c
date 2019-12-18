@@ -60,6 +60,7 @@ PRIVATE void init_process()
                 p_proc->nr_tty = p_task->tty;
 
 		p_proc->ldt_sel = selector_ldt;  //在GDT中选择子 一个进程一个选择子
+                                                 // 描述符已在 protect.c 中初始化
 
 		memcpy(&p_proc->ldts[0], &gdt[SELECTOR_KERNEL_CS >> 3], sizeof(DESCRIPTOR));
 		p_proc->ldts[0].attr1 = DA_C | privilege << 5;         //左移5位->DPL
