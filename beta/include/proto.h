@@ -145,6 +145,7 @@ PUBLIC void panic(const char *fmt, ...);
 
 
 /****** hd.c ******/
+PUBLIC void task_hd();
 PUBLIC void hd_handler(int irq);
 
 
