@@ -148,4 +148,10 @@ PUBLIC void panic(const char *fmt, ...);
 PUBLIC void task_hd();
 PUBLIC void hd_handler(int irq);
 
+/****** fs.c ******/
+PUBLIC void task_fs();
+
+
+
+
 

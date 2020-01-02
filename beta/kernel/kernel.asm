@@ -239,49 +239,60 @@ ALIGN   16
 hwint07:                ; Interrupt routine for irq 7 (printer)
         hwint_master    7
 
+
 ; ---------------------------------
-%macro  hwint_slave     1
-        push    %1
-        call    spurious_irq
-        add     esp, 4
-        hlt
+%macro	hwint_slave	1
+	call	save
+	in	al, INT_S_CTLMASK	; `.
+	or	al, (1 << (%1 - 8))	;  | 屏蔽当前中断
+	out	INT_S_CTLMASK, al	; /
+	mov	al, EOI			; `. 置EOI位(master)
+	out	INT_M_CTL, al		; /
+	nop				; `. 置EOI位(slave)
+	out	INT_S_CTL, al		; /  一定注意：slave和master都要置EOI
+	sti	; CPU在响应中断的过程中会自动关中断，这句之后就允许响应新的中断
+	push	%1			; `.
+	call	[irq_table + 4 * %1]	;  | 中断处理程序
+	pop	ecx			; /
+	cli
+	in	al, INT_S_CTLMASK	; `.
+	and	al, ~(1 << (%1 - 8))	;  | 恢复接受当前中断
+	out	INT_S_CTLMASK, al	; /
+	ret
 %endmacro
 ; ---------------------------------
 
-ALIGN   16
-hwint08:                ; Interrupt routine for irq 8 (realtime clock).
-        hwint_slave     8
+ALIGN	16
+hwint08:		; Interrupt routine for irq 8 (realtime clock).
+	hwint_slave	8
 
-ALIGN   16
-hwint09:                ; Interrupt routine for irq 9 (irq 2 redirected)
-        hwint_slave     9
+ALIGN	16
+hwint09:		; Interrupt routine for irq 9 (irq 2 redirected)
+	hwint_slave	9
 
-ALIGN   16
-hwint10:                ; Interrupt routine for irq 10
-        hwint_slave     10
+ALIGN	16
+hwint10:		; Interrupt routine for irq 10
+	hwint_slave	10
 
-ALIGN   16
-hwint11:                ; Interrupt routine for irq 11
-        hwint_slave     11
+ALIGN	16
+hwint11:		; Interrupt routine for irq 11
+	hwint_slave	11
 
-ALIGN   16
-hwint12:                ; Interrupt routine for irq 12
-        hwint_slave     12
+ALIGN	16
+hwint12:		; Interrupt routine for irq 12
+	hwint_slave	12
 
-ALIGN   16
-hwint13:                ; Interrupt routine for irq 13 (FPU exception)
-        hwint_slave     13
+ALIGN	16
+hwint13:		; Interrupt routine for irq 13 (FPU exception)
+	hwint_slave	13
 
-ALIGN   16
-hwint14:                ; Interrupt routine for irq 14 (AT winchester)
-        hwint_slave     14
+ALIGN	16
+hwint14:		; Interrupt routine for irq 14 (AT winchester)
+	hwint_slave	14
 
-ALIGN   16
-hwint15:                ; Interrupt routine for irq 15
-        hwint_slave     15
-
-
-
+ALIGN	16
+hwint15:		; Interrupt routine for irq 15
+	hwint_slave	15
 
 
 ; 中断和异常 -- 异常

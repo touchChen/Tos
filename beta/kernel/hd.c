@@ -76,7 +76,7 @@ PRIVATE void init_hd()
 PRIVATE void hd_identify(int drive)
 {
 	struct hd_cmd cmd;
-	cmd.device  = MAKE_DEVICE_REG(0, drive, 0);
+	cmd.device  = MAKE_DEVICE_REG(0, drive, 0);  //lba, drv, high
 	cmd.command = ATA_IDENTIFY;
 	hd_cmd_out(&cmd);
 	interrupt_wait();
@@ -141,7 +141,7 @@ PRIVATE void hd_cmd_out(struct hd_cmd* cmd)
 		panic("hd error.");
 
 	/* Activate the Interrupt Enable (nIEN) bit */
-	out_byte(REG_DEV_CTRL, 0);
+	out_byte(REG_DEV_CTRL, 0);   // 打开中断
 	/* Load required parameters in the Command Block Registers */
 	out_byte(REG_FEATURES, cmd->features);
 	out_byte(REG_NSECTOR,  cmd->count);

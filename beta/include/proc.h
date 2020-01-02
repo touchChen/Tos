@@ -92,7 +92,7 @@ typedef struct s_task {
 
 
 /* Number of tasks */
-#define NR_TASKS	2
+#define NR_TASKS	4
 
 /* Number of user proc */
 #define NR_PROCS	3
@@ -111,12 +111,16 @@ typedef struct s_task {
 #define STACK_SIZE_TESTC	0x8000
 #define STACK_SIZE_TTY		0x8000
 #define STACK_SIZE_SYS		0x8000
+#define STACK_SIZE_HD		0x8000
+#define STACK_SIZE_FS		0x8000
 
 #define STACK_SIZE_TOTAL	(STACK_SIZE_TESTA + \
                                  STACK_SIZE_TESTC + \
 				 STACK_SIZE_TESTB + \
                                  STACK_SIZE_TTY + \
-                                 STACK_SIZE_SYS)
+                                 STACK_SIZE_SYS + \
+                                 STACK_SIZE_HD + \
+                                 STACK_SIZE_FS)
 
 #define ANY		(NR_TASKS + NR_PROCS + 10)
 #define NO_TASK		(NR_TASKS + NR_PROCS + 20)
@@ -135,6 +139,8 @@ typedef struct s_task {
 #define TASK_TTY	0
 #define TASK_SYS	1
 #define TASK_HD		2
+#define TASK_FS		3
+
 
 
 /**
