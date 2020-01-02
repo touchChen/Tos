@@ -120,11 +120,11 @@ void TestA()
 {       
         char ss[] = "hello world";
 	while(1){
-                assert(0);
+                //assert(0);
                 // panic("error:%20s in TestA",ss);
                 //printf("A.");
                 printf("ticks:%d.",get_u_ticks());
-		milli_delay(100000);      
+		milli_delay(10000);      
 	}
 }
 
@@ -135,8 +135,8 @@ void TestB()
 		//disp_str("B");
 		//disp_int_c(get_ticks());
                 //printf("ticks:%x.\n",get_ticks());
-                printf("B.\n");
-                milli_delay(100000);
+                printf("B.c");
+                milli_delay(10000);
 	}
 }
 
@@ -146,7 +146,7 @@ void TestC()
 {
 	while(1){
                 printf("C.\n");
-                milli_delay(100000);
+                milli_delay(10000);
 		//printf("disp_pos:%x.\n",disp_pos);
 		
 	}

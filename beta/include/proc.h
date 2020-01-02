@@ -134,6 +134,7 @@ typedef struct s_task {
 #define INTERRUPT	-10
 #define TASK_TTY	0
 #define TASK_SYS	1
+#define TASK_HD		2
 
 
 /**
@@ -149,6 +150,13 @@ enum msgtype {
 
 	/* SYS task */
 	GET_TICKS,
+
+	/* message type for drivers */
+	DEV_OPEN = 1001,
+	DEV_CLOSE,
+	DEV_READ,
+	DEV_WRITE,
+	DEV_IOCTL
 };
 
 #define	RETVAL		u.m3.m3i1

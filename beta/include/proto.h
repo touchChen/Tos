@@ -19,6 +19,8 @@ PUBLIC void enable_irq(int irq);  // 开启硬件中断 (irq 中断号)
 PUBLIC int disable_irq(int irq);  // 关闭硬件中断
 PUBLIC void enable_int();  
 PUBLIC void disable_int();
+PUBLIC void port_read(u16 port, void* buf, int n);
+PUBLIC void port_write(u16 port, void* buf, int n);
 
 
 /****** klibc.c ******/  
@@ -92,6 +94,8 @@ PUBLIC void reset_msg(MESSAGE* p);
 PUBLIC void dump_proc(PROCESS* p);
 PUBLIC void dump_msg(const char * title, MESSAGE* m);
 
+PUBLIC void inform_int(int task_nr); // 通知有一条中断消息
+
 
 /****** keyboard.c ******/
 PUBLIC void init_keyboard();  // task_tty 调用该函数 
@@ -138,4 +142,9 @@ PUBLIC void panic(const char *fmt, ...);
  */
 #define	phys_copy	memcpy
 #define	phys_set	memset
+
+
+/****** hd.c ******/
+PUBLIC void hd_handler(int irq);
+
 
