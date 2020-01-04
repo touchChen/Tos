@@ -10,18 +10,17 @@ vgaromimage: file=/usr/local/share/bochs/VGABIOS-lgpl-latest
 mouse: enabled=0
 
 ata0: enabled=1,ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
-ata0-master: type=disk, path="80m.img", mode=flat
-#ata0-master: type=disk, mode=flat, path="c.img"
-#floppya: 1_44=a.img, status=inserted
+ata0-master: type=disk, path="30m.img", mode=flat 
+
 floppya: 1_44=x.img, status=inserted
 
-#ata0-master: type=disk, path=c.img, cylinders=306, heads=4, spt=17
+#ata0-master: type=disk, path=c.img, 
 #boot: c
 
 
 
 boot: a
-#boot: disk
+#boot: disk  cylinders=60, heads=16, spt=63
 
 log: log.txt
 
