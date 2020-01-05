@@ -7,6 +7,7 @@
 #include "console.h"
 #include "proc.h"
 #include "global.h"
+#include "hd.h"
 #include "proto.h"
 
 
@@ -28,3 +29,30 @@ PUBLIC	system_call  sys_call_table[NR_SYS_CALL] = {sys_printx,
 
 PUBLIC  TTY             tty_table[NR_CONSOLES];
 PUBLIC  CONSOLE         console_table[NR_CONSOLES];
+
+
+/* FS related below */
+/*****************************************************************************/
+/**
+ * For dd_map[k],
+ * `k' is the device nr.\ dd_map[k].driver_nr is the driver nr.
+ *
+ * Remeber to modify include/const.h if the order is changed.
+ *****************************************************************************/
+struct dev_drv_map dd_map[] = {
+	/* driver nr.		major device nr.
+	   ----------		---------------- */
+	{INVALID_DRIVER},	/**< 0 : Unused */
+	{INVALID_DRIVER},	/**< 1 : Reserved for floppy driver */
+	{INVALID_DRIVER},	/**< 2 : Reserved for cdrom driver */
+	{TASK_HD},		/**< 3 : Hard disk */
+	{TASK_TTY},		/**< 4 : TTY */
+	{INVALID_DRIVER}	/**< 5 : Reserved for scsi disk driver */
+};
+
+/**
+ * 6MB~7MB: buffer for FS
+ */
+PUBLIC	u8 *		fsbuf		= (u8*)0x600000;
+PUBLIC	const int	FSBUF_SIZE	= 0x100000;
+
