@@ -6,8 +6,8 @@
 #include "tty.h"
 #include "console.h"
 #include "proc.h"
-#include "global.h"
 #include "hd.h"
+#include "global.h"
 #include "proto.h"
 
 
@@ -31,14 +31,7 @@ PUBLIC  TTY             tty_table[NR_CONSOLES];
 PUBLIC  CONSOLE         console_table[NR_CONSOLES];
 
 
-/* FS related below */
-/*****************************************************************************/
-/**
- * For dd_map[k],
- * `k' is the device nr.\ dd_map[k].driver_nr is the driver nr.
- *
- * Remeber to modify include/const.h if the order is changed.
- *****************************************************************************/
+
 struct dev_drv_map dd_map[] = {
 	/* driver nr.		major device nr.
 	   ----------		---------------- */

@@ -4,6 +4,7 @@
 #include "proc.h"
 #include "tty.h"
 #include "console.h"
+#include "hd.h"
 #include "proto.h"
 #include "global.h"
 

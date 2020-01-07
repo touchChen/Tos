@@ -4,14 +4,15 @@
 #include "proc.h"
 #include "tty.h"
 #include "console.h"
-#include "global.h"
-#include "keyboard.h"
 #include "hd.h"
+#include "keyboard.h"
+#include "global.h"
 #include "proto.h"
 
 
 PRIVATE void init_hd();
 PRIVATE void hd_open(int device);
+PRIVATE void hd_ioctl(MESSAGE * m);
 PRIVATE void partition(int device, int style);
 PRIVATE void hd_cmd_out(struct hd_cmd* cmd);
 PRIVATE int  waitfor(int mask, int val, int timeout);
@@ -39,7 +40,7 @@ PUBLIC void task_hd()
 	MESSAGE msg;
 
 	init_hd();
-    
+        
 
 	while (1) {
 		send_recv(RECEIVE, ANY, &msg);
@@ -47,15 +48,18 @@ PUBLIC void task_hd()
 		int src = msg.source;
 
 		switch (msg.type) {
-		case DEV_OPEN:
-			//hd_identify(0);
-			hd_open(msg.DEVICE);
-			break;
+			case DEV_OPEN:
+				hd_open(msg.DEVICE);
+				break;
 
-		default:
-			dump_msg("HD driver::unknown msg", &msg);
-			spin("FS::main_loop (invalid msg.type)");
-			break;
+		        case DEV_IOCTL:
+				hd_ioctl(&msg);
+				break;
+
+			default:
+				dump_msg("HD driver::unknown msg", &msg);
+				spin("FS::main_loop (invalid msg.type)");
+				break;
 		}
 
 		send_recv(SEND, src, &msg);
@@ -192,6 +196,34 @@ PRIVATE void partition(int device, int style)
 			if (part_tbl[1].sys_id == NO_PART)
 				break;
 		}
+	}
+	else {
+		assert(0);
+	}
+}
+
+
+/*****************************************************************************
+ * <Ring 1> This routine handles the DEV_IOCTL message.
+ * 
+ * @param p  Ptr to the MESSAGE.
+ *****************************************************************************/
+PRIVATE void hd_ioctl(MESSAGE * m)
+{
+	int device = m->DEVICE;
+	int drive = DRV_OF_DEV(device);
+
+	struct hd_info * hdi = &hd_info[drive];
+
+	if (m->REQUEST == DIOCTL_GET_GEO) {
+		void * dst = va2la(m->PROC_NR, m->BUF);
+		void * src = va2la(TASK_HD,
+				   device < MAX_PRIM ?
+				   &hdi->primary[device] :
+				   &hdi->logical[(device - MINOR_hd1a) %
+						NR_SUB_PER_DRIVE]);
+
+		phys_copy(dst, src, sizeof(struct part_info));
 	}
 	else {
 		assert(0);

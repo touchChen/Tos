@@ -341,7 +341,7 @@ struct dev_drv_map {
 	int driver_nr; 
 };
 
-#define	MAGIC_V1	0x111
+#define	MAGIC_V1	98
 
 struct super_block {
 	u32	magic;		  /**< Magic number */
@@ -390,6 +390,28 @@ struct inode {
  * The size in memory is larger because of some more members.
  */
 #define	INODE_SIZE	32
+
+#define	MAX_FILENAME_LEN	12
+
+
+/**
+ * @struct dir_entry
+ * @brief  Directory Entry
+ */
+struct dir_entry {
+	int	inode_nr;		/**< inode nr. */
+	char	name[MAX_FILENAME_LEN];	/**< Filename */
+};
+
+
+#define	DIR_ENTRY_SIZE	sizeof(struct dir_entry)
+
+
+struct file_desc {
+	int		fd_mode;	/**< R or W */
+	int		fd_pos;		/**< Current position for R/W. */
+	struct inode*	fd_inode;	/**< Ptr to the i-node */
+};
 
 
 
