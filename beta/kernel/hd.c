@@ -13,6 +13,7 @@
 PRIVATE void init_hd();
 PRIVATE void hd_open(int device);
 PRIVATE void hd_ioctl(MESSAGE * m);
+PRIVATE void hd_rdwt(MESSAGE * m);
 PRIVATE void partition(int device, int style);
 PRIVATE void hd_cmd_out(struct hd_cmd* cmd);
 PRIVATE int  waitfor(int mask, int val, int timeout);
@@ -24,10 +25,6 @@ PRIVATE void print_hdinfo(struct hd_info * hdi);
 PRIVATE	u8 hd_status;
 PRIVATE	u8 hdbuf[SECTOR_SIZE * 2];
 PRIVATE	struct hd_info hd_info[1];
-
-#define	DRV_OF_DEV(dev) (dev <= MAX_PRIM ? \
-			 dev / NR_PRIM_PER_DRIVE : \
-			 (dev - MINOR_hd1a) / NR_SUB_PER_DRIVE)
 
 
 
@@ -54,6 +51,11 @@ PUBLIC void task_hd()
 
 		        case DEV_IOCTL:
 				hd_ioctl(&msg);
+				break;
+
+			case DEV_READ:
+			case DEV_WRITE:
+				hd_rdwt(&msg);
 				break;
 
 			default:
@@ -229,6 +231,70 @@ PRIVATE void hd_ioctl(MESSAGE * m)
 		assert(0);
 	}
 }
+
+
+/*****************************************************************************
+ * <Ring 1> This routine handles DEV_READ and DEV_WRITE message.
+ * 
+ * @param p Message ptr.
+ *****************************************************************************/
+PRIVATE void hd_rdwt(MESSAGE * m)
+{
+	int drive = DRV_OF_DEV(m->DEVICE);
+
+	u64 pos = m->POSITION;
+	assert((pos >> SECTOR_SIZE_SHIFT) < (1 << 31));
+
+	/**
+	 * We only allow to R/W from a SECTOR boundary:
+	 */
+	assert((pos & 0x1FF) == 0);
+
+	u32 sect_nr = (u32)(pos >> SECTOR_SIZE_SHIFT); /* pos / SECTOR_SIZE */
+	int logidx = (m->DEVICE - MINOR_hd1a) % NR_SUB_PER_DRIVE;
+	sect_nr += m->DEVICE < MAX_PRIM ?
+		hd_info[drive].primary[m->DEVICE].base :
+		hd_info[drive].logical[logidx].base;
+
+	
+	struct hd_cmd cmd;
+	cmd.features	= 0;
+	cmd.count	= (m->CNT + SECTOR_SIZE - 1) / SECTOR_SIZE;  // 扇区数
+	cmd.lba_low	= sect_nr & 0xFF;
+	cmd.lba_mid	= (sect_nr >>  8) & 0xFF;
+	cmd.lba_high	= (sect_nr >> 16) & 0xFF;
+	cmd.device	= MAKE_DEVICE_REG(1, drive, (sect_nr >> 24) & 0xF);
+	cmd.command	= (m->type == DEV_READ) ? ATA_READ : ATA_WRITE;
+	hd_cmd_out(&cmd);
+
+	int bytes_left = m->CNT;
+	void * la = (void*)va2la(m->PROC_NR, m->BUF);
+
+	while (bytes_left) {
+		int bytes = min(SECTOR_SIZE, bytes_left);
+		if (m->type == DEV_READ) {
+			interrupt_wait();
+			port_read(REG_DATA, hdbuf, SECTOR_SIZE);
+			phys_copy(la, (void*)va2la(TASK_HD, hdbuf), bytes);
+		}
+		else {
+			if (!waitfor(STATUS_DRQ, STATUS_DRQ, HD_TIMEOUT))
+				panic("hd writing error.");
+
+			port_write(REG_DATA, la, bytes);
+			interrupt_wait();
+		}
+		
+		if (bytes_left == bytes)
+                {
+                    break;
+                }
+
+		bytes_left -= SECTOR_SIZE;
+		la += SECTOR_SIZE;
+	}
+}															
+
 
 /*****************************************************************************
  * hd_identify

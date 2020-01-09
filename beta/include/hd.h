@@ -43,6 +43,11 @@
 #define	NR_SUB_PER_DRIVE	(NR_SUB_PER_PART * NR_PART_PER_DRIVE)
 #define	NR_PRIM_PER_DRIVE	(NR_PART_PER_DRIVE + 1)
 
+
+#define	DRV_OF_DEV(dev) (dev <= MAX_PRIM ? \
+			 dev / NR_PRIM_PER_DRIVE : \
+			 (dev - MINOR_hd1a) / NR_SUB_PER_DRIVE)
+
 /**
  * @def MAX_PRIM_DEV
  * Defines the max minor number of the primary partitions.
@@ -412,6 +417,24 @@ struct file_desc {
 	int		fd_pos;		/**< Current position for R/W. */
 	struct inode*	fd_inode;	/**< Ptr to the i-node */
 };
+
+
+/**
+ * Since all invocations of `rw_sector()' in FS look similar (most of the
+ * params are the same), we use this macro to make code more readable.
+ */
+#define RD_SECT(dev,sect_nr) rw_sector(DEV_READ, \
+				       dev,				\
+				       (sect_nr) * SECTOR_SIZE,		\
+				       SECTOR_SIZE, /* read one sector */ \
+				       TASK_FS,				\
+				       fsbuf);
+#define WR_SECT(dev,sect_nr) rw_sector(DEV_WRITE, \
+				       dev,				\
+				       (sect_nr) * SECTOR_SIZE,		\
+				       SECTOR_SIZE, /* write one sector */ \
+				       TASK_FS,				\
+				       fsbuf);
 
 
 

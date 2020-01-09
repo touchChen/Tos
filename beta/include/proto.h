@@ -143,6 +143,10 @@ PUBLIC void panic(const char *fmt, ...);
 #define	phys_copy	memcpy
 #define	phys_set	memset
 
+/* max() & min() */
+#define	max(a,b)	((a) > (b) ? (a) : (b))
+#define	min(a,b)	((a) < (b) ? (a) : (b))
+
 
 /****** hd.c ******/
 PUBLIC void task_hd();
@@ -150,6 +154,7 @@ PUBLIC void hd_handler(int irq);
 
 /****** fs.c ******/
 PUBLIC void task_fs();
+PUBLIC int rw_sector(int io_type, int dev, u64 pos, int bytes, int proc_nr, void* buf);
 
 
 
