@@ -80,21 +80,19 @@ PRIVATE void init_fs()
 	/* write the super block */
 	WR_SECT(ROOT_DEV, 1);
         
-        /*
+        
 	printl("devbase:0x%x00, sb:0x%x00, imap:0x%x00, smap:0x%x00\n"
 	       "        inodes:0x%x00, 1st_sector:0x%x00\n", 
 	       geo.base * 2,
-	       (geo.base + 1) * 2,
-	       (geo.base + 1 + 1) * 2,
-	       (geo.base + 1 + 1 + sb.nr_imap_sects) * 2,
-	       (geo.base + 1 + 1 + sb.nr_imap_sects + sb.nr_smap_sects) * 2,
+	       (geo.base + 1) * 2, /* 超级块 */
+	       (geo.base + 1 + 1) * 2, /* inode map */
+	       (geo.base + 1 + 1 + sb.nr_imap_sects) * 2, /* sect map */
+	       (geo.base + 1 + 1 + sb.nr_imap_sects + sb.nr_smap_sects) * 2, /* nodes */
 	       (geo.base + sb.n_1st_sect) * 2);
-	*/
 	
 	
 
-
-	/*       inode map      */
+	/*       inode map    bit-> node   */
 	memset(fsbuf, 0, SECTOR_SIZE);
 	for (i = 0; i < (NR_CONSOLES + 2); i++)
 		fsbuf[0] |= 1 << i;
@@ -112,7 +110,7 @@ PRIVATE void init_fs()
 
 
 	
-	/*      secter map      */
+	/*      secter map    bit-> sect  */
 	memset(fsbuf, 0, SECTOR_SIZE);
 	int nr_sects = NR_DEFAULT_FILE_SECTS + 1;
 	/*             ~~~~~~~~~~~~~~~~~~~|~   |
@@ -125,16 +123,12 @@ PRIVATE void init_fs()
 	for (j = 0; j < nr_sects % 8; j++)
 		fsbuf[i] |= (1 << j);
 
-	WR_SECT(ROOT_DEV, 2 + sb.nr_imap_sects);  // 默认一个扇区 × 8 个 sect
+	WR_SECT(ROOT_DEV, 2 + sb.nr_imap_sects);  // 一个扇区映射 4096 个 扇区
 
 
-	printl("nr_smap_sects: %d\n",sb.nr_smap_sects);
-
-	/* zeromemory the rest sector-map */
 	memset(fsbuf, 0, SECTOR_SIZE);
-	for (i = 1; i < sb.nr_smap_sects; i++)
+	for (i = 1; i < sb.nr_smap_sects; i++)  // 从 i = 1 开始
 		WR_SECT(ROOT_DEV, 2 + sb.nr_imap_sects + i);
-
 
 
 	/*       inodes         */
