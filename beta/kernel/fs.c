@@ -49,9 +49,7 @@ PRIVATE void init_fs()
 	driver_msg.PROC_NR	= TASK_FS;
 	assert(dd_map[MAJOR(ROOT_DEV)].driver_nr != INVALID_DRIVER);
 	send_recv(BOTH, TASK_HD, &driver_msg);
-   
-	printl("dev base: %d, size: %d sectors\n\n", geo.base, geo.size);
-
+  
 
 
 	/*      super block     */
@@ -79,6 +77,15 @@ PRIVATE void init_fs()
 
 	/* write the super block */
 	WR_SECT(ROOT_DEV, 1);
+
+        printl("indoes:%d, indoes_sects:%d, sects:%d, "
+               "imap: %d, smap: %d, data_1st: %d\n\n",
+               sb.nr_inodes,
+               sb.nr_inode_sects,
+               sb.nr_sects,
+               sb.nr_imap_sects,
+               sb.nr_smap_sects,
+               sb.n_1st_sect);
         
         
 	printl("devbase:0x%x00, sb:0x%x00, imap:0x%x00, smap:0x%x00\n"
