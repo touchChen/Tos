@@ -7,6 +7,7 @@
 #include "console.h"
 #include "proc.h"
 #include "hd.h"
+#include "fs.h"
 #include "global.h"
 #include "proto.h"
 

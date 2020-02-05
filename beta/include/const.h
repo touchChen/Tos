@@ -72,5 +72,21 @@
 #define	V_MEM_SIZE	0x8000	/* 32K: B8000H -> BFFFFH */
 
 
+/* major device numbers (corresponding to kernel/global.c::dd_map[]) */
+/* 主设备号 即驱动*/
+#define	NO_DEV			0
+#define	DEV_FLOPPY		1
+#define	DEV_CDROM		2
+#define	DEV_HD			3
+#define	DEV_CHAR_TTY		4
+#define	DEV_SCSI		5
+/* make device number from major and minor numbers */
+#define	MAJOR_SHIFT		8
+#define	MAKE_DEV(a,b)		((a << MAJOR_SHIFT) | b)
+/* separate major and minor numbers from device number */
+#define	MAJOR(x)		((x >> MAJOR_SHIFT) & 0xFF)
+#define	MINOR(x)		(x & 0xFF)
+
+
 
 #endif /* _TOS_CONST_H_ */

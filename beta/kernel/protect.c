@@ -6,6 +6,7 @@
 #include "tty.h"
 #include "console.h"
 #include "hd.h"
+#include "fs.h"
 #include "global.h"
 #include "proto.h"
 

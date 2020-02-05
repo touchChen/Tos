@@ -5,6 +5,7 @@
 #include "tty.h"
 #include "console.h"
 #include "hd.h"
+#include "fs.h"
 #include "keyboard.h"
 #include "global.h"
 #include "proto.h"
@@ -57,7 +58,7 @@ PRIVATE void init_fs()
 	/*      super block     */
 	struct super_block sb;
 	sb.magic	  = MAGIC_V1;
-	sb.nr_inodes	  = bits_per_sect;  // 4096
+	sb.nr_inodes	  = SECTOR_SIZE;  // inode nr
 	sb.nr_inode_sects = sb.nr_inodes * INODE_SIZE / SECTOR_SIZE;  // INODE_SIZE: 文件占的空间
 	sb.nr_sects	  = geo.size; /* partition size in sector */
 	sb.nr_imap_sects  = 1;
@@ -174,10 +175,11 @@ PRIVATE void init_fs()
 
 
 /*****************************************************************************
- * <Ring 1> R/W a sector via messaging with the corresponding driver.
+ * <Ring 1> R/W a sector via messaging with the corresponding driver. 
+ *  注意 是一个扇区
  * 
  * @param io_type  DEV_READ or DEV_WRITE
- * @param dev      device nr
+ * @param dev      device nr   
  * @param pos      Byte offset from/to where to r/w.
  * @param bytes    r/w count in bytes.
  * @param proc_nr  To whom the buffer belongs.
@@ -191,7 +193,7 @@ PUBLIC int rw_sector(int io_type, int dev, u64 pos, int bytes, int proc_nr,
 	MESSAGE driver_msg;
 
 	driver_msg.type		= io_type;
-	driver_msg.DEVICE	= MINOR(dev);
+	driver_msg.DEVICE	= MINOR(dev);   // 次设备号
 	driver_msg.POSITION	= pos;
 	driver_msg.BUF		= buf;
 	driver_msg.CNT		= bytes;

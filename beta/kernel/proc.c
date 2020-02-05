@@ -5,6 +5,7 @@
 #include "tty.h"
 #include "console.h"
 #include "hd.h"
+#include "fs.h"
 #include "global.h"
 #include "proto.h"
 
@@ -106,7 +107,7 @@ PUBLIC int sys_sendrec(int function, int src_dest, MESSAGE* m, PROCESS* p)
 /**
  * <Ring 1~3> IPC syscall.
  *
- * It is an encapsulation of `sendrec',
+ * It is an encapsulation of `sendrec', sendrec: 系统中断
  * invoking `sendrec' directly should be avoided
  *
  * @param function  SEND, RECEIVE or BOTH

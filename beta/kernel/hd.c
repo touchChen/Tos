@@ -5,6 +5,7 @@
 #include "tty.h"
 #include "console.h"
 #include "hd.h"
+#include "fs.h"
 #include "keyboard.h"
 #include "global.h"
 #include "proto.h"
@@ -108,7 +109,7 @@ PRIVATE void hd_open(int device)
 
 
 	if (hd_info[drive].open_cnt++ == 0) {
-		partition(drive * (NR_PART_PER_DRIVE + 1), P_PRIMARY);
+		partition(drive * (NR_PART_PER_DRIVE + 1), P_PRIMARY); //第一个参数，硬盘的设备号 ( 0 , 5)
 		print_hdinfo(&hd_info[drive]);
 	}
 }
@@ -160,7 +161,7 @@ PRIVATE void partition(int device, int style)
 	struct part_ent part_tbl[NR_SUB_PER_DRIVE];
 
 	if (style == P_PRIMARY) {
-		get_part_table(drive, drive, part_tbl); // 第二块硬盘，那么取第二扇区吗？
+		get_part_table(drive, drive, part_tbl); // 第二块硬盘，那么取第二扇区吗？ 目前只有一块硬盘
 
 		int nr_prim_parts = 0;
 		for (i = 0; i < NR_PART_PER_DRIVE; i++) { /* 0~3 */
@@ -305,7 +306,7 @@ PRIVATE void hd_rdwt(MESSAGE * m)
 PRIVATE void hd_identify(int drive)
 {
 	struct hd_cmd cmd;
-	cmd.device  = MAKE_DEVICE_REG(0, drive, 0);  //lba, drv, high
+	cmd.device  = MAKE_DEVICE_REG(0, drive, 0);  //lba, drv, high 设备寄存器
 	cmd.command = ATA_IDENTIFY;
 	hd_cmd_out(&cmd);
 	interrupt_wait();
@@ -401,7 +402,7 @@ PRIVATE void hd_cmd_out(struct hd_cmd* cmd)
 		panic("hd error.");
 
 	/* Activate the Interrupt Enable (nIEN) bit */
-	out_byte(REG_DEV_CTRL, 0);   // 打开中断
+	out_byte(REG_DEV_CTRL, 0);   // 打开中断 控制块寄存器(写:设备控制)
 	/* Load required parameters in the Command Block Registers */
 	out_byte(REG_FEATURES, cmd->features);
 	out_byte(REG_NSECTOR,  cmd->count);
