@@ -1,11 +1,11 @@
 #include "type.h"
 #include "const.h"
 #include "protect.h"
-#include "proc.h"
 #include "tty.h"
 #include "console.h"
 #include "hd.h"
 #include "fs.h"
+#include "proc.h"
 #include "global.h"
 #include "proto.h"
 
@@ -152,6 +152,16 @@ void TestC()
 		//printf("disp_pos:%x.\n",disp_pos);
 		
 	}
+}
+
+
+void TestFs()
+{
+	int fd = open("/blah", O_CREAT);
+	printf("fd: %d\n", fd);
+	//close(fd);
+
+        spin("Test FS...");
 }
 
 

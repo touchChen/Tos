@@ -4,7 +4,7 @@
 PUBLIC void* memcpy(void* pDst, void* pSrc, int iSize);
 PUBLIC void  memset(void* p_dst, char ch, int size);
 PUBLIC char* strcpy(char* p_dst, char* p_src);
-PUBLIC int strlen(char* p_str);
+PUBLIC int strlen(const char* p_str);
 
 
 /****** klib.asm ******/
@@ -34,6 +34,11 @@ PUBLIC void clear_last_row(int row);
 /****** mics.c ******/  
 PUBLIC void spin(char *func_name);
 PUBLIC void assertion_failure(char *exp, char *file, char *base_file, int line);
+
+
+/****** fslib.c ******/
+PUBLIC int open(const char *pathname, int flags);
+
 
 
 
@@ -72,6 +77,7 @@ PUBLIC int kernel_main();  //内核主程序
 PUBLIC void TestA();
 PUBLIC void TestB();
 PUBLIC void TestC();
+PUBLIC void TestFs();
 
 
 /****** syscall.asm ******/  //系统中断

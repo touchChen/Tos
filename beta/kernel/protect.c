@@ -2,11 +2,11 @@
 #include "const.h"
 #include "protect.h"
 #include "interrupt.h"
-#include "proc.h"
 #include "tty.h"
 #include "console.h"
 #include "hd.h"
 #include "fs.h"
+#include "proc.h"
 #include "global.h"
 #include "proto.h"
 

@@ -4,6 +4,7 @@
 #define	INVALID_INODE		0
 #define	ROOT_INODE		1
 
+#define	NR_DEFAULT_FILE_SECTS	32 /* 32 * 512 = 16k */
 
 struct dev_drv_map {
 	int driver_nr; 
@@ -99,6 +100,12 @@ struct file_desc {
 				       TASK_FS,				\
 				       fsbuf);
 
+
+
+#define	O_CREAT		1
+#define	O_RDWR		2
+
+#define	MAX_PATH	128
 
 
 #endif /* _TOS_FS_H_ */

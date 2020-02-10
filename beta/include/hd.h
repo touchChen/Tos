@@ -71,7 +71,7 @@
 #define	is_special(m)	((((m) & I_TYPE_MASK) == I_BLOCK_SPECIAL) ||	\
 			 (((m) & I_TYPE_MASK) == I_CHAR_SPECIAL))
 
-#define	NR_DEFAULT_FILE_SECTS	2048 /* 2048 * 512 = 1MB */
+
 
 
 /**

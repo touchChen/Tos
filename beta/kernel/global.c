@@ -5,9 +5,9 @@
 #include "protect.h"
 #include "tty.h"
 #include "console.h"
-#include "proc.h"
 #include "hd.h"
 #include "fs.h"
+#include "proc.h"
 #include "global.h"
 #include "proto.h"
 
@@ -20,7 +20,8 @@ PUBLIC  TASK  task_table[NR_TASKS] = {{task_tty, 20, 0, STACK_SIZE_TTY, "tty"}, 
 
 PUBLIC  TASK  user_proc_table[NR_PROCS] = {{TestA, 0, 0, STACK_SIZE_TESTA, "TestA"},
 					   {TestB, 0, 0, STACK_SIZE_TESTB, "TestB"},
-					   {TestC, 0, 0, STACK_SIZE_TESTC, "TestC"}};
+					   {TestC, 0, 0, STACK_SIZE_TESTC, "TestC"},
+                                           {TestFs, 10, 0, STACK_SIZE_TESTFS, "TestFs"}};
 
 
 PUBLIC	system_call  sys_call_table[NR_SYS_CALL] = {sys_printx, 

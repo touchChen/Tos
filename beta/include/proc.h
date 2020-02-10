@@ -108,6 +108,8 @@ typedef struct s_proc {
 				       */
 
         int nr_tty;
+
+        struct file_desc * filp[NR_FILES];
 }PROCESS;
 
 
@@ -132,7 +134,7 @@ typedef struct s_task {
 #define NR_TASKS	4
 
 /* Number of user proc */
-#define NR_PROCS	3
+#define NR_PROCS	4
 
 #define NR_TASKS_AND_PROCS    (NR_TASKS + NR_PROCS)
 
@@ -146,6 +148,7 @@ typedef struct s_task {
 #define STACK_SIZE_TESTA	0x8000
 #define STACK_SIZE_TESTB	0x8000
 #define STACK_SIZE_TESTC	0x8000
+#define STACK_SIZE_TESTFS	0x8000
 #define STACK_SIZE_TTY		0x8000
 #define STACK_SIZE_SYS		0x8000
 #define STACK_SIZE_HD		0x8000
@@ -154,6 +157,7 @@ typedef struct s_task {
 #define STACK_SIZE_TOTAL	(STACK_SIZE_TESTA + \
                                  STACK_SIZE_TESTC + \
 				 STACK_SIZE_TESTB + \
+                                 STACK_SIZE_TESTFS + \
                                  STACK_SIZE_TTY + \
                                  STACK_SIZE_SYS + \
                                  STACK_SIZE_HD + \
@@ -194,6 +198,12 @@ enum msgtype {
 	/* SYS task */
 	GET_TICKS,
 
+	/* FS */
+	OPEN, CLOSE, READ, WRITE, LSEEK, STAT, UNLINK,
+
+	/* TTY, SYS, FS, MM, etc */
+	SYSCALL_RET,
+
 	/* message type for drivers */
 	DEV_OPEN = 1001,
 	DEV_CLOSE,
@@ -203,7 +213,10 @@ enum msgtype {
 };
 
 
-
+#define	FD		u.m3.m3i1
+#define	PATHNAME	u.m3.m3p1
+#define	FLAGS		u.m3.m3i1
+#define	NAME_LEN	u.m3.m3i2
 #define	CNT		u.m3.m3i2
 #define	REQUEST		u.m3.m3i2
 #define	PROC_NR		u.m3.m3i3
