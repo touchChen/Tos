@@ -23,7 +23,9 @@ PRIVATE int alloc_smap_bit(int dev, int nr_sects_to_alloc);
 PRIVATE void read_super_block(int dev);
 PRIVATE struct super_block * get_super_block(int dev);
 PRIVATE struct inode * get_inode(int dev, int num);
+PRIVATE int search_file(char * path);
 PRIVATE void sync_inode(struct inode * p);
+PRIVATE struct inode * new_inode(int dev, int inode_nr, int start_sect);
 PRIVATE void new_dir_entry(struct inode *dir_inode,int inode_nr,char *filename);
 
 /*****************************************************************************
@@ -324,13 +326,9 @@ PRIVATE int do_open()
 	if (i >= NR_FILE_DESC)
 		panic("f_desc_table[] is full (PID:%d)", proc2pid(pcaller));
 
-         
-        printl("free slot(filp,f_desc_table):(%d,%d) in PID: %d\n", fd, i, proc2pid(pcaller));
 
-
-
-        //int inode_nr = search_file(pathname);
-        int inode_nr = 0;
+        int inode_nr = search_file(pathname);
+ 
 
 	struct inode * pin = 0;
 	if (flags & O_CREAT) {
@@ -355,7 +353,6 @@ PRIVATE int do_open()
 		pin = get_inode(dir_inode->i_dev, inode_nr);
 		
 	}
-
 
 
 
@@ -387,18 +384,14 @@ PRIVATE struct inode * create_file(char * path, int flags)
 
 	int free_sect_nr = alloc_smap_bit(dir_inode->i_dev,
 					  NR_DEFAULT_FILE_SECTS);
-        /*
+        
 	struct inode *newino = new_inode(dir_inode->i_dev, inode_nr,
 					 free_sect_nr);
 
 	new_dir_entry(dir_inode, newino->i_num, filename);
 
 	return newino;
-        */
-        printl("create_file\n");
-
-        struct inode *newino;
-        return newino;
+     
 }
 
 
@@ -784,4 +777,57 @@ PRIVATE void new_dir_entry(struct inode *dir_inode,int inode_nr,char *filename)
 
 	/* update dir inode */
 	sync_inode(dir_inode);
+}
+
+
+/*****************************************************************************
+ * Search the file and return the inode_nr.
+ *
+ * @param[in] path The full path of the file to search.
+ * @return         Ptr to the i-node of the file if successful, otherwise zero.
+ * 
+ * @see open()
+ * @see do_open()
+ *****************************************************************************/
+PRIVATE int search_file(char * path)
+{
+	int i, j;
+
+	char filename[MAX_PATH];
+	memset(filename, 0, MAX_FILENAME_LEN);
+	struct inode * dir_inode;
+	if (strip_path(filename, path, &dir_inode) != 0)
+		return 0;
+
+	if (filename[0] == 0)	/* path: "/" */
+		return dir_inode->i_num;
+
+	/**
+	 * Search the dir for the file.
+	 */
+	int dir_blk0_nr = dir_inode->i_start_sect;
+	int nr_dir_blks = (dir_inode->i_size + SECTOR_SIZE - 1) / SECTOR_SIZE;
+	int nr_dir_entries =
+	  dir_inode->i_size / DIR_ENTRY_SIZE; /**
+					       * including unused slots
+					       * (the file has been deleted
+					       * but the slot is still there)
+					       */
+	int m = 0;
+	struct dir_entry * pde;
+	for (i = 0; i < nr_dir_blks; i++) {
+		RD_SECT(dir_inode->i_dev, dir_blk0_nr + i);
+		pde = (struct dir_entry *)fsbuf;
+		for (j = 0; j < SECTOR_SIZE / DIR_ENTRY_SIZE; j++,pde++) {
+			if (memcmp(filename, pde->name, MAX_FILENAME_LEN) == 0)
+				return pde->inode_nr;
+			if (++m > nr_dir_entries)
+				break;
+		}
+		if (m > nr_dir_entries) /* all entries have been iterated */
+			break;
+	}
+
+	/* file not found */
+	return 0;
 }

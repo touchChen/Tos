@@ -31,7 +31,10 @@ PUBLIC void clear_disp();  //清屏
 PUBLIC void clear_last_row(int row);
 
 
-/****** mics.c ******/  
+/****** mics.c ******/
+PUBLIC int memcmp(const void * s1, const void *s2, int n);
+PUBLIC int strcmp(const char * s1, const char *s2);
+PUBLIC char * strcat(char * s1, const char *s2); 
 PUBLIC void spin(char *func_name);
 PUBLIC void assertion_failure(char *exp, char *file, char *base_file, int line);
 
