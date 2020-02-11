@@ -41,6 +41,7 @@ PUBLIC void assertion_failure(char *exp, char *file, char *base_file, int line);
 
 /****** fslib.c ******/
 PUBLIC int open(const char *pathname, int flags);
+PUBLIC int close(int fd);
 
 
 

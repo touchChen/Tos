@@ -157,9 +157,9 @@ void TestC()
 
 void TestFs()
 {
-	int fd = open("/blah", O_CREAT);
+	int fd = open("/helloWorld", O_CREAT);
 	printf("fd: %d\n", fd);
-	//close(fd);
+	close(fd);
 
         spin("Test FS...");
 }

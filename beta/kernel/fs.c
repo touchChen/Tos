@@ -15,6 +15,7 @@
 PRIVATE void init_fs();
 PRIVATE void mkfs();
 PRIVATE int do_open();
+PRIVATE int do_close();
 PRIVATE struct inode * create_file(char * path, int flags);
 PRIVATE int strip_path(char * filename, const char * pathname,
 		      struct inode** ppinode);
@@ -23,6 +24,7 @@ PRIVATE int alloc_smap_bit(int dev, int nr_sects_to_alloc);
 PRIVATE void read_super_block(int dev);
 PRIVATE struct super_block * get_super_block(int dev);
 PRIVATE struct inode * get_inode(int dev, int num);
+PRIVATE void put_inode(struct inode * pinode);
 PRIVATE int search_file(char * path);
 PRIVATE void sync_inode(struct inode * p);
 PRIVATE struct inode * new_inode(int dev, int inode_nr, int start_sect);
@@ -50,7 +52,7 @@ PUBLIC void task_fs()
 				fs_msg.FD = do_open();
 				break;
 			case CLOSE:
-				//fs_msg.RETVAL = do_close();
+				fs_msg.RETVAL = do_close();
 				break;
 		
 			default:
@@ -357,6 +359,22 @@ PRIVATE int do_open()
 
 
 	return fd;
+}
+
+
+/*****************************************************************************
+ * Handle the message CLOSE.
+ * 
+ * @return Zero if success.
+ *****************************************************************************/
+PRIVATE int do_close()
+{
+	int fd = fs_msg.FD;
+	put_inode(pcaller->filp[fd]->fd_inode);
+	pcaller->filp[fd]->fd_inode = 0;   // f_desc_table 
+	pcaller->filp[fd] = 0;
+
+	return 0;
 }
 
 
