@@ -157,7 +157,7 @@ void TestC()
 
 void TestFs()
 {
-	int fd = open("/helloWorld", O_CREAT);
+	int fd = open("/tc", O_CREAT);
 	printf("fd: %d\n", fd);
 	close(fd);
 
