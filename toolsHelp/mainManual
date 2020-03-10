@@ -1,2 +1,4 @@
 
 xxd -u -a -g 1 -c 16 -s +0x2600 -l 512 x.img
+
+xxd -u -a -g 1 -c 16 -s +0xB03600 -l 512 30m.img

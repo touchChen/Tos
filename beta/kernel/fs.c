@@ -338,6 +338,7 @@ PRIVATE int do_open()
 
         int inode_nr = search_file(pathname);
  
+     	printl("inode_nr of search_file: %d\n",inode_nr); 
 
 	struct inode * pin = 0;
 	if (flags & O_CREAT) {
@@ -364,6 +365,44 @@ PRIVATE int do_open()
 	}
 
 
+	if (pin) {
+		/* connects proc with file_descriptor */
+		pcaller->filp[fd] = &f_desc_table[i];
+
+		/* connects file_descriptor with inode */
+		f_desc_table[i].fd_inode = pin;
+
+		f_desc_table[i].fd_mode = flags;
+		/* f_desc_table[i].fd_cnt = 1; */
+		f_desc_table[i].fd_pos = 0;
+
+		int imode = pin->i_mode & I_TYPE_MASK;
+
+		if (imode == I_CHAR_SPECIAL) {
+			MESSAGE driver_msg;
+
+			driver_msg.type = DEV_OPEN;
+			int dev = pin->i_start_sect;
+			driver_msg.DEVICE = MINOR(dev);
+			assert(MAJOR(dev) == 4);
+			assert(dd_map[MAJOR(dev)].driver_nr != INVALID_DRIVER);
+
+			send_recv(BOTH,
+				  dd_map[MAJOR(dev)].driver_nr,
+				  &driver_msg);
+		}
+		else if (imode == I_DIRECTORY) {
+			assert(pin->i_num == ROOT_INODE);
+		}
+		else {
+			assert(pin->i_mode == I_REGULAR);
+		}
+	}
+	else {
+		return -1;
+	}
+
+
 
 	return fd;
 }
@@ -377,6 +416,7 @@ PRIVATE int do_open()
 PRIVATE int do_close()
 {
 	int fd = fs_msg.FD;
+        printl("do_close fd_inode: %d\n",pcaller->filp[fd]->fd_inode->i_num);
 	put_inode(pcaller->filp[fd]->fd_inode);
 	pcaller->filp[fd]->fd_inode = 0;   // f_desc_table 
 	pcaller->filp[fd] = 0;
@@ -406,6 +446,8 @@ PRIVATE struct inode * create_file(char * path, int flags)
 		return 0;
 
 	int inode_nr = alloc_imap_bit(dir_inode->i_dev);
+
+        printl("inode_nr of alloc: %d\n",inode_nr);
 
 	int free_sect_nr = alloc_smap_bit(dir_inode->i_dev,
 					  NR_DEFAULT_FILE_SECTS);
@@ -844,6 +886,7 @@ PRIVATE int search_file(char * path)
 		RD_SECT(dir_inode->i_dev, dir_blk0_nr + i);
 		pde = (struct dir_entry *)fsbuf;
 		for (j = 0; j < SECTOR_SIZE / DIR_ENTRY_SIZE; j++,pde++) {
+                        printl("entry_name: %s, search filename: %s\n",pde->name,filename);
 			if (memcmp(filename, pde->name, MAX_FILENAME_LEN) == 0)
 				return pde->inode_nr;
 			if (++m > nr_dir_entries)
