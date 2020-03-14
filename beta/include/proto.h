@@ -42,6 +42,8 @@ PUBLIC void assertion_failure(char *exp, char *file, char *base_file, int line);
 /****** fslib.c ******/
 PUBLIC int open(const char *pathname, int flags);
 PUBLIC int close(int fd);
+PUBLIC int read(int fd, void *buf, int count);
+PUBLIC int write(int fd, const void *buf, int count);
 
 
 
@@ -88,7 +90,7 @@ PUBLIC void TestFs();
 PUBLIC void printx(char* s);
 PUBLIC int sendrec(int function, int src_dest, MESSAGE* msg);
 PUBLIC int get_ticks();
-PUBLIC void write(char* buf, int len);
+//PUBLIC void write(char* buf, int len);
 
 
 /****** proc.c ******/   //进程

@@ -16,6 +16,7 @@ PRIVATE void init_fs();
 PRIVATE void mkfs();
 PRIVATE int do_open();
 PRIVATE int do_close();
+PRIVATE int do_rdwt();
 PRIVATE struct inode * create_file(char * path, int flags);
 PRIVATE int strip_path(char * filename, const char * pathname,
 		      struct inode** ppinode);
@@ -53,6 +54,10 @@ PUBLIC void task_fs()
 				break;
 			case CLOSE:
 				fs_msg.RETVAL = do_close();
+				break;
+			case READ:
+			case WRITE:
+				fs_msg.CNT = do_rdwt();
 				break;
 		
 			default:
@@ -210,11 +215,11 @@ PRIVATE void mkfs()
 		fsbuf[i] |= (1 << j);
 
 	WR_SECT(ROOT_DEV, 2 + sb.nr_imap_sects);  // 一个扇区映射 4096 个 扇区
-
-
+ 
 	memset(fsbuf, 0, SECTOR_SIZE);
 	for (i = 1; i < sb.nr_smap_sects; i++)  // 从 i = 1 开始
 		WR_SECT(ROOT_DEV, 2 + sb.nr_imap_sects + i);
+
 
 
 	/*       inodes         */
@@ -311,34 +316,11 @@ PRIVATE int do_open()
 		  (void*)va2la(src, fs_msg.PATHNAME),
 		  name_len);
 	pathname[name_len] = 0;
-
-        printl("open filename(ring 1): %s\n", pathname);
-
-
-
-	/* find a free slot in PROCESS::filp[] */
-	int i;
-	for (i = 0; i < NR_FILES; i++) {
-		if (pcaller->filp[i] == 0) {
-			fd = i;
-			break;
-		}
-	}
-	if ((fd < 0) || (fd >= NR_FILES))
-		panic("filp[] is full (PID:%d)", proc2pid(pcaller));
-
-
-	/* find a free slot in f_desc_table[] */
-	for (i = 0; i < NR_FILE_DESC; i++)
-		if (f_desc_table[i].fd_inode == 0)
-			break;
-	if (i >= NR_FILE_DESC)
-		panic("f_desc_table[] is full (PID:%d)", proc2pid(pcaller));
+        //printl("open filename(ring 1): %s\n", pathname);
 
 
         int inode_nr = search_file(pathname);
- 
-     	printl("inode_nr of search_file: %d\n",inode_nr); 
+     	//printl("inode_nr of search_file: %d\n",inode_nr); 
 
 	struct inode * pin = 0;
 	if (flags & O_CREAT) {
@@ -347,12 +329,13 @@ PRIVATE int do_open()
 			return -1;
 		}
 		else {
+			printl("create file.\n");
 			pin = create_file(pathname, flags);
 		}
 	}
 	else {
 		assert(flags & O_RDWR);
-                printl("read or write file");
+                printl("read or write file.\n");
 
 		char filename[MAX_PATH];
 		struct inode * dir_inode;
@@ -366,6 +349,27 @@ PRIVATE int do_open()
 
 
 	if (pin) {
+
+		/* find a free slot in PROCESS::filp[] */
+		int i;
+		for (i = 0; i < NR_FILES; i++) {
+			if (pcaller->filp[i] == 0) {
+				fd = i;
+				break;
+			}
+		}
+		if ((fd < 0) || (fd >= NR_FILES))
+			panic("filp[] is full (PID:%d)", proc2pid(pcaller));
+
+
+		/* find a free slot in f_desc_table[] */
+		for (i = 0; i < NR_FILE_DESC; i++)
+			if (f_desc_table[i].fd_inode == 0)
+				break;
+		if (i >= NR_FILE_DESC)
+			panic("f_desc_table[] is full (PID:%d)", proc2pid(pcaller));
+
+
 		/* connects proc with file_descriptor */
 		pcaller->filp[fd] = &f_desc_table[i];
 
@@ -373,7 +377,6 @@ PRIVATE int do_open()
 		f_desc_table[i].fd_inode = pin;
 
 		f_desc_table[i].fd_mode = flags;
-		/* f_desc_table[i].fd_cnt = 1; */
 		f_desc_table[i].fd_pos = 0;
 
 		int imode = pin->i_mode & I_TYPE_MASK;
@@ -396,6 +399,7 @@ PRIVATE int do_open()
 		}
 		else {
 			assert(pin->i_mode == I_REGULAR);
+                        //printl("file'mode is I_REGULAR\n");
 		}
 	}
 	else {
@@ -416,12 +420,129 @@ PRIVATE int do_open()
 PRIVATE int do_close()
 {
 	int fd = fs_msg.FD;
-        printl("do_close fd_inode: %d\n",pcaller->filp[fd]->fd_inode->i_num);
+        //printl("do_close fd_inode: %d\n",pcaller->filp[fd]->fd_inode->i_num);
 	put_inode(pcaller->filp[fd]->fd_inode);
 	pcaller->filp[fd]->fd_inode = 0;   // f_desc_table 
 	pcaller->filp[fd] = 0;
 
 	return 0;
+}
+
+
+/*****************************************************************************
+ * Read/Write file and return byte count read/written.
+ *
+ * Sector map is not needed to update, since the sectors for the file have been
+ * allocated and the bits are set when the file was created.
+ * 
+ * @return How many bytes have been read/written.
+ *****************************************************************************/
+PRIVATE int do_rdwt()
+{
+	int fd = fs_msg.FD;	/**< file descriptor. */
+	void *buf = fs_msg.BUF; /**< r/w buffer */
+	int len = fs_msg.CNT;	/**< r/w bytes */
+
+	int src = fs_msg.source;		/* caller proc nr. */
+
+	assert((pcaller->filp[fd] >= &f_desc_table[0]) &&
+	       (pcaller->filp[fd] < &f_desc_table[NR_FILE_DESC]));
+
+	if (!(pcaller->filp[fd]->fd_mode & O_RDWR))
+		return -1;
+
+	int pos = pcaller->filp[fd]->fd_pos;
+
+	struct inode * pin = pcaller->filp[fd]->fd_inode;
+
+	assert(pin >= &inode_table[0] && pin < &inode_table[NR_INODE]);
+
+	int imode = pin->i_mode & I_TYPE_MASK;
+
+	if (imode == I_CHAR_SPECIAL) {
+		int t = fs_msg.type == READ ? DEV_READ : DEV_WRITE;
+		fs_msg.type = t;
+
+		int dev = pin->i_start_sect;
+		assert(MAJOR(dev) == 4);
+
+		fs_msg.DEVICE	= MINOR(dev);
+		fs_msg.BUF	= buf;
+		fs_msg.CNT	= len;
+		fs_msg.PROC_NR	= src;
+		assert(dd_map[MAJOR(dev)].driver_nr != INVALID_DRIVER);
+		send_recv(BOTH, dd_map[MAJOR(dev)].driver_nr, &fs_msg);
+		assert(fs_msg.CNT == len);
+
+		return fs_msg.CNT;
+	}
+	else {
+		assert(pin->i_mode == I_REGULAR || pin->i_mode == I_DIRECTORY);
+		assert((fs_msg.type == READ) || (fs_msg.type == WRITE));
+
+		int pos_end;
+		if (fs_msg.type == READ)
+			pos_end = min(pos + len, pin->i_size);
+		else		/* WRITE */
+			pos_end = min(pos + len, pin->i_nr_sects * SECTOR_SIZE);
+
+		int off = pos % SECTOR_SIZE;
+		int rw_sect_min=pin->i_start_sect+(pos>>SECTOR_SIZE_SHIFT);
+		int rw_sect_max=pin->i_start_sect+(pos_end>>SECTOR_SIZE_SHIFT);
+
+		int chunk = min(rw_sect_max - rw_sect_min + 1,
+				FSBUF_SIZE >> SECTOR_SIZE_SHIFT);
+
+		
+		int bytes_rw = 0;
+		int bytes_left = len;
+		int i;
+		for (i = rw_sect_min; i <= rw_sect_max; i += chunk) {
+			/* read/write this amount of bytes every time */
+			int bytes = min(bytes_left, chunk * SECTOR_SIZE - off);
+			rw_sector(DEV_READ,
+				  pin->i_dev,
+				  i * SECTOR_SIZE,
+				  chunk * SECTOR_SIZE,
+				  TASK_FS,
+				  fsbuf);
+
+			if (fs_msg.type == READ) {
+          			//printl("pre copy   fsbuf: %s, buf: %s\n",fsbuf, buf);
+				phys_copy((void*)va2la(src, buf + bytes_rw),
+					  (void*)va2la(TASK_FS, fsbuf + off),
+					  bytes);
+   				//printl("after copy  buf: %s, src: %d\n",buf, src);
+    
+			}
+			else {	/* WRITE */
+				phys_copy((void*)va2la(TASK_FS, fsbuf + off),
+					  (void*)va2la(src, buf + bytes_rw),
+					  bytes);
+
+				rw_sector(DEV_WRITE,
+					  pin->i_dev,
+					  i * SECTOR_SIZE,
+					  chunk * SECTOR_SIZE,
+					  TASK_FS,
+					  fsbuf);
+			}
+			off = 0;
+			bytes_rw += bytes;
+			pcaller->filp[fd]->fd_pos += bytes;
+			bytes_left -= bytes;
+		}
+
+		if (pcaller->filp[fd]->fd_pos > pin->i_size) {
+			/* update inode::size */
+			pin->i_size = pcaller->filp[fd]->fd_pos;
+
+			/* write the updated i-node back to disk */
+			sync_inode(pin);
+		}
+
+		return bytes_rw;
+	}
 }
 
 
@@ -447,7 +568,7 @@ PRIVATE struct inode * create_file(char * path, int flags)
 
 	int inode_nr = alloc_imap_bit(dir_inode->i_dev);
 
-        printl("inode_nr of alloc: %d\n",inode_nr);
+        //printl("inode_nr of alloc: %d\n",inode_nr);
 
 	int free_sect_nr = alloc_smap_bit(dir_inode->i_dev,
 					  NR_DEFAULT_FILE_SECTS);
@@ -713,7 +834,7 @@ PRIVATE struct inode * new_inode(int dev, int inode_nr, int start_sect)
  *****************************************************************************/
 PRIVATE struct inode * get_inode(int dev, int num)
 {
-	if (num == 0)
+	if (num == 0)    // 第一个inode保留，根目录 inode=1
 		return 0;
 
 	struct inode * p;
@@ -751,6 +872,7 @@ PRIVATE struct inode * get_inode(int dev, int num)
 	q->i_size = pinode->i_size;
 	q->i_start_sect = pinode->i_start_sect;
 	q->i_nr_sects = pinode->i_nr_sects;
+
 	return q;
 }
 
@@ -886,7 +1008,7 @@ PRIVATE int search_file(char * path)
 		RD_SECT(dir_inode->i_dev, dir_blk0_nr + i);
 		pde = (struct dir_entry *)fsbuf;
 		for (j = 0; j < SECTOR_SIZE / DIR_ENTRY_SIZE; j++,pde++) {
-                        printl("entry_name: %s, search filename: %s\n",pde->name,filename);
+                        //printl("entry_name: %s, search filename: %s\n",pde->name,filename);
 			if (memcmp(filename, pde->name, MAX_FILENAME_LEN) == 0)
 				return pde->inode_nr;
 			if (++m > nr_dir_entries)

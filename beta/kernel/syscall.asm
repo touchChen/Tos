@@ -9,7 +9,7 @@ _NR_sendrec	    equ 1
 _NR_get_ticks       equ 2 
 
 global	get_ticks ; 导出符号
-global  write
+;global  write
 
 global	printx
 global	sendrec

@@ -160,6 +160,21 @@ void TestFs()
 	int fd = open("/tc", O_CREAT);
 	close(fd);
 
+        fd = open("/tc", O_RDWR);
+        char bufw[] = "hello world, this is a test of reading and writing file!";
+	int wlen = write(fd, bufw, strlen(bufw));
+        printf("Write len: %d\n",wlen);
+        close(fd);
+
+	fd = open("/tc", O_RDWR);
+        char bufr[wlen];
+        int rlen = read(fd, bufr, wlen);
+	bufr[rlen] = 0;       
+        close(fd);
+
+        
+        printl("Read len: %d, buf: %s\n",rlen,bufr);
+
         spin("Test FS...");
 }
 
