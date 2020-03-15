@@ -20,6 +20,7 @@ struct mess1 {
 	int m1i2;
 	int m1i3;
 	int m1i4;
+        int m1i5;
 };
 struct mess2 {
 	void* m2p1;
@@ -196,7 +197,7 @@ enum msgtype {
 	HARD_INT = 1,
 
 	/* SYS task */
-	GET_TICKS,
+	GET_TICKS, GET_PID,
 
 	/* FS */
 	OPEN, CLOSE, READ, WRITE, LSEEK, STAT, UNLINK,
@@ -209,7 +210,10 @@ enum msgtype {
 	DEV_CLOSE,
 	DEV_READ,
 	DEV_WRITE,
-	DEV_IOCTL
+	DEV_IOCTL,
+
+        /* for debug */
+	DISK_LOG
 };
 
 
@@ -224,6 +228,9 @@ enum msgtype {
 #define	POSITION	u.m3.m3l1
 #define	BUF		u.m3.m3p2
 #define	RETVAL		u.m3.m3i1
+
+#define	PID		u.m3.m3i2
+
 
 #define	STR_DEFAULT_LEN	1024
 

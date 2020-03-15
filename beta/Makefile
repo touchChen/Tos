@@ -23,7 +23,9 @@ OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
                   kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/syscall.o \
                   kernel/proc.o kernel/tty.o kernel/console.o kernel/global.o \
                   kernel/systask.o kernel/printf.o kernel/hd.o kernel/fs.o \
-                  lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/fslib.o # 注意连接的头
+                  kernel/disklog.o \
+                  lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/fslib.o \
+                  lib/proclib.o lib/syslog.o # 注意连接的头
 DASMOUTPUT	= kernel.bin.asm
 
 IMG             = x.img
@@ -117,6 +119,10 @@ kernel/hd.o : kernel/hd.c
 kernel/fs.o : kernel/fs.c
 	$(CC) $(CFLAGS) -o $@ $<
 
+kernel/disklog.o : kernel/disklog.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+
 lib/klib.o : lib/klib.asm
 	$(ASM) $(ASMKFLAGS) -o $@ $<
 
@@ -130,5 +136,11 @@ lib/string.o : lib/string.asm
 	$(ASM) $(ASMKFLAGS) -o $@ $<
 
 lib/fslib.o : lib/fslib.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+lib/proclib.o : lib/proclib.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+lib/syslog.o : lib/syslog.c
 	$(CC) $(CFLAGS) -o $@ $<
 

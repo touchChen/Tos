@@ -46,6 +46,20 @@ PUBLIC int read(int fd, void *buf, int count);
 PUBLIC int write(int fd, const void *buf, int count);
 
 
+/****** proclib.c ******/
+PUBLIC int getpid();
+
+
+/****** syslog.c ******/
+PUBLIC int syslog(const char *fmt, ...);
+
+
+
+
+
+
+
+
 
 
 
@@ -142,7 +156,14 @@ PUBLIC void task_sys();
 PUBLIC int printf(const char *fmt, ...);
 #define	printl	printf
 PUBLIC int sprintf(char *buf, const char *fmt, ...);
+PUBLIC int vsprintf(char *buf, const char *fmt, va_list args);
 PUBLIC void panic(const char *fmt, ...);
+
+
+/****** disklog.c ******/
+PUBLIC int do_disklog();
+PUBLIC int disklog(char * logstr); /* for debug */
+PUBLIC void dump_fd_graph(const char * fmt, ...);
 
 
 
@@ -167,6 +188,8 @@ PUBLIC void hd_handler(int irq);
 /****** fs.c ******/
 PUBLIC void task_fs();
 PUBLIC int rw_sector(int io_type, int dev, u64 pos, int bytes, int proc_nr, void* buf);
+
+PUBLIC struct super_block * get_super_block(int dev);
 
 
 

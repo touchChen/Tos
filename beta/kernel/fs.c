@@ -23,7 +23,6 @@ PRIVATE int strip_path(char * filename, const char * pathname,
 PRIVATE int alloc_imap_bit(int dev);
 PRIVATE int alloc_smap_bit(int dev, int nr_sects_to_alloc);
 PRIVATE void read_super_block(int dev);
-PRIVATE struct super_block * get_super_block(int dev);
 PRIVATE struct inode * get_inode(int dev, int num);
 PRIVATE void put_inode(struct inode * pinode);
 PRIVATE int search_file(char * path);
@@ -779,7 +778,7 @@ PRIVATE void read_super_block(int dev)
  * 
  * @return Super block ptr.
  *****************************************************************************/
-PRIVATE struct super_block * get_super_block(int dev)
+PUBLIC struct super_block * get_super_block(int dev)
 {
 	struct super_block * sb = super_block;
 	for (; sb < &super_block[NR_SUPER_BLOCK]; sb++)

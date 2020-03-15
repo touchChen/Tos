@@ -108,4 +108,19 @@ struct file_desc {
 #define	MAX_PATH	128
 
 
+/*
+ * disk log
+ */
+#define ENABLE_DISK_LOG
+#define SET_LOG_SECT_SMAP_AT_STARTUP
+#define MEMSET_LOG_SECTS
+#define	NR_SECTS_FOR_LOG	NR_DEFAULT_FILE_SECTS
+
+
+#ifdef ENABLE_DISK_LOG
+#define SYSLOG syslog
+#endif
+
+
+
 #endif /* _TOS_FS_H_ */
