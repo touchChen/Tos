@@ -157,6 +157,7 @@ void TestC()
 
 void TestFs()
 {
+        
 	int fd = open("/tc", O_CREAT);
 	close(fd);
 
@@ -172,8 +173,10 @@ void TestFs()
 	bufr[rlen] = 0;       
         close(fd);
 
-        
         printl("Read len: %d, buf: %s\n",rlen,bufr);
+      
+	
+	//syslog("this is a test in log");
 
         spin("Test FS...");
 }

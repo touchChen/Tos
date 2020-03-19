@@ -147,7 +147,6 @@ PUBLIC int sys_write(char* buf, int len, PROCESS* p_proc);
 PUBLIC int sys_printx(int _unused1, int _unused2, char* s, PROCESS* p_proc);
 
 
-
 /****** systask.c ******/
 PUBLIC void task_sys();
 
@@ -160,11 +159,21 @@ PUBLIC int vsprintf(char *buf, const char *fmt, va_list args);
 PUBLIC void panic(const char *fmt, ...);
 
 
+/****** hd.c ******/
+PUBLIC void task_hd();
+PUBLIC void hd_handler(int irq);
+
+
+/****** fs.c ******/
+PUBLIC void task_fs();
+PUBLIC int rw_sector(int io_type, int dev, u64 pos, int bytes, int proc_nr, void* buf);
+PUBLIC struct super_block * get_super_block(int dev);
+
+
 /****** disklog.c ******/
 PUBLIC int do_disklog();
 PUBLIC int disklog(char * logstr); /* for debug */
 PUBLIC void dump_fd_graph(const char * fmt, ...);
-
 
 
 /**
@@ -181,15 +190,6 @@ PUBLIC void dump_fd_graph(const char * fmt, ...);
 #define	min(a,b)	((a) < (b) ? (a) : (b))
 
 
-/****** hd.c ******/
-PUBLIC void task_hd();
-PUBLIC void hd_handler(int irq);
-
-/****** fs.c ******/
-PUBLIC void task_fs();
-PUBLIC int rw_sector(int io_type, int dev, u64 pos, int bytes, int proc_nr, void* buf);
-
-PUBLIC struct super_block * get_super_block(int dev);
 
 
 

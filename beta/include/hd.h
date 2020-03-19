@@ -54,7 +54,7 @@
 #define NO_PART		0x00	/* unused entry */
 #define EXT_PART	0x05	/* extended partition */
 
-#define	NR_FILES	64
+#define	NR_FILES	4
 #define	NR_FILE_DESC	64	
 #define	NR_INODE	64	
 #define	NR_SUPER_BLOCK	8

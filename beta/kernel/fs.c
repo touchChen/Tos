@@ -46,6 +46,7 @@ PUBLIC void task_fs()
 
 		int src = fs_msg.source;
 		pcaller = &proc_table[src];
+                int msg_type = fs_msg.type;
 
 		switch (fs_msg.type) {
 			case OPEN:
@@ -58,12 +59,43 @@ PUBLIC void task_fs()
 			case WRITE:
 				fs_msg.CNT = do_rdwt();
 				break;
+			
+			case DISK_LOG:
+				printl("DISK_LOG\n");
+				break;
+    			
 		
 			default:
 				dump_msg("FS::unknown message:", &fs_msg);
 				assert(0);
 				break;
 		}
+
+
+            #ifdef ENABLE_DISK_LOG
+
+		switch (msg_type) {
+			case OPEN:
+				printl("Open just finished.\n");
+				break;
+			case CLOSE:
+				printl("CLOSE just finished.\n");
+				break;
+			case READ:
+				printl("READ just finished.\n");
+				break;
+			case WRITE:
+				printl("WRITE just finished.\n");
+				//dump_fd_graph("%s just finished.", msg_name[fs_msg.type]);							
+				break;
+			
+			case DISK_LOG:
+				break;
+			default:				
+				assert(0);
+		}
+            #endif
+
 
 		/* reply */
 		fs_msg.type = SYSCALL_RET;
@@ -352,13 +384,18 @@ PRIVATE int do_open()
 		/* find a free slot in PROCESS::filp[] */
 		int i;
 		for (i = 0; i < NR_FILES; i++) {
+			printl("filp[%d]:%d, address %x\n",i,pcaller->filp[i], &pcaller->filp[i]);
 			if (pcaller->filp[i] == 0) {
 				fd = i;
 				break;
 			}
 		}
 		if ((fd < 0) || (fd >= NR_FILES))
-			panic("filp[] is full (PID:%d)", proc2pid(pcaller));
+ 		{
+			printl("NR_FILES:%d\n",NR_FILES);
+			__asm__ __volatile__("hlt");
+		}
+			//panic("filp[] is full (PID:%d)", proc2pid(pcaller));
 
 
 		/* find a free slot in f_desc_table[] */

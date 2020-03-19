@@ -111,6 +111,7 @@ struct file_desc {
 /*
  * disk log
  */
+
 #define ENABLE_DISK_LOG
 #define SET_LOG_SECT_SMAP_AT_STARTUP
 #define MEMSET_LOG_SECTS
@@ -120,6 +121,7 @@ struct file_desc {
 #ifdef ENABLE_DISK_LOG
 #define SYSLOG syslog
 #endif
+
 
 
 

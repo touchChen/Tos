@@ -123,6 +123,7 @@ PUBLIC int disklog(char * logstr)
 		int bytes = min(bytes_left, SECTOR_SIZE - off);
 
 		memcpy(&fsbuf[off], p, bytes);
+                printl("write to log: %s\n",fsbuf);
 		off += bytes;
 		bytes_left -= bytes;
 
