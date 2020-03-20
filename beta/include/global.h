@@ -43,6 +43,11 @@ EXTERN	struct inode *		root_inode;
 extern	struct dev_drv_map	dd_map[];
 
 
+/* mem */
+extern	u8 * kernelfile_phyaddr;
+extern  int  kernelfile_phyaddr_len;
+
+
 
 
 

@@ -157,10 +157,11 @@ void TestC()
 
 void TestFs()
 {
-        
+
 	int fd = open("/tc", O_CREAT);
 	close(fd);
-
+        
+       
         fd = open("/tc", O_RDWR);
         char bufw[] = "hello world, this is a test of reading and writing file!";
 	int wlen = write(fd, bufw, strlen(bufw));

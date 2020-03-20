@@ -384,7 +384,7 @@ PRIVATE int do_open()
 		/* find a free slot in PROCESS::filp[] */
 		int i;
 		for (i = 0; i < NR_FILES; i++) {
-			printl("filp[%d]:%d, address %x\n",i,pcaller->filp[i], &pcaller->filp[i]);
+			//printl("filp[%d]:%d, address:0x%xh\n", i, pcaller->filp[i], &pcaller->filp[i]);
 			if (pcaller->filp[i] == 0) {
 				fd = i;
 				break;
@@ -392,10 +392,11 @@ PRIVATE int do_open()
 		}
 		if ((fd < 0) || (fd >= NR_FILES))
  		{
-			printl("NR_FILES:%d\n",NR_FILES);
-			__asm__ __volatile__("hlt");
+			//printl("NR_FILES:%d\n",NR_FILES);
+			//__asm__ __volatile__("hlt");
+			panic("filp[] is full (PID:%d)", proc2pid(pcaller));
 		}
-			//panic("filp[] is full (PID:%d)", proc2pid(pcaller));
+			
 
 
 		/* find a free slot in f_desc_table[] */

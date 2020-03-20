@@ -12,6 +12,7 @@
 #include "proto.h"
 
 
+
 PUBLIC  TASK  task_table[NR_TASKS] = {{task_tty, 20, 0, STACK_SIZE_TTY, "tty"},  //进程体、时间片、tty、堆栈、进程名
                                       {task_sys, 20, 0, STACK_SIZE_SYS, "sys"},
                                       {task_hd, 20, 0, STACK_SIZE_HD,  "hd"},
@@ -50,4 +51,10 @@ struct dev_drv_map dd_map[] = {
  */
 PUBLIC	u8 *		fsbuf		= (u8*)0x600000;
 PUBLIC	const int	FSBUF_SIZE	= 0x100000;
+
+
+PUBLIC	u8 * kernelfile_phyaddr	= (u8*)0x80000;
+PUBLIC  int  kernelfile_phyaddr_len = 0x10000;
+ 
+
 

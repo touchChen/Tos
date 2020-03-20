@@ -36,5 +36,7 @@ PUBLIC void cstart()
          
         init_prot();
 
+        /******** 内存清零 ********/
+        memset(kernelfile_phyaddr, 0, kernelfile_phyaddr_len);
 
 }
