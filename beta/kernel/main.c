@@ -120,7 +120,7 @@ PUBLIC int get_u_ticks()
  *======================================================================*/
 void TestA()
 {       
-        char ss[] = "hello world";
+        //char ss[] = "hello world";
 	while(1){
                 //assert(0);
                 // panic("error:%20s in TestA",ss);
@@ -157,6 +157,9 @@ void TestC()
 
 void TestFs()
 {
+
+	int c =! KB_ACK;
+        printl("c=0x%x\n", c);
 
 	int fd = open("/tc", O_CREAT);
 	close(fd);

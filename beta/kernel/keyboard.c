@@ -78,7 +78,6 @@ PUBLIC void init_keyboard()
 PUBLIC void keyboard_read(TTY* p_tty)
 {
 	u8	scan_code;
-	char	output[2];
 	int	make;	/* TRUE: make;  FALSE: break. */
 
 	u32	key = 0;/* 用一个整型来表示一个键。比如，如果 Home 被按下，
@@ -86,8 +85,6 @@ PUBLIC void keyboard_read(TTY* p_tty)
 			 */
 	u32*	keyrow;	/* 指向 keymap[] 的某一行 */
 
-        char    t[1];
-	//memset(output, 0, 2); 
 
 	if(kb_in.count > 0){
 		scan_code = get_byte_from_kbuf();
@@ -319,11 +316,12 @@ PRIVATE void kb_wait()
 
 PRIVATE void kb_ack()
 {
-	u8 kb_read;
+/*	u8 kb_read;
 
 	do {
 		kb_read = in_byte(KB_DATA);
-	} while (kb_read =! KB_ACK);
+	} while (kb_read != KB_ACK);
+*/
 }
 
 

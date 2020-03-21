@@ -88,8 +88,6 @@ PRIVATE void tty_do_write(TTY* p_tty)
 
 PUBLIC void in_process(TTY* p_tty, u32 key)
 {
-        char output[2] = {'\0', '\0'};
-
         if (!(key & FLAG_EXT)) {
                 /*
                 output[0] = key & 0xFF;
