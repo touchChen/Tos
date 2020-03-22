@@ -18,8 +18,7 @@ PRIVATE int do_open();
 PRIVATE int do_close();
 PRIVATE int do_rdwt();
 PRIVATE struct inode * create_file(char * path, int flags);
-PRIVATE int strip_path(char * filename, const char * pathname,
-		      struct inode** ppinode);
+
 PRIVATE int alloc_imap_bit(int dev);
 PRIVATE int alloc_smap_bit(int dev, int nr_sects_to_alloc);
 PRIVATE void read_super_block(int dev);
@@ -48,7 +47,7 @@ PUBLIC void task_fs()
 		pcaller = &proc_table[src];
                 int msg_type = fs_msg.type;
 
-		switch (fs_msg.type) {
+		switch (msg_type) {
 			case OPEN:
 				fs_msg.FD = do_open();
 				break;
@@ -58,22 +57,38 @@ PUBLIC void task_fs()
 			case READ:
 			case WRITE:
 				fs_msg.CNT = do_rdwt();
-				break;
-			
+				break;			
 			case DISK_LOG:
 				printl("DISK_LOG\n");
-				break;
-    			
-		
+				break;		
 			default:
 				dump_msg("FS::unknown message:", &fs_msg);
 				assert(0);
 				break;
 		}
 
+		switch (msg_type) {
+			case OPEN:
+				printl("Open just finished.\n");
+				break;
+			case CLOSE:
+				printl("CLOSE just finished.\n");
+				break;
+			case READ:
+				printl("READ just finished.\n");
+				break;
+			/*case WRITE:
+				printl("WRITE just finished.\n");						
+				break;
+			case DISK_LOG:
+				break;   */
+			default:
+				//massert(0);				
+				break;
+		}
 
+ /*           
             #ifdef ENABLE_DISK_LOG
-
 		switch (msg_type) {
 			case OPEN:
 				printl("Open just finished.\n");
@@ -95,7 +110,8 @@ PUBLIC void task_fs()
 				assert(0);
 		}
             #endif
-
+            */
+            
 
 		/* reply */
 		fs_msg.type = SYSCALL_RET;
@@ -722,56 +738,6 @@ PRIVATE int alloc_smap_bit(int dev, int nr_sects_to_alloc)
 }
 
 
-
-/*****************************************************************************
- * Get the basename from the fullpath.
- *
- * This routine should be called at the very beginning of file operations
- * such as open(), read() and write(). It accepts the full path and returns
- * two things: the basename and a ptr of the root dir's i-node.
- *
- * e.g. After stip_path(filename, "/blah", ppinode) finishes, we get:
- *      - filename: "blah"
- *      - *ppinode: root_inode
- *      - ret val:  0 (successful)
- *
- * Currently an acceptable pathname should begin with at most one `/'
- * preceding a filename.
- *
- * Filenames may contain any character except '/' and '\\0'.
- *
- * @param[out] filename The string for the result.
- * @param[in]  pathname The full pathname.
- * @param[out] ppinode  The ptr of the dir's inode will be stored here.
- * 
- * @return Zero if success, otherwise the pathname is not valid.
- *****************************************************************************/
-PRIVATE int strip_path(char * filename, const char * pathname,
-		      struct inode** ppinode)
-{
-	const char * s = pathname;
-	char * t = filename;
-
-	if (s == 0)
-		return -1;
-
-	if (*s == '/')
-		s++;
-
-	while (*s) {		/* check each character */
-		if (*s == '/')
-			return -1;
-		*t++ = *s++;
-		/* if filename is too long, just truncate it */
-		if (t - filename >= MAX_FILENAME_LEN)
-			break;
-	}
-	*t = 0;
-
-	*ppinode = root_inode;
-
-	return 0;
-}
 
 /*****************************************************************************
  * <Ring 1> Read super block from the given device then write it into a free

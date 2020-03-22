@@ -12,9 +12,14 @@ CC		= gcc
 LD		= ld
 ASMBFLAGS	= -I boot/include/
 ASMKFLAGS	= -I include/ -f elf
-CFLAGS		= -I include/ -c -fno-builtin -m32  -fno-stack-protector  -Wall
-LDFLAGS		= -s -Ttext $(ENTRYPOINT) -m elf_i386
+CFLAGS		= -I include/ -c -fno-builtin -m32  -fno-stack-protector -fpack-struct  -Wall
+LDFLAGS		= -s -Ttext $(ENTRYPOINT) -m elf_i386  -Map krnl.map
 DASMFLAGS	= -u -o $(ENTRYPOINT) -e $(ENTRYOFFSET)
+
+
+#CFLAGS		= -I include/ -c -fno-builtin -Wall
+#LDFLAGS		= -Ttext $(ENTRYPOINT) -Map krnl.map
+#DASMFLAGS	= -D
 
 # This Program
 BOOT    	= boot/boot.bin boot/loader.bin
@@ -22,8 +27,8 @@ KERNEL	        = kernel.bin
 OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
                   kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/syscall.o \
                   kernel/proc.o kernel/tty.o kernel/console.o kernel/global.o \
-                  kernel/systask.o kernel/printf.o kernel/hd.o kernel/fs.o \
-                  kernel/disklog.o \
+                  kernel/systask.o kernel/printf.o kernel/hd.o kernel/fslib.o \
+                  kernel/fs.o kernel/disklog.o \
                   lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/fslib.o \
                   lib/proclib.o lib/syslog.o # 注意连接的头
 DASMOUTPUT	= kernel.bin.asm
@@ -40,6 +45,7 @@ everything : $(BOOT) $(KERNEL)
 all : realclean everything
 
 final : all clean
+#final : all 
 
 image : final buildimg
 
@@ -114,6 +120,9 @@ kernel/printf.o : kernel/printf.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 kernel/hd.o : kernel/hd.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+kernel/fslib.o : kernel/fslib.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 kernel/fs.o : kernel/fs.c

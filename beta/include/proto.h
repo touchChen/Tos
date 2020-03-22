@@ -170,6 +170,11 @@ PUBLIC int rw_sector(int io_type, int dev, u64 pos, int bytes, int proc_nr, void
 PUBLIC struct super_block * get_super_block(int dev);
 
 
+/****** fslib.c ******/
+PUBLIC int strip_path(char * filename, const char * pathname,
+		      struct inode** ppinode);
+
+
 /****** disklog.c ******/
 PUBLIC int do_disklog();
 PUBLIC int disklog(char * logstr); /* for debug */

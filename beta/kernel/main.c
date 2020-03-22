@@ -155,21 +155,24 @@ void TestC()
 }
 
 
-void TestFs()
+PRIVATE void cc()
 {
+    static  int  ii;
+    static  int  c = 1;
+    printf("&ii=0x%xh, ii=%d,   &c=0x%x, c=%d\n", &ii, ++ii, &c, ++c);
+}
 
-	int c =! KB_ACK;
-        printl("c=0x%x\n", c);
 
+void TestFs()
+{ 
 	int fd = open("/tc", O_CREAT);
 	close(fd);
-        
-       
-        fd = open("/tc", O_RDWR);
-        char bufw[] = "hello world, this is a test of reading and writing file!";
+        cc();cc();cc();cc();cc();
+
+	fd = open("/tc", O_RDWR);
+	char bufw[] = "hello world, this is a test of reading and writing file!";
 	int wlen = write(fd, bufw, strlen(bufw));
-        printf("Write len: %d\n",wlen);
-        close(fd);
+	close(fd);
 
 	fd = open("/tc", O_RDWR);
         char bufr[wlen];
@@ -177,11 +180,8 @@ void TestFs()
 	bufr[rlen] = 0;       
         close(fd);
 
-        printl("Read len: %d, buf: %s\n",rlen,bufr);
-      
-	
-	//syslog("this is a test in log");
-
+	printl("Read len: %d, buf: %s\n",rlen,bufr);
+   
         spin("Test FS...");
 }
 
