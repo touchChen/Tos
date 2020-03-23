@@ -27,10 +27,10 @@ KERNEL	        = kernel.bin
 OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
                   kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/syscall.o \
                   kernel/proc.o kernel/tty.o kernel/console.o kernel/global.o \
-                  kernel/systask.o kernel/printf.o kernel/hd.o kernel/fslib.o \
-                  kernel/fs.o kernel/disklog.o \
+                  kernel/systask.o kernel/printf.o kernel/hd.o \
+                  fs/fslib.o fs/main.o fs/disklog.o fs/graph.o \
                   lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/fslib.o \
-                  lib/proclib.o lib/syslog.o  lib/fsloglib.o \
+                  lib/proclib.o lib/syslog.o \
                   local/main.o # 注意连接的头
 DASMOUTPUT	= kernel.bin.asm
 
@@ -123,13 +123,16 @@ kernel/printf.o : kernel/printf.c
 kernel/hd.o : kernel/hd.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-kernel/fslib.o : kernel/fslib.c
+fs/fslib.o : fs/fslib.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-kernel/fs.o : kernel/fs.c
+fs/main.o : fs/main.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-kernel/disklog.o : kernel/disklog.c
+fs/disklog.o : fs/disklog.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+fs/graph.o : fs/graph.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 
@@ -154,8 +157,6 @@ lib/proclib.o : lib/proclib.c
 lib/syslog.o : lib/syslog.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-lib/fsloglib.o : lib/fsloglib.c
-	$(CC) $(CFLAGS) -o $@ $<
 
 
 local/main.o : local/main.c

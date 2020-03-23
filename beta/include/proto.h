@@ -55,20 +55,11 @@ PUBLIC int get_u_ticks();
 PUBLIC int syslog(const char *fmt, ...);
 
 
-/****** fsloglib.c ******/
-PUBLIC int disklog(char * logstr);
 
 
 
 
-
-
-
-
-
-
-
-
+/*************************** kernel ***************************************/
 /****** i8259.c ******/ //硬件中断，从保护模式进入
 PUBLIC void init_8259A();
 PUBLIC void put_irq_handler(int irq, irq_handler handler);
@@ -169,7 +160,12 @@ PUBLIC void task_hd();
 PUBLIC void hd_handler(int irq);
 
 
-/****** fs.c ******/
+
+
+
+
+/*************************** fs ***************************************/
+/****** main.c ******/
 PUBLIC void task_fs();
 PUBLIC int rw_sector(int io_type, int dev, u64 pos, int bytes, int proc_nr, void* buf);
 PUBLIC struct super_block * get_super_block(int dev);
@@ -182,7 +178,17 @@ PUBLIC int strip_path(char * filename, const char * pathname,
 
 /****** disklog.c ******/
 PUBLIC int do_disklog();
+PUBLIC int disklog(char * logstr);
+
+
+
+/****** graph.c ******/
+PUBLIC void dump_fd_graph(const char * fmt, ...);
+
  
+
+
+
 
 
 
