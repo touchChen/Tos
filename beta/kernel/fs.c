@@ -77,13 +77,13 @@ PUBLIC void task_fs()
 			case READ:
 				printl("READ just finished.\n");
 				break;
-			/*case WRITE:
+			case WRITE:
 				printl("WRITE just finished.\n");						
 				break;
 			case DISK_LOG:
-				break;   */
+				break;   
 			default:
-				//massert(0);				
+				assert(0);				
 				break;
 		}
 

@@ -43,7 +43,7 @@
 					Read : Read Status Register
 					Write: Write Input Buffer(8042 Command) */
 #define LED_CODE	0xED
-#define KB_ACK		0xFAe
+#define KB_ACK		0xFA
 
 
 

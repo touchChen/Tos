@@ -316,12 +316,12 @@ PRIVATE void kb_wait()
 
 PRIVATE void kb_ack()
 {
-/*	u8 kb_read;
+	u8 kb_read;
 
 	do {
 		kb_read = in_byte(KB_DATA);
 	} while (kb_read != KB_ACK);
-*/
+
 }
 
 
