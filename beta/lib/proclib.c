@@ -26,3 +26,14 @@ PUBLIC int getpid()
 
 	return msg.PID;
 }
+
+
+
+PUBLIC int get_u_ticks()
+{
+	MESSAGE msg;
+	reset_msg(&msg);
+	msg.type = GET_TICKS;
+	send_recv(BOTH, TASK_SYS, &msg);
+	return msg.RETVAL;
+}

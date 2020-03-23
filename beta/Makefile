@@ -12,14 +12,14 @@ CC		= gcc
 LD		= ld
 ASMBFLAGS	= -I boot/include/
 ASMKFLAGS	= -I include/ -f elf
-CFLAGS		= -I include/ -c -fno-builtin -m32  -fno-stack-protector -fpack-struct  -Wall
+CFLAGS		= -I include/ -c -fno-builtin -m32  -Wall -fno-stack-protector
 LDFLAGS		= -s -Ttext $(ENTRYPOINT) -m elf_i386  -Map krnl.map
-DASMFLAGS	= -u -o $(ENTRYPOINT) -e $(ENTRYOFFSET)
+ASMFLAGS	= -D
 
 
-#CFLAGS		= -I include/ -c -fno-builtin -Wall
-#LDFLAGS		= -Ttext $(ENTRYPOINT) -Map krnl.map
-#DASMFLAGS	= -D
+#CFLAGS		= -I include/ -c -fno-builtin -Wall 
+#LDFLAGS	= -Ttext $(ENTRYPOINT) -Map krnl.map
+
 
 # This Program
 BOOT    	= boot/boot.bin boot/loader.bin
@@ -30,7 +30,8 @@ OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
                   kernel/systask.o kernel/printf.o kernel/hd.o kernel/fslib.o \
                   kernel/fs.o kernel/disklog.o \
                   lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/fslib.o \
-                  lib/proclib.o lib/syslog.o # 注意连接的头
+                  lib/proclib.o lib/syslog.o \
+                  local/main.o # 注意连接的头
 DASMOUTPUT	= kernel.bin.asm
 
 IMG             = x.img
@@ -152,4 +153,9 @@ lib/proclib.o : lib/proclib.c
 
 lib/syslog.o : lib/syslog.c
 	$(CC) $(CFLAGS) -o $@ $<
+
+
+local/main.o : local/main.c
+	$(CC) $(CFLAGS) -o $@ $<
+
 

@@ -66,28 +66,9 @@ PUBLIC void task_fs()
 				assert(0);
 				break;
 		}
-
-		switch (msg_type) {
-			case OPEN:
-				printl("Open just finished.\n");
-				break;
-			case CLOSE:
-				printl("CLOSE just finished.\n");
-				break;
-			case READ:
-				printl("READ just finished.\n");
-				break;
-			case WRITE:
-				printl("WRITE just finished.\n");						
-				break;
-			case DISK_LOG:
-				break;   
-			default:
-				assert(0);				
-				break;
-		}
-
- /*           
+ 
+		
+        
             #ifdef ENABLE_DISK_LOG
 		switch (msg_type) {
 			case OPEN:
@@ -110,7 +91,7 @@ PUBLIC void task_fs()
 				assert(0);
 		}
             #endif
-            */
+          
             
 
 		/* reply */

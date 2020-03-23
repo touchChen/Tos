@@ -48,6 +48,7 @@ PUBLIC int write(int fd, const void *buf, int count);
 
 /****** proclib.c ******/
 PUBLIC int getpid();
+PUBLIC int get_u_ticks();
 
 
 /****** syslog.c ******/
@@ -177,8 +178,8 @@ PUBLIC int strip_path(char * filename, const char * pathname,
 
 /****** disklog.c ******/
 PUBLIC int do_disklog();
-PUBLIC int disklog(char * logstr); /* for debug */
-PUBLIC void dump_fd_graph(const char * fmt, ...);
+PUBLIC int disklog(char * logstr); 
+
 
 
 /**

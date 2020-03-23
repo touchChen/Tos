@@ -7,7 +7,8 @@
 
 /* 函数类型 */
 #define	PUBLIC		/* PUBLIC is the opposite of PRIVATE */
-#define	PRIVATE	static	/* PRIVATE x limits the scope of x */
+#define	PRIVATE	static 	/* PRIVATE x limits the scope of x */
+
 
 /* Boolean */
 #define	TRUE	1

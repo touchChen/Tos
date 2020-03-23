@@ -18,19 +18,13 @@ extern  k_reenter
 extern  irq_table
 extern  sys_call_table
  
-
+bits 32
 
 [SECTION .bss]
 StackSpace		resb	2 * 1024   ;声明未初始化的存储空间
 StackTop:		; 栈顶
 
-[SECTION .data]
-tip        db      "please press any key ",0Ah,0h
-kernel_int_t_message    db    "^",0h 
-
-
 [section .text]	; 代码在此
-
 global _start	; 导出 _start
 
 global restart
@@ -157,55 +151,6 @@ csinit:		; “这个跳转指令强制使用刚刚初始化的结构”——<<O
 	ret
 %endmacro
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN	16
-hwint000:		; Interrupt routine for irq 0 (the clock)   .p240
-	call	save
-        
-        ;in      al, INT_M_CTLMASK      ;` .
-        ;or      al, 1                  ;  |  屏蔽中断
-        ;out     INT_M_CTLMASK, al      ;  /
-
-        mov	al, EOI			; `. reenable
-	out	INT_M_CTL, al		; /  master 8259
-
-        cmp     dword [k_reenter], 0        ;if(k_reenter ==0)
-        jne     .1 
-        ;测试
-
-
-        sti
-        
-	push    100
-        call    delay
-        add     esp, 4
-       
-        push    kernel_int_t_message
-        call    disp_str
-        add     esp, 4
-
-        cli
-
-        ;end 测试
-.1:
-	
-        sti
-        
-	push	0					
-	call	clock_handler
-	add	esp, 4
-
-        cli
-
-
-        in      al, INT_M_CTLMASK
-        and     al, 0xFE
-        out     INT_M_CTLMASK, al	
-
-	ret
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ALIGN   16
 hwint00:                ; Interrupt routine for irq 0 (clock)
