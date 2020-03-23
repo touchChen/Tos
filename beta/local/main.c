@@ -61,7 +61,7 @@ void TestFs()
 { 
 	int fd = open("/tc", O_CREAT);
 	close(fd);
-        cc();cc();cc();cc();cc();
+        cc();cc();
 
 	fd = open("/tc", O_RDWR);
 	char bufw[] = "hello world, this is a test of reading and writing file!";

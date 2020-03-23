@@ -55,6 +55,10 @@ PUBLIC int get_u_ticks();
 PUBLIC int syslog(const char *fmt, ...);
 
 
+/****** fsloglib.c ******/
+PUBLIC int disklog(char * logstr);
+
+
 
 
 
@@ -178,7 +182,7 @@ PUBLIC int strip_path(char * filename, const char * pathname,
 
 /****** disklog.c ******/
 PUBLIC int do_disklog();
-PUBLIC int disklog(char * logstr); 
+ 
 
 
 

@@ -149,36 +149,6 @@ PUBLIC int disklog(char * logstr)
 }
 
 
-/*****************************************************************************
- * Output a dot graph.
- * 
- *****************************************************************************/
-PUBLIC void dump_fd_graph(const char * fmt, ...)
-{
-	int i;
-	char title[STR_DEFAULT_LEN];
-
-	va_list arg = (va_list)((char*)(&fmt) + 4); /**
-						     * 4: size of `fmt' in
-						     *    the stack
-						     */
-	i = vsprintf(title, fmt, arg);
-	assert(strlen(title) == i);
-
-	static int graph_idx = 0;
-
-	/* head */
-	SYSLOG("digraph filedesc%02d {\n", graph_idx++);
-	SYSLOG("\tgraph [\n");
-	SYSLOG("		rankdir = \"LR\"\n");
-	SYSLOG("	];\n");
-	SYSLOG("	node [\n");
-	SYSLOG("		fontsize = \"16\"\n");
-	SYSLOG("		shape = \"ellipse\"\n");
-	SYSLOG("	];\n");
-	SYSLOG("	edge [\n");
-	SYSLOG("	];\n");
-}
 
 
 
