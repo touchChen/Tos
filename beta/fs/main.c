@@ -72,16 +72,16 @@ PUBLIC void task_fs()
             #ifdef ENABLE_DISK_LOG
 		switch (msg_type) {
 			case OPEN:
-				printl("Open just finished.\n");
+				syslog("Open just finished.");
 				break;
 			case CLOSE:
-				printl("CLOSE just finished.\n");
+				syslog("CLOSE just finished.");
 				break;
 			case READ:
-				printl("READ just finished.\n");
+				syslog("READ just finished.");
 				break;
 			case WRITE:
-				printl("WRITE just finished.\n");
+				syslog("WRITE just finished.");
 				//dump_fd_graph("%s just finished.", msg_name[fs_msg.type]);							
 				break;
 			

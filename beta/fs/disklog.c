@@ -41,9 +41,10 @@ PUBLIC int disklog(char * logstr)
 {
 	int device = root_inode->i_dev;
 	struct super_block * sb = get_super_block(device);
-	int nr_log_blk0_nr = sb->nr_sects - NR_SECTS_FOR_LOG;  // 除去 log
+	int nr_log_blk0_nr = sb->nr_sects - NR_SECTS_FOR_LOG;  // 除去 log 
 
 	static int pos = 0;
+	printl("static pos:%d\n", pos);
 	if (!pos) { /* first time invoking this routine */
 
 #ifdef SET_LOG_SECT_SMAP_AT_STARTUP
@@ -121,7 +122,8 @@ PUBLIC int disklog(char * logstr)
 		int bytes = min(bytes_left, SECTOR_SIZE - off);
 
 		memcpy(&fsbuf[off], p, bytes);
-                printl("write to log: %s\n",fsbuf);
+		fsbuf[off+bytes] = '\0';
+                printl("write to log: %s\n",&fsbuf[off]);
 		off += bytes;
 		bytes_left -= bytes;
 
