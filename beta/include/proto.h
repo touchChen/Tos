@@ -59,6 +59,8 @@ PUBLIC int syslog(const char *fmt, ...);
 
 
 
+
+
 /*************************** kernel ***************************************/
 /****** i8259.c ******/ //硬件中断，从保护模式进入
 PUBLIC void init_8259A();
@@ -93,7 +95,6 @@ PUBLIC int kernel_main();  //内核主程序
 PUBLIC void TestA();
 PUBLIC void TestB();
 PUBLIC void TestC();
-PUBLIC void TestFs();
 
 
 /****** syscall.asm ******/  //系统中断
@@ -164,6 +165,8 @@ PUBLIC void hd_handler(int irq);
 
 
 
+
+
 /*************************** fs ***************************************/
 /****** main.c ******/
 PUBLIC void task_fs();
@@ -172,8 +175,7 @@ PUBLIC struct super_block * get_super_block(int dev);
 
 
 /****** fslib.c ******/
-PUBLIC int strip_path(char * filename, const char * pathname,
-		      struct inode** ppinode);
+PUBLIC int strip_path(char * filename, const char * pathname, struct inode** ppinode);
 
 
 /****** disklog.c ******/
@@ -181,11 +183,20 @@ PUBLIC int do_disklog();
 PUBLIC int disklog(char * logstr);
 
 
-
 /****** graph.c ******/
 PUBLIC void dump_fd_graph(const char * fmt, ...);
 
  
+
+
+
+
+
+
+/*************************** fs ***************************************/
+/****** main.c ******/
+PUBLIC void TestFs();
+
 
 
 

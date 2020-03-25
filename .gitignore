@@ -6,3 +6,5 @@
 *.o
 
 *.map
+
+*.bin.asm

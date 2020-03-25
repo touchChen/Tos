@@ -7,14 +7,16 @@ ENTRYOFFSET	=   0x400
 
 # Programs, flags, etc.
 ASM		= nasm
-DASM		= ndisasm
+#DASM		= ndisasm
+DASM		= objdump
 CC		= gcc
 LD		= ld
 ASMBFLAGS	= -I boot/include/
 ASMKFLAGS	= -I include/ -f elf
 CFLAGS		= -I include/ -c -fno-builtin -m32  -Wall -fno-stack-protector
 LDFLAGS		= -s -Ttext $(ENTRYPOINT) -m elf_i386  -Map krnl.map
-ASMFLAGS	= -D
+#DASMFLAGS	= -u -o $(ENTRYPOINT) -e $(ENTRYOFFSET)
+DASMFLAGS	= -D
 
 
 #CFLAGS		= -I include/ -c -fno-builtin -Wall 
@@ -28,9 +30,9 @@ OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
                   kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/syscall.o \
                   kernel/proc.o kernel/tty.o kernel/console.o kernel/global.o \
                   kernel/systask.o kernel/printf.o kernel/hd.o \
-                  fs/fslib.o fs/main.o fs/disklog.o fs/graph.o \
                   lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/fslib.o \
                   lib/proclib.o lib/syslog.o \
+		  fs/fslib.o fs/main.o fs/disklog.o fs/graph.o \
                   local/main.o # 注意连接的头
 DASMOUTPUT	= kernel.bin.asm
 
