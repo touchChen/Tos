@@ -48,7 +48,6 @@ everything : $(BOOT) $(KERNEL)
 all : realclean everything
 
 final : all clean
-#final : all 
 
 image : final buildimg
 
@@ -68,6 +67,7 @@ buildimg :
 	sudo cp -fv boot/loader.bin $(FLOPPY)
 	sudo cp -fv kernel.bin $(FLOPPY)
 	sudo umount $(FLOPPY)
+
 
 boot/boot.bin : boot/boot.asm boot/include/load.inc boot/include/fat12hdr.inc
 	$(ASM) $(ASMBFLAGS) -o $@ $<
