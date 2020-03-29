@@ -32,21 +32,49 @@ PUBLIC char* itoa(char * str, int num)
 	else{	
 	    for(i=28;i>=0;i-=4){
 	        ch = (num >> i) & 0xF;
-		if(flag || (ch > 0)){
-		    flag = TRUE;
-		    ch += '0';
-		    if(ch > '9'){
-			ch += 7;
-		    }
 
-		    *p++ = ch;
-		}
-           }
+			if(flag || (ch > 0)){
+		    	flag = TRUE;
+		    	ch += '0';
+		    	if(ch > '9'){
+					ch += 7;
+		   		}
+
+		    	*p++ = ch;
+			 }
+        }
 	}
 
 	*p = 0;
 
 	return str;
+}
+
+
+/************************************************
+ * 字符串转数值
+ * parm  str 生成的字符串
+ * return 转换的数值
+ ***********************************************/
+PUBLIC int atoi(char * str)
+{
+	int i;
+    int str_len = strlen(str);
+    int val = 0;
+	
+    for(i = 0; i < str_len; i ++)
+    {
+		char c = str[i];
+		if(c == '\0')
+	    	break;
+    	if(c >= '0' && c <= '9')
+		{
+	    	val = val * 10 + (int)(c - '0');
+		}
+	    
+	}
+
+	return val;
 }
 
 
@@ -61,8 +89,8 @@ PUBLIC void disp_int_c(int input)
 
 PUBLIC void clear_disp()
 {
-        int i;
-        disp_pos = 0;
+    int i;
+    disp_pos = 0;
 	for (i = 0; i < 80*25; i++) {
 		disp_str(" ");
 	}

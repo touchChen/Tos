@@ -1,7 +1,7 @@
 
 /*************************** lib ***************************************/
 /****** string.asm ******/
-PUBLIC void* memcpy(void* pDst, void* pSrc, int iSize);
+PUBLIC void* memcpy(void* p_dst, void* p_src, int iSize);
 PUBLIC void  memset(void* p_dst, char ch, int size);
 PUBLIC char* strcpy(char* p_dst, char* p_src);
 PUBLIC int strlen(const char* p_str);
@@ -25,6 +25,7 @@ PUBLIC void port_write(u16 port, void* buf, int n);
 
 /****** klibc.c ******/  
 PUBLIC char* itoa(char * str, int num);
+PUBLIC int atoi(char * str);
 PUBLIC void disp_int_c(int input);
 PUBLIC void delay(int time);
 PUBLIC void clear_disp();  //清屏
@@ -53,6 +54,7 @@ PUBLIC int get_u_ticks();
 
 /****** syslog.c ******/
 PUBLIC int syslog(const char *fmt, ...);
+PUBLIC int readlog(void *buf);
 
 
 
@@ -91,10 +93,6 @@ PUBLIC void milli_delay(int milli_sec);
 
 /****** main.c ******/
 PUBLIC int kernel_main();  //内核主程序
-
-PUBLIC void TestA();
-PUBLIC void TestB();
-PUBLIC void TestC();
 
 
 /****** syscall.asm ******/  //系统中断
@@ -180,6 +178,7 @@ PUBLIC int strip_path(char * filename, const char * pathname, struct inode** ppi
 
 /****** disklog.c ******/
 PUBLIC int do_disklog();
+PUBLIC int do_readlog();
 PUBLIC int disklog(char * logstr);
 
 
@@ -195,7 +194,10 @@ PUBLIC void dump_fd_graph(const char * fmt, ...);
 
 /*************************** fs ***************************************/
 /****** main.c ******/
-PUBLIC void TestFs();
+PUBLIC void TestA();
+PUBLIC void TestB();
+PUBLIC void TestC();
+PUBLIC void test_fs();
 
 
 

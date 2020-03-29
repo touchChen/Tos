@@ -14,12 +14,12 @@
  *======================================================================*/
 void TestA()
 {       
-        //char ss[] = "hello world";
+	//char ss[] = "hello world";
 	while(1){
-                //assert(0);
-                // panic("error:%20s in TestA",ss);
-                //printf("A.");
-                printf("ticks:%d.",get_u_ticks());
+	    //assert(0);
+	    // panic("error:%20s in TestA",ss);
+        //printf("A.");
+        printf("ticks:%d.",get_u_ticks());
 		milli_delay(10000);      
 	}
 }
@@ -30,9 +30,9 @@ void TestB()
 	while(1){
 		//disp_str("B");
 		//disp_int_c(get_ticks());
-                //printf("ticks:%x.\n",get_ticks());
-                printf("B.c");
-                milli_delay(10000);
+        //printf("ticks:%x.\n",get_ticks());
+        printf("B.c");
+        milli_delay(10000);
 	}
 }
 
@@ -41,27 +41,28 @@ void TestB()
 void TestC()
 {
 	while(1){
-                printf("C.\n");
-                milli_delay(10000);
+        printf("C.\n");
+        milli_delay(10000);
 		//printf("disp_pos:%x.\n",disp_pos);
 		
 	}
 }
 
 
-PRIVATE void cc()
+PRIVATE void test_static_int()
 {
-    static  int  ii = 0;
-    static  int  c = 1;
-    printf("&ii=0x%xh, ii=%d,   &c=0x%x, c=%d\n", &ii, ++ii, &c, ++c);
+    static  int  bss_i = 0;
+    static  int  data_i = 1;
+    printf("&bss_i=0x%xh, bss_i=%d,   &data_i=0x%x, data_i=%d\n", &bss_i, ++bss_i, &data_i, ++data_i);
 }
 
 
-void TestFs()
+void test_fs()
 { 
 	int fd = open("/tc", O_CREAT);
 	close(fd);
-        cc();cc();
+    test_static_int();
+	test_static_int();
 
 	fd = open("/tc", O_RDWR);
 	char bufw[] = "hello world, this is a test of reading and writing file!";
@@ -69,14 +70,18 @@ void TestFs()
 	close(fd);
 
 	fd = open("/tc", O_RDWR);
-        char bufr[wlen];
-        int rlen = read(fd, bufr, wlen);
+	char bufr[wlen];
+	int rlen = read(fd, bufr, wlen);
 	bufr[rlen] = 0;       
-        close(fd);
+	close(fd);
 
-	printl("Read len: %d, buf: %s\n",rlen,bufr);
+	printf("Read len: %d, buf: %s\n",rlen,bufr);
+
+	char buf[512*32];
+	int log_pos = readlog(buf);
+	printf("log len: %d, log: \n%s", log_pos, buf);
    
-        spin("Test FS...");
+    spin("Test FS...");
 }
 
 

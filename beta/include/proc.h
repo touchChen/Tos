@@ -33,6 +33,7 @@ struct mess3 {
 	int	m3i2;
 	int	m3i3;
 	int	m3i4;
+	int     m3i5;
 	u64	m3l1;
 	u64	m3l2;
 	void*	m3p1;
@@ -213,7 +214,8 @@ enum msgtype {
 	DEV_IOCTL,
 
         /* for debug */
-	DISK_LOG
+	DISK_LOG,
+	READ_LOG
 };
 
 
@@ -230,6 +232,7 @@ enum msgtype {
 #define	RETVAL		u.m3.m3i1
 
 #define	PID		u.m3.m3i2
+#define POS             u.m3.m3i5
 
 
 #define	STR_DEFAULT_LEN	1024

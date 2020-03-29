@@ -37,15 +37,15 @@ PUBLIC void task_fs()
 {
 	printl("Task FS begins.\n");
 
-        init_fs();
+	init_fs();
 
 
-        while (1) {
+	while (1) {
 		send_recv(RECEIVE, ANY, &fs_msg);
 
 		int src = fs_msg.source;
 		pcaller = &proc_table[src];
-                int msg_type = fs_msg.type;
+		int msg_type = fs_msg.type;
 
 		switch (msg_type) {
 			case OPEN:
@@ -59,7 +59,8 @@ PUBLIC void task_fs()
 				fs_msg.CNT = do_rdwt();
 				break;			
 			case DISK_LOG:
-				printl("DISK_LOG\n");
+			case READ_LOG:
+				printl("LOG...\n");
 				break;		
 			default:
 				dump_msg("FS::unknown message:", &fs_msg);
@@ -68,31 +69,32 @@ PUBLIC void task_fs()
 		}
  
 		
-        
-            #ifdef ENABLE_DISK_LOG
+
+#ifdef ENABLE_DISK_LOG
 		switch (msg_type) {
 			case OPEN:
-				syslog("Open just finished.");
+				syslog("Open just finished.\n");
 				break;
 			case CLOSE:
-				syslog("CLOSE just finished.");
+				syslog("CLOSE just finished.\n");
 				break;
 			case READ:
-				syslog("READ just finished.");
+				syslog("READ just finished.\n");
 				break;
 			case WRITE:
-				syslog("WRITE just finished.");
+				syslog("WRITE just finished.\n");
 				//dump_fd_graph("%s just finished.", msg_name[fs_msg.type]);							
 				break;
-			
+ 			case READ_LOG:
+				fs_msg.POS = do_readlog();
+				break;			
 			case DISK_LOG:
 				break;
 			default:				
 				assert(0);
 		}
-            #endif
-          
-            
+#endif
+    
 
 		/* reply */
 		fs_msg.type = SYSCALL_RET;
@@ -190,16 +192,15 @@ PRIVATE void mkfs()
 	/* write the super block */
 	WR_SECT(ROOT_DEV, 1);
 
-        printl("indoes:%d, indoes_sects:%d, sects:%d, "
-               "imap: %d, smap: %d, data_1st: %d\n\n",
-               sb.nr_inodes,
-               sb.nr_inode_sects,
-               sb.nr_sects,
-               sb.nr_imap_sects,
-               sb.nr_smap_sects,
-               sb.n_1st_sect);
-        
-        
+	printl("indoes:%d, indoes_sects:%d, sects:%d, "
+	       "imap: %d, smap: %d, data_1st: %d\n\n",
+	       sb.nr_inodes,
+	       sb.nr_inode_sects,
+	       sb.nr_sects,
+	       sb.nr_imap_sects,
+	       sb.nr_smap_sects,
+	       sb.n_1st_sect);
+
 	printl("devbase:0x%x00, sb:0x%x00, imap:0x%x00, smap:0x%x00\n"
 	       "        inodes:0x%x00, 1st_sector:0x%x00\n", 
 	       geo.base * 2,
@@ -236,7 +237,7 @@ PRIVATE void mkfs()
 	 *                                |    `--- bit 0 is reserved
 	 *                                `-------- for `/' 根目录占 32 个扇区
 	 */
-        for (i = 0; i < nr_sects / 8; i++)
+	for (i = 0; i < nr_sects / 8; i++)
 		fsbuf[i] = 0xFF;
 
 	for (j = 0; j < nr_sects % 8; j++)
@@ -344,11 +345,11 @@ PRIVATE int do_open()
 		  (void*)va2la(src, fs_msg.PATHNAME),
 		  name_len);
 	pathname[name_len] = 0;
-        //printl("open filename(ring 1): %s\n", pathname);
+	//printl("open filename(ring 1): %s\n", pathname);
 
 
-        int inode_nr = search_file(pathname);
-     	//printl("inode_nr of search_file: %d\n",inode_nr); 
+    int inode_nr = search_file(pathname);
+    //printl("inode_nr of search_file: %d\n",inode_nr); 
 
 	struct inode * pin = 0;
 	if (flags & O_CREAT) {
@@ -363,7 +364,7 @@ PRIVATE int do_open()
 	}
 	else {
 		assert(flags & O_RDWR);
-                printl("read or write file.\n");
+        printl("read or write file.\n");
 
 		char filename[MAX_PATH];
 		struct inode * dir_inode;
@@ -433,7 +434,7 @@ PRIVATE int do_open()
 		}
 		else {
 			assert(pin->i_mode == I_REGULAR);
-                        //printl("file'mode is I_REGULAR\n");
+            //printl("file'mode is I_REGULAR\n");
 		}
 	}
 	else {
@@ -454,7 +455,7 @@ PRIVATE int do_open()
 PRIVATE int do_close()
 {
 	int fd = fs_msg.FD;
-        //printl("do_close fd_inode: %d\n",pcaller->filp[fd]->fd_inode->i_num);
+    //printl("do_close fd_inode: %d\n",pcaller->filp[fd]->fd_inode->i_num);
 	put_inode(pcaller->filp[fd]->fd_inode);
 	pcaller->filp[fd]->fd_inode = 0;   // f_desc_table 
 	pcaller->filp[fd] = 0;
@@ -542,7 +543,7 @@ PRIVATE int do_rdwt()
 				  fsbuf);
 
 			if (fs_msg.type == READ) {
-          			//printl("pre copy   fsbuf: %s, buf: %s\n",fsbuf, buf);
+				//printl("pre copy   fsbuf: %s, buf: %s\n",fsbuf, buf);
 				phys_copy((void*)va2la(src, buf + bytes_rw),
 					  (void*)va2la(TASK_FS, fsbuf + off),
 					  bytes);
@@ -601,8 +602,6 @@ PRIVATE struct inode * create_file(char * path, int flags)
 		return 0;
 
 	int inode_nr = alloc_imap_bit(dir_inode->i_dev);
-
-        //printl("inode_nr of alloc: %d\n",inode_nr);
 
 	int free_sect_nr = alloc_smap_bit(dir_inode->i_dev,
 					  NR_DEFAULT_FILE_SECTS);
@@ -992,7 +991,7 @@ PRIVATE int search_file(char * path)
 		RD_SECT(dir_inode->i_dev, dir_blk0_nr + i);
 		pde = (struct dir_entry *)fsbuf;
 		for (j = 0; j < SECTOR_SIZE / DIR_ENTRY_SIZE; j++,pde++) {
-                        //printl("entry_name: %s, search filename: %s\n",pde->name,filename);
+            //printl("entry_name: %s, search filename: %s\n",pde->name,filename);
 			if (memcmp(filename, pde->name, MAX_FILENAME_LEN) == 0)
 				return pde->inode_nr;
 			if (++m > nr_dir_entries)

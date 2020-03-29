@@ -20,9 +20,9 @@ PUBLIC int printf(const char *fmt, ...)
        
 	va_list arg = (va_list)((char*)(&fmt) + 4); /*4是参数fmt所占堆栈中的大小*/
 	
-        i = vsprintf(buf, fmt, arg);
+    i = vsprintf(buf, fmt, arg);
 	
-        buf[i] = 0;
+    buf[i] = 0;
 	printx(buf);     // 系统调用，只有一个参数
 
 	return i;

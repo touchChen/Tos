@@ -47,3 +47,21 @@ PUBLIC int syslog(const char *fmt, ...)
 		return msg.RETVAL;
 	}
 }
+
+
+/*****************************************************************************
+ * Read from fs log.
+ * 
+ * @param buf    Buffer to accept the bytes read.
+ * @return position of log file.
+ *****************************************************************************/
+PUBLIC int readlog(void *buf)
+{
+	MESSAGE msg;
+	msg.type = READ_LOG;
+	msg.BUF  = buf;
+    
+	send_recv(BOTH, TASK_FS, &msg);
+
+	return msg.POS;
+}
