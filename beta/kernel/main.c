@@ -25,7 +25,7 @@ PUBLIC int kernel_main()
 
         init_clock();
 
-	restart();
+		restart();
 
         disp_str("-----\"kernel\" Never run to here-----\n");
         while(1){}
@@ -34,23 +34,23 @@ PUBLIC int kernel_main()
 
 PRIVATE void init_process()
 {
-        TASK*		p_task		= task_table;
+    TASK*		p_task		= task_table;
 	PROCESS*	p_proc		= proc_table;
 	char*		p_task_stack	= task_stack + STACK_SIZE_TOTAL;
 	u16		selector_ldt	= SELECTOR_LDT_FIRST;
 	int i;
 
-        u8              privilege;
-        u8              rpl;
-        int             eflags;
+    u8              privilege;
+    u8              rpl;
+    int             eflags;
 	for(i=0;i<NR_TASKS_AND_PROCS;i++){
 		if (i < NR_TASKS) {     /* 任务 */
                         p_task    = task_table + i;
                         privilege = PRIVILEGE_TASK;
                         rpl       = RPL_TASK;
                         eflags    = 0x1202; /* IF=1, IOPL=1, bit 2 is always 1 */
-                }else{
-  			p_task    = user_proc_table + (i - NR_TASKS);
+        }else{
+  						p_task    = user_proc_table + (i - NR_TASKS);
                         privilege = PRIVILEGE_USER;
                         rpl       = RPL_USER;
                         eflags    = 0x0202; /* IF=1, bit 2 is always 1 */
