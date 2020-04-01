@@ -57,8 +57,8 @@ PUBLIC void init_keyboard()
 	kb_in.count = 0;
 	kb_in.p_head = kb_in.p_tail = kb_in.buf;
 
-        code_with_E0 = 0;
-        shift_l	= shift_r = 0;
+    code_with_E0 = 0;
+    shift_l	= shift_r = 0;
 	alt_l	= alt_r   = 0;
 	ctrl_l	= ctrl_r  = 0;
 
@@ -68,10 +68,10 @@ PUBLIC void init_keyboard()
 
 	set_leds();
 
-        put_irq_handler(KEYBOARD_IRQ, keyboard_handler);/*设定键盘中断处理程序*/
-        enable_irq(KEYBOARD_IRQ);                       /*开键盘中断*/
+    put_irq_handler(KEYBOARD_IRQ, keyboard_handler);/*设定键盘中断处理程序*/
+    enable_irq(KEYBOARD_IRQ);                       /*开键盘中断*/
 
-        set_disp_pos_cursor();
+    set_disp_pos_cursor();
 }
 
 

@@ -78,8 +78,8 @@ void test_fs()
 	printf("Read len: %d, buf: %s\n",rlen,bufr);
 
 	char buf[512*32];
-	int log_pos = readlog(buf);
-	printf("log len: %d, log: \n%s", log_pos, buf);
+	int log_pos = readlog(buf); buf[log_pos] = '\0';
+	printf("log len: %d, log: \n%s", log_pos, &buf[log_pos-100]);
    
     spin("Test FS...");
 }

@@ -20,9 +20,9 @@ PUBLIC  TASK  task_table[NR_TASKS] = {{task_tty, 20, 0, STACK_SIZE_TTY, "tty"}, 
 
 
 PUBLIC  TASK  user_proc_table[NR_PROCS] = {{TestA, 0, 0, STACK_SIZE_TESTA, "TestA"},
-					   {TestB, 0, 0, STACK_SIZE_TESTB, "TestB"},
-					   {TestC, 0, 0, STACK_SIZE_TESTC, "TestC"},
-                                           {test_fs, 10, 0, STACK_SIZE_TESTFS, "user proc"}};
+					   						{TestB, 0, 0, STACK_SIZE_TESTB, "TestB"},
+					  						{TestC, 0, 0, STACK_SIZE_TESTC, "TestC"},
+                                           	{test_fs, 10, 1, STACK_SIZE_TESTFS, "user proc"}};
 
 
 PUBLIC	system_call  sys_call_table[NR_SYS_CALL] = {sys_printx, 
