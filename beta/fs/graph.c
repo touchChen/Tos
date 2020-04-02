@@ -110,4 +110,63 @@ PUBLIC void dump_fd_graph(const char * fmt, ...)
 
 
 
+	SYSLOG("\n\tsubgraph cluster_1 {\n");
+	for (i = 0; i < NR_FILE_DESC; i++) {
+		if (f_desc_table[i].fd_inode == 0)
+			continue;
+
+		int inode_tbl_idx = f_desc_table[i].fd_inode - inode_table;
+		SYSLOG("\t\t\"filedesc%d\" [\n", i);
+		SYSLOG("\t\t\tlabel = \"<f0>filedesc %d"
+		       "|<f1> fd_mode:%d"
+		       "|<f2> fd_pos:%d"
+		       "|<f4> fd_inode:%d",
+		       i,
+		       f_desc_table[i].fd_mode,
+		       f_desc_table[i].fd_pos,
+		       inode_tbl_idx);
+		fim[fim_idx].desc = i;
+		fim[fim_idx].inode = inode_tbl_idx;
+		fim_idx++;
+
+		SYSLOG("\t\"\n");
+		SYSLOG("\t\t\tshape = \"record\"\n");
+		SYSLOG("\t\t];\n");
+	}
+	SYSLOG("\t\tlabel = \"filedescs\";\n");
+	SYSLOG("\t}\n");
+
+
+
+	SYSLOG("\n\tsubgraph cluster_2 {\n");
+	for (i = 0; i < NR_INODE; i++) {
+		if (inode_table[i].i_cnt == 0)
+			continue;
+
+		SYSLOG("\t\t\"inode%d\" [\n", i);
+/*		SYSLOG("\t\t\tlabel = \"<f0>inode %d"
+		       "|<f1> i_mode:0x%x"
+		       "|<f2> i_size:0x%x"
+		       "|<f3> i_start_sect:0x%x"
+		       "|<f4> i_nr_sects:0x%x"
+		       "|<f5> i_dev:0x%x"
+		       "|<f6> i_cnt:%d"
+		       "|<f7> i_num:%d",
+		       inode_table[i].i_num,
+		       inode_table[i].i_mode,
+		       inode_table[i].i_size,
+		       inode_table[i].i_start_sect,
+		       inode_table[i].i_nr_sects,
+		       inode_table[i].i_dev,
+		       inode_table[i].i_cnt,
+		       inode_table[i].i_num);
+		assert(filename != 0);
+*/
+		SYSLOG("\t\"\n");
+		SYSLOG("\t\t\tshape = \"record\"\n");
+		SYSLOG("\t\t];\n");
+	}
+	SYSLOG("\t\tlabel = \"inodes\";\n");
+	SYSLOG("\t}\n");
+
 }
