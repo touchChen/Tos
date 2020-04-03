@@ -76,8 +76,8 @@ void test_fs()
 	close(fd);
 
 	printf("Read len: %d, buf: %s\n",rlen,bufr);
-/*
-	char buf[512*32];
+
+//	char buf[512*32];
 /*	int log_pos = readlog(buf); 
 	printf("log pos: %d, log len %d\nlog:", log_pos, strlen(buf));
     
@@ -97,11 +97,8 @@ void test_fs()
 		printf(_buf);
     }while(strlen(buf)>0);
 	printf("==============================\n");
-<<<<<<< HEAD
  */  
-=======
-*/   
->>>>>>> 3112a1454e913457f2b817bc93505b063374a9c1
+
     spin("Test FS...");
 }
 
