@@ -63,7 +63,7 @@ LABEL_SEARCH_IN_ROOT_DIR_BEGIN:
 	cld
 	mov	dx, 10h  ; 一个扇区最多有10h个文件(32字节)，512=10h*32
 LABEL_SEARCH_FOR_LOADERBIN:
-        mov	si, LoaderFileName ; ds:si -> "LOADER  BIN"  要与 es:di 上被载入内存的文件名比对
+    mov	si, LoaderFileName ; ds:si -> "LOADER  BIN"  要与 es:di 上被载入内存的文件名比对
 	cmp	dx, 0				   ; `. 循环次数控制,
 	jz	LABEL_GOTO_NEXT_SECTOR_IN_ROOT_DIR ;  / 如果已经读完了一个 Sector,
 	dec	dx				   ; /  就跳到下一个 Sector
@@ -134,7 +134,7 @@ LABEL_GOON_LOADING_FILE:
 	;add	ax, dx
 	;add	ax, DeltaSectorNo
 	add	bx, [BPB_BytsPerSec]    ; 存储地址增加一个扇区
-        add     ax, SectorFakeDataArea
+    add ax, SectorFakeDataArea
 	jmp	LABEL_GOON_LOADING_FILE
 LABEL_FILE_LOADED:
 

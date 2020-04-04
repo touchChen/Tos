@@ -50,7 +50,7 @@ PUBLIC void task_hd()
 				hd_open(msg.DEVICE);
 				break;
 
-		        case DEV_IOCTL:
+		    case DEV_IOCTL:
 				hd_ioctl(&msg);
 				break;
 

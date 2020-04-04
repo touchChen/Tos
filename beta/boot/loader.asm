@@ -147,7 +147,7 @@ LABEL_GOON_LOADING_FILE:
 	jz	LABEL_FILE_LOADED
 	push	ax			; 保存 Sector 在 FAT 中的序号
 	add	bx, [BPB_BytsPerSec]
-        add     ax, SectorFakeDataArea  ; -> ax: fat值对应真实的数据区所在的扇区号
+    add ax, SectorFakeDataArea  ; -> ax: fat值对应真实的数据区所在的扇区号
 	jmp	LABEL_GOON_LOADING_FILE
 LABEL_FILE_LOADED:
 
@@ -155,7 +155,7 @@ LABEL_FILE_LOADED:
 	mov	dh, 1			; "Ready."
 	call	DispStrRealMode		; 显示字符串
 
-        ;jmp     $
+    ;jmp     $
 	
 ; 下面准备跳入保护模式 -------------------------------------------
 

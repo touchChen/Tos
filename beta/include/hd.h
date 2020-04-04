@@ -92,7 +92,7 @@
  *   It is essentially a link list with many tricks. See
  *   http://en.wikipedia.org/wiki/Extended_boot_record for details.
  */
-struct part_ent {
+typedef struct part_ent {
 	u8 boot_ind;		/**
 				 * boot indicator
 				 *   Bit 7 is the active partition flag,

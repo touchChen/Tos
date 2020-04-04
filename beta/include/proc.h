@@ -84,16 +84,16 @@ typedef struct s_proc {
 	u16 ldt_sel;               /* ldt 在 gdt 中的选择子    gdt selector giving ldt base and limit */
 	DESCRIPTOR ldts[LDT_SIZE]; /* local descriptors for code and data */
 
-        int ticks;                 /* remained ticks */
-        int priority;
+    int ticks;                 /* remained ticks */
+    int priority;
 
 	u32 pid;                   /* process id passed in from MM */
 	char p_name[16];           /* name of the process */
 
-        int  p_flags;              /**
+    int  p_flags;              /**
 				    * process flags. A proc is runnable iff p_flags==0
 				    */
-        MESSAGE * p_msg;
+    MESSAGE * p_msg;
 	int p_recvfrom;
 	int p_sendto;
 
@@ -109,16 +109,16 @@ typedef struct s_proc {
 				       * next proc in the sending queue (q_sending)
 				       */
 
-        int nr_tty;
+    int nr_tty;
 
-        struct file_desc * filp[NR_FILES];
+    struct file_desc * filp[NR_FILES];
 }PROCESS;
 
 
 typedef struct s_task {
 	task_f	initial_eip;
-        int     priority;
-        int     tty;
+    int     priority;
+    int     tty;
 	int	stacksize;
 	char	name[32];
 }TASK;

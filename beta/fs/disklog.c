@@ -83,7 +83,7 @@ PUBLIC int disklog(char * logstr)
 	int nr_log_blk0_nr = sb->nr_sects - NR_SECTS_FOR_LOG;  // 除去 log 
 
 	static int pos = 0;
-	printl("static pos:%d\n", pos);
+	//printl("static pos:%d, &pos:%0x%x\n", pos, &pos);
 	if (!pos) { /* first time invoking this routine */
 
 #ifdef SET_LOG_SECT_SMAP_AT_STARTUP

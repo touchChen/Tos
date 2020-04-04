@@ -41,8 +41,8 @@ struct dev_drv_map dd_map[] = {
 	{INVALID_DRIVER},	/**< 0 : Unused */
 	{INVALID_DRIVER},	/**< 1 : Reserved for floppy driver */
 	{INVALID_DRIVER},	/**< 2 : Reserved for cdrom driver */
-	{TASK_HD},		/**< 3 : Hard disk */
-	{TASK_TTY},		/**< 4 : TTY */
+	{TASK_HD},			/**< 3 : Hard disk */
+	{TASK_TTY},			/**< 4 : TTY */
 	{INVALID_DRIVER}	/**< 5 : Reserved for scsi disk driver */
 };
 
@@ -55,6 +55,9 @@ PUBLIC	const int	FSBUF_SIZE	= 0x100000;
 
 PUBLIC	u8 * kernelfile_phyaddr	= (u8*)0x80000;
 PUBLIC  int  kernelfile_phyaddr_len = 0x10000;
+
+PUBLIC  u8 * bss_clean_addr = (u8*)0x3d8e0;
+PUBLIC  int  bss_clean_len = 0x1000;
  
 
 

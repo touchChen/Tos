@@ -26,6 +26,7 @@ struct fdesc_inode_map {
 } fim[256]; //256
 int fim_idx = 0;
 
+
 /*****************************************************************************
  * Output a dot graph.
  *****************************************************************************/
@@ -110,6 +111,7 @@ PUBLIC void dump_fd_graph(const char * fmt, ...)
 	SYSLOG("\t}\n");
 
 
+
 	SYSLOG("\n\tsubgraph cluster_1 {\n");
 	for (i = 0; i < NR_FILE_DESC; i++) {
 		if (f_desc_table[i].fd_inode == 0)
@@ -137,7 +139,7 @@ PUBLIC void dump_fd_graph(const char * fmt, ...)
 	SYSLOG("\t}\n");
 
 
-/*
+
 	SYSLOG("\n\tsubgraph cluster_2 {\n");
 	for (i = 0; i < NR_INODE; i++) {
 		if (inode_table[i].i_cnt == 0)
@@ -168,6 +170,216 @@ PUBLIC void dump_fd_graph(const char * fmt, ...)
 	}
 	SYSLOG("\t\tlabel = \"inodes\";\n");
 	SYSLOG("\t}\n");
-*/
+
+
+
+    SYSLOG("\n\tsubgraph cluster_3 {\n");
+	SYSLOG("\n\t\tstyle=filled;\n");
+	SYSLOG("\n\t\tcolor=lightgrey;\n");
+	int smap_flag = 0;
+	int bit_start = 0;
+	/* i:     sector index */
+	int j; /* byte index */
+	/* k:     bit index */
+	struct super_block * sb = get_super_block(root_inode->i_dev);
+	int smap_blk0_nr = 1 + 1 + sb->nr_imap_sects;
+	for (i = 0; i < sb->nr_smap_sects; i++) { /* smap_blk0_nr + i : current sect nr. */
+		RD_SECT(root_inode->i_dev, smap_blk0_nr + i);
+		memcpy(_buf, fsbuf, SECTOR_SIZE);
+		for (j = 0; j < SECTOR_SIZE; j++) {
+			for (k = 0; k < 8; k++) {
+				if (!smap_flag) {
+					if ((_buf[j] >> k ) & 1) {
+						smap_flag = 1;
+						bit_start = (i * SECTOR_SIZE + j) * 8 + k;
+					}
+					else {
+						continue;
+					}
+				}
+				else {
+					if ((_buf[j] >> k ) & 1) {
+						continue;
+					}
+					else {
+						smap_flag = 0;
+						int bit_end = (i * SECTOR_SIZE + j) * 8 + k - 1;
+						SYSLOG("\t\t\"sector %xh\" [\n", bit_start);
+						SYSLOG("\t\t\tlabel = \"<f0>sect %xh-%xh",
+						       bit_start,
+						       bit_end);
+						SYSLOG("\t\"\n");
+						SYSLOG("\t\t\tshape = \"record\"\n");
+						SYSLOG("\t\t];\n");
+					}
+				}
+			}
+		}
+	}
+	SYSLOG("\t\tlabel = \"sector map (dev size: %xh)\";\n", sb->nr_sects);
+	SYSLOG("\t}\n");
+
+
+
+	SYSLOG("\n\tsubgraph cluster_4 {\n");
+	SYSLOG("\n\t\tstyle=filled;\n");
+	SYSLOG("\n\t\tcolor=lightgrey;\n");
+	SYSLOG("\t\t\"imap\" [\n");
+	SYSLOG("\t\t\tlabel = \"<f0>bits");
+	/* i:     sector index */
+	/* j:     byte index */
+	/* k:     bit index */
+	int imap_blk0_nr = 1 + 1;
+	for (i = 0; i < sb->nr_imap_sects; i++) { /* smap_blk0_nr + i : current sect nr. */
+		RD_SECT(root_inode->i_dev, imap_blk0_nr + i);
+		memcpy(_buf, fsbuf, SECTOR_SIZE);
+		for (j = 0; j < SECTOR_SIZE; j++) {
+			for (k = 0; k < 8; k++) {
+				if ((_buf[j] >> k ) & 1) {
+					int bit_nr = (i * SECTOR_SIZE + j) * 8 + k;
+					SYSLOG("| %xh ", bit_nr);
+				}
+			}
+		}
+	}
+	SYSLOG("\t\"\n");
+	SYSLOG("\t\t\tshape = \"record\"\n");
+	SYSLOG("\t\t];\n");
+	SYSLOG("\t\tlabel = \"inode map\";\n");
+	SYSLOG("\t}\n");
+
+
+
+	SYSLOG("\n\tsubgraph cluster_5 {\n");
+	SYSLOG("\n\t\tstyle=filled;\n");
+	SYSLOG("\n\t\tcolor=lightgrey;\n");
+	sb = get_super_block(root_inode->i_dev);
+	int blk_nr = 1 + 1 + sb->nr_imap_sects + sb->nr_smap_sects;
+	RD_SECT(root_inode->i_dev, blk_nr);
+	memcpy(_buf, fsbuf, SECTOR_SIZE);
+
+	char * p = _buf;
+	for (i = 0; i < SECTOR_SIZE / sizeof(struct inode); i++,p+=INODE_SIZE) {
+		struct inode * pinode = (struct inode*)p;
+		if (pinode->i_start_sect == 0)
+			continue;
+		int start_sect;
+		int end_sect;
+		if (pinode->i_nr_sects) {
+			if (pinode->i_start_sect < sb->n_1st_sect) {
+				panic("should not happen: %x < %x.",
+				      pinode->i_start_sect,
+				      sb->n_1st_sect);
+			}
+			start_sect =  pinode->i_start_sect - sb->n_1st_sect + 1;
+			end_sect = start_sect + pinode->i_nr_sects - 1;
+			SYSLOG("\t\t\"inodearray%d\" [\n", i+1);
+			SYSLOG("\t\t\tlabel = \"<f0> %d"
+			       "|<f2> i_size:0x%x"
+			       "|<f3> sect: %xh-%xh",
+			       i+1,
+			       pinode->i_size,
+			       start_sect,
+			       end_sect);
+
+			SYSLOG("\t\"\n");
+			SYSLOG("\t\t\tshape = \"record\"\n");
+			SYSLOG("\t\t];\n");
+		}
+		else {
+			start_sect = MAJOR(pinode->i_start_sect);
+			end_sect = MINOR(pinode->i_start_sect);
+			SYSLOG("\t\t\"inodearray%d\" [\n", i+1);
+			SYSLOG("\t\t\tlabel = \"<f0> %d"
+			       "|<f2> i_size:0x%x"
+			       "|<f3> dev nr: (%xh,%xh)",
+			       i+1,
+			       pinode->i_size,
+			       start_sect,
+			       end_sect);
+
+			SYSLOG("\t\"\n");
+			SYSLOG("\t\t\tshape = \"record\"\n");
+			SYSLOG("\t\t];\n");
+		}
+	}
+	SYSLOG("\t\tlabel = \"inode array\";\n");
+	SYSLOG("\t}\n");
+
+
+	SYSLOG("\n\tsubgraph cluster_6 {\n");
+	SYSLOG("\n\t\tstyle=filled;\n");
+	SYSLOG("\n\t\tcolor=lightgrey;\n");
+	sb = get_super_block(root_inode->i_dev);
+	int dir_blk0_nr = root_inode->i_start_sect;
+	int nr_dir_blks = (root_inode->i_size + SECTOR_SIZE - 1) / SECTOR_SIZE;
+	int nr_dir_entries = root_inode->i_size / DIR_ENTRY_SIZE; /**
+															   * including unused slots
+															   * (the file has been deleted
+															   * but the slot is still there)
+															   */
+	int m = 0;
+	struct dir_entry * pde;
+	for (i = 0; i < nr_dir_blks; i++) {
+		RD_SECT(root_inode->i_dev, dir_blk0_nr + i);
+		memcpy(_buf, fsbuf, SECTOR_SIZE);
+		pde = (struct dir_entry *)_buf;
+		for (j = 0; j < SECTOR_SIZE / DIR_ENTRY_SIZE; j++,pde++) {
+			if (pde->inode_nr) {
+				memcpy(filename, pde->name, MAX_FILENAME_LEN);
+				if (filename[0] == '.')
+					filename[0] = '/';
+				SYSLOG("\t\t\"rootdirent%d\" [\n", pde->inode_nr);
+				SYSLOG("\t\t\tlabel = \"<f0> %d"
+				       "|<f2> %s",
+				       pde->inode_nr,
+				       filename);
+				SYSLOG("\t\"\n");
+				SYSLOG("\t\t\tshape = \"record\"\n");
+				SYSLOG("\t\t];\n");
+
+				SYSLOG("\t"
+				       "\"inodearray%d\":f0"
+				       " -> "
+				       "\"rootdirent%d\":f0"
+				       ";\n",
+				       pde->inode_nr, pde->inode_nr);
+			}
+		}
+		if (m > nr_dir_entries) /* all entries have been iterated */
+			break;
+	}
+
+	SYSLOG("\t\tlabel = \"root dir\";\n");
+	SYSLOG("\t}\n");
+
+	for (i = 0; i < pfm_idx; i++) {
+		SYSLOG("\t\"proc%d\":f%d -> \"filedesc%d\":f0;\n",
+		       pfm[i].pid,
+		       pfm[i].filp,
+		       pfm[i].desc);
+	}
+
+	for (i = 0; i < fim_idx; i++) {
+		SYSLOG("\t\"filedesc%d\":f4 -> \"inode%d\":f6;\n",
+		       fim[i].desc,
+		       fim[i].inode);
+	}
+
+	for (i = 0; i < NR_INODE; i++) {
+		if (inode_table[i].i_cnt != 0)
+			SYSLOG("\t\"inode%d\":f7 -> \"inodearray%d\":f0;\n",
+			       i,
+			       inode_table[i].i_num);
+	}
+
+	/* tail */
+	SYSLOG("\tlabel = \"%s\";\n", title);
+	SYSLOG("}\n");
+
+	/* separator */
+	int pos = SYSLOG("--separator--\n");
+	printl("dump_fd_graph(%s)::logpos:%d\n", title, pos);
+
 
 }

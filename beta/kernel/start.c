@@ -12,7 +12,13 @@
 
 PUBLIC void cstart()
 {
-	 disp_pos = 15*2*80;
+
+	/******** 内存清零 ********/
+    memset(kernelfile_phyaddr, 0, kernelfile_phyaddr_len);
+	memset(bss_clean_addr, 0, bss_clean_len);   // 临时
+
+
+	disp_pos = 15*2*80;
 	/* 将 LOADER 中的 GDT 复制到新的 GDT 中 */
 	memcpy(gdt,				   /* New GDT */
 	       (void*)(*((u32*)(&gdt_ptr[2]))),    /* Base  of Old GDT 后4位是段基地址 */
@@ -27,16 +33,14 @@ PUBLIC void cstart()
 	*p_gdt_base  = (u32)&gdt;
 
 
-        /* idt_ptr[6] 共 6 个字节：0~15:Limit  16~47:Base。用作 sidt/lidt 的参数。*/
+    /* idt_ptr[6] 共 6 个字节：0~15:Limit  16~47:Base。用作 sidt/lidt 的参数。*/
 	u16* p_idt_limit = (u16*)(&idt_ptr[0]);
 	u32* p_idt_base  = (u32*)(&idt_ptr[2]);
 	*p_idt_limit = IDT_SIZE * sizeof(GATE) - 1;
 	*p_idt_base  = (u32)&idt;
 
          
-        init_prot();
+    init_prot();
 
-        /******** 内存清零 ********/
-        memset(kernelfile_phyaddr, 0, kernelfile_phyaddr_len);
-
+    
 }
