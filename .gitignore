@@ -1,13 +1,18 @@
-#pm
+#pm bochs log
 *.com
 *.txt
 
 #obj
 *.o
 
+#debug
+debug
+debug/*
 *.map
-
 *.bin.asm
-
 *.log
 *.dot
+
+*.png
+
+

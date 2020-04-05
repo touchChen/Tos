@@ -22,6 +22,6 @@ floppya: 1_44=x.img, status=inserted
 boot: a
 #boot: disk  cylinders=60, heads=16, spt=63
 
-log: log.txt
+log: ./debug/log.txt
 
 keyboard: keymap=/usr/local/share/bochs/keymaps/x11-pc-us.map
