@@ -6,7 +6,6 @@
 *.o
 
 #debug
-debug
 debug/*
 *.map
 *.bin.asm
