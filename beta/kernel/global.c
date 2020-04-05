@@ -56,7 +56,7 @@ PUBLIC	const int	FSBUF_SIZE	= 0x100000;
 PUBLIC	u8 * kernelfile_phyaddr	= (u8*)0x80000;
 PUBLIC  int  kernelfile_phyaddr_len = 0x10000;
 
-PUBLIC  u8 * bss_clean_addr = (u8*)0x3d8e0;
+PUBLIC  u8 * bss_clean_addr = (u8*)0x3d000;
 PUBLIC  int  bss_clean_len = 0x1000;
  
 

@@ -1,13 +1,10 @@
 %include "sconst.inc"
 ; 导入函数
 extern	cstart
-extern  disp_str
-extern  disp_int_c
 extern	exception_handler
-extern	spurious_irq
 extern  kernel_main
-extern	delay
-extern  clock_handler
+extern  memset
+
 
 ; 导入全局变量
 extern	gdt_ptr
@@ -111,6 +108,8 @@ _start:
     xor	eax, eax
 	; 把 esp 从 LOADER 挪到 KERNEL
 	mov	esp, StackTop	; 堆栈在 bss 段中
+    
+    xor     eax, eax
 
 	sgdt	[gdt_ptr]	; cstart() 中将会用到 gdt_ptr
 	call	cstart		; 在此函数中改变了gdt_ptr，让它指向新的GDT
