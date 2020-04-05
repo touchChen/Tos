@@ -85,7 +85,7 @@ PUBLIC int disklog(char * logstr)
 	static int pos = 0;
 	//printl("static pos:%d, &pos:%0x%x\n", pos, &pos);
 	if (!pos) { /* first time invoking this routine */
-
+        printl("nr_log_blk0_nr: %d\n", nr_log_blk0_nr);
 #ifdef SET_LOG_SECT_SMAP_AT_STARTUP
 		/*
 		 * set sector-map so that other files cannot use the log sectors
