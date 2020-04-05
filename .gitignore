@@ -8,3 +8,6 @@
 *.map
 
 *.bin.asm
+
+*.log
+*.dot
