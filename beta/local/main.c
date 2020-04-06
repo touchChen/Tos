@@ -100,6 +100,11 @@ void test_fs()
 	printf("==============================\n");
     */
 
+	int nfd = open("/tt", O_CREAT);
+	close(nfd);
+	
+	unlink("/tt");
+
     spin("Test FS...");
 }
 
