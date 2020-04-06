@@ -69,11 +69,10 @@ buildimg :
 	sudo umount $(FLOPPY)
 
 
-boot/boot.bin : boot/boot.asm boot/include/load.inc boot/include/fat12hdr.inc
+boot/boot.bin : boot/boot.asm 
 	$(ASM) $(ASMBFLAGS) -o $@ $<
 
-boot/loader.bin : boot/loader.asm boot/include/load.inc \
-				  boot/include/fat12hdr.inc boot/include/pm.inc
+boot/loader.bin : boot/loader.asm
 	$(ASM) $(ASMBFLAGS) -o $@ $<
 
 $(KERNEL) : $(OBJS)
@@ -103,7 +102,6 @@ kernel/tty.o : kernel/tty.c
 kernel/console.o : kernel/console.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-#include/type.h include/const.h include/protect.h include/proto.h include/interrupt.h  include/global.h
 kernel/main.o  : kernel/main.c 
 	$(CC) $(CFLAGS) -o $@ $<
 
@@ -141,7 +139,7 @@ fs/graph.o : fs/graph.c
 lib/klib.o : lib/klib.asm
 	$(ASM) $(ASMKFLAGS) -o $@ $<
 
-lib/klibc.o : lib/klibc.c include/type.h include/const.h include/proto.h 
+lib/klibc.o : lib/klibc.c 
 	$(CC) $(CFLAGS) -o $@ $<
 
 lib/misc.o : lib/misc.c

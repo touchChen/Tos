@@ -308,6 +308,7 @@ PUBLIC void dump_fd_graph(const char * fmt, ...)
 	SYSLOG("\t}\n");
 
 
+
 	SYSLOG("\n\tsubgraph cluster_6 {\n");
 	SYSLOG("\n\t\tstyle=filled;\n");
 	SYSLOG("\n\t\tcolor=lightgrey;\n");
@@ -353,6 +354,8 @@ PUBLIC void dump_fd_graph(const char * fmt, ...)
 
 	SYSLOG("\t\tlabel = \"root dir\";\n");
 	SYSLOG("\t}\n");
+
+
 
 	for (i = 0; i < pfm_idx; i++) {
 		SYSLOG("\t\"proc%d\":f%d -> \"filedesc%d\":f0;\n",
