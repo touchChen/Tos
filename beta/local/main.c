@@ -103,7 +103,11 @@ void test_fs()
 	int nfd = open("/tt", O_CREAT);
 	close(nfd);
 	
-	unlink("/tt");
+	int ul = unlink("/tt");
+	if(ul == 0)
+	{
+		printf(" unlink success!\n");
+    }
 
     spin("Test FS...");
 }

@@ -10,15 +10,15 @@ org  0100h
 
 ; GDT ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ;                                                段基址            段界限     , 属性
-LABEL_GDT:			Descriptor             0,                    0, 0						; 空描述符
+LABEL_GDT:				Descriptor             0,                    0, 0						; 空描述符
 LABEL_DESC_FLAT_C:		Descriptor             0,              0fffffh, DA_CR  | DA_32 | DA_LIMIT_4K			; 0 ~ 4G
 LABEL_DESC_FLAT_RW:		Descriptor             0,              0fffffh, DA_DRW | DA_32 | DA_LIMIT_4K			; 0 ~ 4G
-LABEL_DESC_VIDEO:		Descriptor	 0B8000h,               0ffffh, DA_DRW                         | DA_DPL3	; 显存首地址
+LABEL_DESC_VIDEO:		Descriptor		 0B8000h,               0ffffh, DA_DRW | DA_DPL3	; 显存首地址
 ; GDT ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 GdtLen		equ	$ - LABEL_GDT
 GdtPtr		dw	GdtLen - 1				; 段界限
-		dd	BaseOfLoaderPhyAddr + LABEL_GDT		; 基地址   BaseOfLoader * 10 + LABEL_GDT
+			dd	BaseOfLoaderPhyAddr + LABEL_GDT		; 基地址   BaseOfLoader * 10 + LABEL_GDT
 
 ; GDT 选择子 ----------------------------------------------------------------------------------
 SelectorFlatC		equ	LABEL_DESC_FLAT_C	- LABEL_GDT
@@ -31,7 +31,7 @@ BaseOfStack	equ	0100h
 
 
 LABEL_START:			; <--- 从这里开始 *************
-	mov	ax, cs
+	mov ax, cs
 	mov	ds, ax
 	mov	es, ax
 	mov	ss, ax
@@ -62,44 +62,44 @@ LABEL_START:			; <--- 从这里开始 *************
 	mov	word [wSectorNo], SectorNoOfRootDirectory	
 	xor	ah, ah	; ┓
 	xor	dl, dl	; ┣ 软驱复位
-	int	13h	; ┛
+	int	13h		; ┛
 
 LABEL_SEARCH_IN_ROOT_DIR_BEGIN:
 	cmp	word [wRootDirSizeForLoop], 0	; ┓
-	jz	LABEL_NO_KERNELBIN		; ┣ 判断根目录区是不是已经读完, 如果读完表示没有找到 KERNEL.BIN
-	dec	word [wRootDirSizeForLoop]	; ┛
+	jz	LABEL_NO_KERNELBIN				; ┣ 判断根目录区是不是已经读完, 如果读完表示没有找到 KERNEL.BIN
+	dec	word [wRootDirSizeForLoop]		; ┛
 	mov	ax, BaseOfKernelFile
 	mov	es, ax			; es <- BaseOfKernelFile
 	mov	bx, OffsetOfKernelFile	; bx <- OffsetOfKernelFile	于是, es:bx = BaseOfKernelFile:OffsetOfKernelFile
 	mov	ax, [wSectorNo]		; ax <- Root Directory 中的某 Sector 号
 	mov	cl, 1
 	call	ReadSector
-
 	
 	mov	di, OffsetOfKernelFile	; es:di -> BaseOfKernelFile:???? = BaseOfKernelFile*10h+????
 	cld
 	mov	dx, 10h
+
 LABEL_SEARCH_FOR_KERNELBIN:
-        mov	si, KernelFileName	; ds:si -> "KERNEL  BIN"
-	cmp	dx, 0					; ┓
+    mov	si, KernelFileName					; ds:si -> "KERNEL  BIN"
+	cmp	dx, 0					            ; ┓
 	jz	LABEL_GOTO_NEXT_SECTOR_IN_ROOT_DIR	; ┣ 循环次数控制, 如果已经读完了一个 Sector, 就跳到下一个 Sector
-	dec	dx					; ┛
+	dec	dx					                ; ┛
 	mov	cx, 11
 LABEL_CMP_FILENAME:
-	cmp	cx, 0			; ┓
+	cmp	cx, 0					; ┓
 	jz	LABEL_FILENAME_FOUND	; ┣ 循环次数控制, 如果比较了 11 个字符都相等, 表示找到
-	dec	cx			; ┛
-	lodsb				; ds:si -> al
-	cmp	al, byte [es:di]	; if al == es:di
+	dec	cx						; ┛
+	lodsb						; ds:si -> al
+	cmp	al, byte [es:di]		; if al == es:di
 	jz	LABEL_GO_ON
 	jmp	LABEL_DIFFERENT
 LABEL_GO_ON:
 	inc	di
-	jmp	LABEL_CMP_FILENAME	;	继续循环
+	jmp	LABEL_CMP_FILENAME	   ;	继续循环
 
 LABEL_DIFFERENT:
-	and	di, 0FFE0h		; else┓	这时di的值不知道是什么, di &= e0 为了让它是 20h 的倍数
-	add	di, 20h			;     ┣ di += 20h  下一个目录条目                                           
+	and	di, 0FFE0h		        ; else┓	这时di的值不知道是什么, di &= e0 为了让它是 20h 的倍数
+	add	di, 20h			        ;     ┣ di += 20h  下一个目录条目                                           
 	jmp	LABEL_SEARCH_FOR_KERNELBIN;   ┛
 
 LABEL_GOTO_NEXT_SECTOR_IN_ROOT_DIR:
@@ -107,9 +107,9 @@ LABEL_GOTO_NEXT_SECTOR_IN_ROOT_DIR:
 	jmp	LABEL_SEARCH_IN_ROOT_DIR_BEGIN
 
 LABEL_NO_KERNELBIN:
-	mov	dh, 2			; "No KERNEL."
+	mov	dh, 2			        ; "No KERNEL."
 	call	DispStrRealMode		; 显示字符串
-	jmp	$			; 没有找到 KERNEL.BIN, 死循环在这里
+	jmp	$			            ; 没有找到 KERNEL.BIN, 死循环在这里
 
 LABEL_FILENAME_FOUND:			; 找到 KERNEL.BIN 后便来到这里继续
 	and	di, 0FFE0h		; di -> 当前条目的开始
@@ -125,9 +125,9 @@ LABEL_FILENAME_FOUND:			; 找到 KERNEL.BIN 后便来到这里继续
 
 	add	cx, SectorFakeDataArea	; cx -> fat 对应 数据区中的扇区号
 	mov	ax, BaseOfKernelFile
-	mov	es, ax			; es <- BaseOfKernelFile
+	mov	es, ax			        ; es <- BaseOfKernelFile
 	mov	bx, OffsetOfKernelFile	; bx <- OffsetOfKernelFile	于是, es:bx = BaseOfKernelFile:OffsetOfKernelFile = BaseOfKernelFile * 10h + OffsetOfKernelFile
-	mov	ax, cx			; ax <- Sector 号
+	mov	ax, cx					; ax <- Sector 号
 
 LABEL_GOON_LOADING_FILE:
 	push	ax			; ┓
@@ -135,15 +135,15 @@ LABEL_GOON_LOADING_FILE:
 	mov	ah, 0Eh			; ┃ 每读一个扇区就在 "Loading  " 后面打一个点, 形成这样的效果:
 	mov	al, '.'			; ┃
 	mov	bl, 0Fh			; ┃ Loading ......
-	int	10h			; ┃
-	pop	bx			; ┃
-	pop	ax			; ┛
+	int	10h			    ; ┃
+	pop	bx			    ; ┃
+	pop	ax			    ; ┛
 
 	mov	cl, 1
 	call	ReadSector
-	pop	ax			; 取出此 Sector 在 FAT 中的序号
+	pop		ax			; 取出此 Sector 在 FAT 中的序号
 	call	GetFATEntry
-	cmp	ax, 0FFFh
+	cmp		ax,	0FFFh
 	jz	LABEL_FILE_LOADED
 	push	ax			; 保存 Sector 在 FAT 中的序号
 	add	bx, [BPB_BytsPerSec]
@@ -272,18 +272,18 @@ GetFATEntry:
 	push	es
 	push	bx
 	push	ax
-	mov	ax, BaseOfKernelFile	; ┓
-	sub	ax, 0100h		; ┣ 在 BaseOfKernelFile 后面留出 4K 空间用于存放 FAT
-	mov	es, ax			; ┛
-	pop	ax
-	mov	byte [bOdd], 0
-	mov	bx, 3
-	mul	bx			; dx:ax = ax * 3
-	mov	bx, 2
-	div	bx			; dx:ax / 2  ==>  ax <- 商, dx <- 余数
-	cmp	dx, 0
-	jz	LABEL_EVEN
-	mov	byte [bOdd], 1
+	mov		ax, BaseOfKernelFile	; ┓
+	sub		ax, 0100h				; ┣ 在 BaseOfKernelFile 后面留出 4K 空间用于存放 FAT
+	mov		es, ax					; ┛
+	pop		ax
+	mov		byte [bOdd], 0
+	mov		bx, 3
+	mul		bx			; dx:ax = ax * 3
+	mov		bx, 2
+	div		bx			; dx:ax / 2  ==>  ax <- 商, dx <- 余数
+	cmp		dx, 0
+	jz		LABEL_EVEN
+	mov		byte [bOdd], 1
 LABEL_EVEN:;偶数 
 	xor	dx, dx			; 现在 ax 中是 FATEntry 在 FAT 中的偏移量. 下面来计算 FATEntry 在哪个扇区中(FAT占用不止一个扇区)
 	mov	bx, [BPB_BytsPerSec]
@@ -360,7 +360,7 @@ LABEL_PM_START:
 	call	DispMemInfo
 	call	SetupPaging
 
-        call	InitKernel
+    call	InitKernel
 
 	mov	ah, 0Fh				; 0000: 黑底    1111: 白字
 	mov	al, 'P'
@@ -719,18 +719,18 @@ SetupPaging:
 InitKernel:	; 遍历每一个 Program Header，根据 Program Header 中的信息来确定把什么放进内存，放到什么位置，以及放多少。
 	xor	esi, esi
 	mov	cx, word [BaseOfKernelFilePhyAddr + 2Ch]; ┓ ecx <- pELFHdr->e_phnum  Program header table 中的条数
-	movzx	ecx, cx					; ┛
+	movzx	ecx, cx								; ┛
 	mov	esi, [BaseOfKernelFilePhyAddr + 1Ch]	; esi <- pELFHdr->e_phoff    Program header table 中elf文件中的偏移
 	add	esi, BaseOfKernelFilePhyAddr		; esi <- OffsetOfKernel + pELFHdr->e_phoff
 .Begin:
 
 
-        ;push	dword [esi + 08h]
-        ;push    ecx	
+    ;push	dword [esi + 08h]
+    ;push    ecx	
 	;call	DispInt			
 	;add	esp, 4	
 
-        ;jmp     $
+    ;jmp     $
 
 	mov	eax, [esi + 0]
 	cmp	eax, 0				; PT_NULL
