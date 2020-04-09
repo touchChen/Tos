@@ -101,7 +101,11 @@ void test_fs()
     */
 
 	int nfd = open("/tt", O_CREAT);
+
+	graphlog();
 	close(nfd);
+
+	
 	
 	int ul = unlink("/tt");
 	if(ul == 0)

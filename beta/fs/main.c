@@ -64,6 +64,7 @@ PUBLIC void task_fs()
 				break;			
 			case DISK_LOG:
 			case READ_LOG:
+			case GRAPH_LOG:
 				printl("LOG...\n");
 				break;		
 			default:
@@ -86,15 +87,17 @@ PUBLIC void task_fs()
 				//syslog("READ just finished.\n");
 				break;
 			case WRITE:
-				//syslog("WRITE just finished.\n");
-				dump_fd_graph("... write ...");							
+				//syslog("WRITE just finished.\n");					
 				break;
 			case UNLINK:
 				break;
  			case READ_LOG:
 				fs_msg.POS = do_readlog();
 				break;			
-			case DISK_LOG:
+			case DISK_LOG:	
+				break;
+            case GRAPH_LOG:
+  				dump_fd_graph("... DISK_LOG ...");		
 				break;
 			default:				
 				assert(0);

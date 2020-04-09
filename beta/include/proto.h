@@ -56,6 +56,7 @@ PUBLIC int get_u_ticks();
 /****** syslog.c ******/
 PUBLIC int syslog(const char *fmt, ...);
 PUBLIC int readlog(void *buf);
+PUBLIC void graphlog();
 
 
 
