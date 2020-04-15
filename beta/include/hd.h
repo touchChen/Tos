@@ -169,7 +169,7 @@ typedef struct part_ent {
 /* Command Block Registers */
 /*	MACRO		PORT			DESCRIPTION			INPUT/OUTPUT	*/
 /*	-----		----			-----------			------------	*/
-#define REG_DATA	0x1F0		/*	Data				I/O		*/
+#define REG_DATA	0x1F0			/*	Data				I/O		*/
 #define REG_FEATURES	0x1F1		/*	Features			O		*/
 #define REG_ERROR	REG_FEATURES	/*	Error				I		*/
 					/* 	The contents of this register are valid only when the error bit
@@ -194,7 +194,7 @@ typedef struct part_ent {
 #define REG_NSECTOR	0x1F2		/*	Sector Count			I/O		*/
 #define REG_LBA_LOW	0x1F3		/*	Sector Number / LBA Bits 0-7	I/O		*/
 #define REG_LBA_MID	0x1F4		/*	Cylinder Low / LBA Bits 8-15	I/O		*/
-#define REG_LBA_HIGH	0x1F5		/*	Cylinder High / LBA Bits 16-23	I/O		*/
+#define REG_LBA_HIGH 0x1F5		/*	Cylinder High / LBA Bits 16-23	I/O		*/
 #define REG_DEVICE	0x1F6		/*	Drive | Head | LBA bits 24-27	I/O		*/
 					/*	|  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |
 						+-----+-----+-----+-----+-----+-----+-----+-----+
@@ -251,11 +251,11 @@ typedef struct part_ent {
 					
 						KEY FOR SYMBOLS IN THE TABLE:
 						===========================================-----=========================================================================
-						PC    Register 1F1: Write Precompensation	@     These commands are optional and may not be supported by some drives.
-						SC    Register 1F2: Sector Count		D     Only DRIVE parameter is valid, HEAD parameter is ignored.
-						SN    Register 1F3: Sector Number		D+    Both drives execute this command regardless of the DRIVE parameter.
-						CY    Register 1F4+1F5: Cylinder low + high	V     Indicates that the register contains a valid paramterer.
-						DH    Register 1F6: Drive / Head
+PC    Register 1F1: Write Precompensation	@     These commands are optional and may not be supported by some drives.
+SC    Register 1F2: Sector Count		D     Only DRIVE parameter is valid, HEAD parameter is ignored.
+SN    Register 1F3: Sector Number		D+    Both drives execute this command regardless of the DRIVE parameter.
+CY    Register 1F4+1F5: Cylinder low + high	V     Indicates that the register contains a valid paramterer.
+DH    Register 1F6: Drive / Head
 					*/
 
 /* Control Block Registers */
@@ -282,9 +282,9 @@ typedef struct part_ent {
 						                                                    - defined by 48-bit Address feature set.
 					*/
 #define REG_ALT_STATUS	REG_DEV_CTRL	/*	Alternate Status		I		*/
-					/*	This register contains the same information as the Status Register.
-						The only difference is that reading this register does not imply interrupt acknowledge or clear a pending interrupt.
-					*/
+/*	This register contains the same information as the Status Register.
+	The only difference is that reading this register does not imply interrupt acknowledge or clear a pending interrupt.
+*/
 
 #define REG_DRV_ADDR	0x3F7		/*	Drive Address			I		*/
 #define MAX_IO_BYTES	256	        /* how many sectors does one IO can handle */
@@ -308,7 +308,7 @@ struct part_info {
 /* main drive struct, one entry per drive */
 struct hd_info
 {
-	int			open_cnt;
+	int	open_cnt;
 	struct part_info	primary[NR_PRIM_PER_DRIVE];
 	struct part_info	logical[NR_SUB_PER_DRIVE];
 };
@@ -319,7 +319,7 @@ struct hd_info
 /***************/
 #define	HD_TIMEOUT		10000	/* in millisec */
 #define	PARTITION_TABLE_OFFSET	0x1BE   // 分区表位置
-#define ATA_IDENTIFY		0xEC
+#define ATA_IDENTIFY	0xEC
 #define ATA_READ		0x20
 #define ATA_WRITE		0x30
 /* for DEVICE register. */

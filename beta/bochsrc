@@ -10,7 +10,7 @@ vgaromimage: file=/usr/local/share/bochs/VGABIOS-lgpl-latest
 mouse: enabled=0
 
 ata0: enabled=1,ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
-ata0-master: type=disk, path="30m.img", mode=flat 
+ata0-master: type=disk, path="50m.img", mode=flat 
 
 floppya: 1_44=x.img, status=inserted
 

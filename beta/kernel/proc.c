@@ -34,10 +34,10 @@ PUBLIC void schedule()
 
 		if (!greatest_ticks) {
 			for (p = proc_table; p < proc_table+NR_TASKS_AND_PROCS; p++) {
-                                if (p->p_flags == 0)
-                                {
-                                    	p->ticks = p->priority;
-                                }
+            	if (p->p_flags == 0)
+                {
+                 	p->ticks = p->priority;
+                }
 				
 			}
 		}

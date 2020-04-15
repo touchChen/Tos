@@ -263,7 +263,7 @@ PRIVATE void hd_rdwt(MESSAGE * m)
 	cmd.count	= (m->CNT + SECTOR_SIZE - 1) / SECTOR_SIZE;  // 扇区数
 	cmd.lba_low	= sect_nr & 0xFF;
 	cmd.lba_mid	= (sect_nr >>  8) & 0xFF;
-	cmd.lba_high	= (sect_nr >> 16) & 0xFF;
+	cmd.lba_high = (sect_nr >> 16) & 0xFF;
 	cmd.device	= MAKE_DEVICE_REG(1, drive, (sect_nr >> 24) & 0xF);
 	cmd.command	= (m->type == DEV_READ) ? ATA_READ : ATA_WRITE;
 	hd_cmd_out(&cmd);
@@ -409,7 +409,7 @@ PRIVATE void hd_cmd_out(struct hd_cmd* cmd)
 	out_byte(REG_LBA_LOW,  cmd->lba_low);
 	out_byte(REG_LBA_MID,  cmd->lba_mid);
 	out_byte(REG_LBA_HIGH, cmd->lba_high);
-	out_byte(REG_DEVICE,   cmd->device);
+	out_byte(REG_DEVICE,   cmd->device);  // 
 	/* Write the command code to the Command Register */
 	out_byte(REG_CMD,     cmd->command);
 }
@@ -422,7 +422,7 @@ PRIVATE void hd_cmd_out(struct hd_cmd* cmd)
 PRIVATE void interrupt_wait()
 {
 	MESSAGE msg;
-	send_recv(RECEIVE, INTERRUPT, &msg);
+	send_recv(RECEIVE, INTERRUPT, &msg);  //等待中断，没中断到达则挂起
 }
 
 /*****************************************************************************

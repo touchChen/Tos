@@ -20,7 +20,7 @@ struct mess1 {
 	int m1i2;
 	int m1i3;
 	int m1i4;
-        int m1i5;
+    int m1i5;
 };
 struct mess2 {
 	void* m2p1;
@@ -33,7 +33,7 @@ struct mess3 {
 	int	m3i2;
 	int	m3i3;
 	int	m3i4;
-	int     m3i5;
+	int m3i5;
 	u64	m3l1;
 	u64	m3l2;
 	void*	m3p1;
@@ -91,23 +91,23 @@ typedef struct s_proc {
 	char p_name[16];           /* name of the process */
 
     int  p_flags;              /**
-				    * process flags. A proc is runnable iff p_flags==0
-				    */
+								* process flags. A proc is runnable iff p_flags==0
+								*/
     MESSAGE * p_msg;
 	int p_recvfrom;
 	int p_sendto;
 
 	int has_int_msg;           /**
-				    * nonzero if an INTERRUPT occurred when
-				    * the task is not ready to deal with it.
-				    */
+								* nonzero if an INTERRUPT occurred when
+								* the task is not ready to deal with it.
+								*/
 
 	struct s_proc * q_sending;    /**
-				       * queue of procs sending messages to this proc
-				       */
+								   * queue of procs sending messages to this proc
+								   */
 	struct s_proc * next_sending; /**
-				       * next proc in the sending queue (q_sending)
-				       */
+								   * next proc in the sending queue (q_sending)
+								   */
 
     int nr_tty;
 
@@ -157,13 +157,13 @@ typedef struct s_task {
 #define STACK_SIZE_FS		0x8000
 
 #define STACK_SIZE_TOTAL	(STACK_SIZE_TESTA + \
-                                 STACK_SIZE_TESTC + \
-				 STACK_SIZE_TESTB + \
-                                 STACK_SIZE_TESTFS + \
-                                 STACK_SIZE_TTY + \
-                                 STACK_SIZE_SYS + \
-                                 STACK_SIZE_HD + \
-                                 STACK_SIZE_FS)
+                            STACK_SIZE_TESTC + \
+				 			STACK_SIZE_TESTB + \
+                            STACK_SIZE_TESTFS + \
+                            STACK_SIZE_TTY + \
+                            STACK_SIZE_SYS + \
+                            STACK_SIZE_HD + \
+                            STACK_SIZE_FS)
 
 #define ANY		(NR_TASKS + NR_PROCS + 10)
 #define NO_TASK		(NR_TASKS + NR_PROCS + 20)
@@ -213,27 +213,27 @@ enum msgtype {
 	DEV_WRITE,
 	DEV_IOCTL,
 
-        /* for debug */
+    /* for debug */
 	DISK_LOG,
 	READ_LOG,
     GRAPH_LOG
 };
 
 
-#define	FD		u.m3.m3i1
+#define	FD			u.m3.m3i1
 #define	PATHNAME	u.m3.m3p1
 #define	FLAGS		u.m3.m3i1
 #define	NAME_LEN	u.m3.m3i2
-#define	CNT		u.m3.m3i2
+#define	CNT			u.m3.m3i2
 #define	REQUEST		u.m3.m3i2
 #define	PROC_NR		u.m3.m3i3
 #define	DEVICE		u.m3.m3i4
 #define	POSITION	u.m3.m3l1
-#define	BUF		u.m3.m3p2
+#define	BUF			u.m3.m3p2
 #define	RETVAL		u.m3.m3i1
 
-#define	PID		u.m3.m3i2
-#define POS             u.m3.m3i5
+#define	PID			u.m3.m3i2
+#define POS         u.m3.m3i5
 
 
 #define	STR_DEFAULT_LEN	1024

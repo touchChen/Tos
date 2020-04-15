@@ -23,10 +23,10 @@ PUBLIC int open(const char *pathname, int flags)
 {
 	MESSAGE msg;
 
-	msg.type	= OPEN;
+	msg.type		= OPEN;
 
 	msg.PATHNAME	= (void*)pathname;
-	msg.FLAGS	= flags;
+	msg.FLAGS		= flags;
 	msg.NAME_LEN	= strlen(pathname);
 
 	send_recv(BOTH, TASK_FS, &msg);
@@ -113,7 +113,7 @@ PUBLIC int write(int fd, const void *buf, int count)
 PUBLIC int unlink(const char * pathname)
 {
 	MESSAGE msg;
-	msg.type   = UNLINK;
+	msg.type   		= UNLINK;
 
 	msg.PATHNAME	= (void*)pathname;
 	msg.NAME_LEN	= strlen(pathname);

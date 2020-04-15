@@ -36,10 +36,7 @@ PRIVATE void new_dir_entry(struct inode *dir_inode,int inode_nr,char *filename);
  *****************************************************************************/
 PUBLIC void task_fs()
 {
-	printl("Task FS begins.\n");
-
 	init_fs();
-
 
 	while (1) {
 		send_recv(RECEIVE, ANY, &fs_msg);
@@ -78,16 +75,16 @@ PUBLIC void task_fs()
 #ifdef ENABLE_DISK_LOG
 		switch (msg_type) {
 			case OPEN:
-				//syslog("Open just finished.\n");
+				syslog("Open just finished.\n");
 				break;
 			case CLOSE:
-				//syslog("CLOSE just finished.\n");
+				syslog("CLOSE just finished.\n");
 				break;
 			case READ:
-				//syslog("READ just finished.\n");
+				syslog("READ just finished.\n");
 				break;
 			case WRITE:
-				//syslog("WRITE just finished.\n");					
+				syslog("WRITE just finished.\n");					
 				break;
 			case UNLINK:
 				break;

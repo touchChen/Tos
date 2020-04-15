@@ -76,7 +76,7 @@ void test_fs()
 	close(fd);
 
 	printf("Read len: %d, buf: %s\n",rlen,bufr);
-
+    
 	char buf[512*32];
 	int log_pos = readlog(buf); 
 	printf("log pos: %d, log len %d\nlog:", log_pos, strlen(buf));
@@ -112,6 +112,7 @@ void test_fs()
 	{
 		printf(" unlink success!\n");
     }
+    
 
     spin("Test FS...");
 }
