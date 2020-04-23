@@ -215,8 +215,9 @@ enum msgtype {
 
     /* for debug */
 	DISK_LOG,
-	READ_LOG,
-    GRAPH_LOG
+	READ_LOG,	
+    GRAPH_LOG,
+	CLEAR_LOG
 };
 
 

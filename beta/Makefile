@@ -1,16 +1,16 @@
 # It must have the same value with 'KernelEntryPointPhyAddr' in load.inc!
-ENTRYPOINT	= 0x30400
+ENTRYPOINT	= 0x20400
 
 # Offset of entry point in kernel file
 # It depends on ENTRYPOINT
 ENTRYOFFSET	=   0x400
 
 # Programs, flags, etc.
-ASM		= nasm
+ASM			= nasm
 #DASM		= ndisasm
 DASM		= objdump
-CC		= gcc
-LD		= ld
+CC			= gcc
+LD			= ld
 ASMBFLAGS	= -I boot/include/
 ASMKFLAGS	= -I include/ -f elf
 CFLAGS		= -I include/ -c -fno-builtin -m32  -Wall -fno-stack-protector

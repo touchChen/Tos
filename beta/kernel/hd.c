@@ -28,7 +28,6 @@ PRIVATE	u8 hdbuf[SECTOR_SIZE * 2];
 PRIVATE	struct hd_info hd_info[1];
 
 
-
 /*****************************************************************************
  * task_hd
  * Main loop of HD driver.
@@ -128,14 +127,14 @@ PRIVATE void get_part_table(int drive, int sect_nr, struct part_ent * entry)
 {
 	struct hd_cmd cmd;
 	cmd.features	= 0;
-	cmd.count	= 1;
-	cmd.lba_low	= sect_nr & 0xFF;
-	cmd.lba_mid	= (sect_nr >>  8) & 0xFF;
+	cmd.count		= 1;
+	cmd.lba_low		= sect_nr & 0xFF;
+	cmd.lba_mid		= (sect_nr >>  8) & 0xFF;
 	cmd.lba_high	= (sect_nr >> 16) & 0xFF;
-	cmd.device	= MAKE_DEVICE_REG(1, /* LBA mode*/
-					  drive,
-					  (sect_nr >> 24) & 0xF);
-	cmd.command	= ATA_READ;
+	cmd.device		= MAKE_DEVICE_REG(1, /* LBA mode*/
+					  				  drive,
+					  				  (sect_nr >> 24) & 0xF);
+	cmd.command		= ATA_READ;
 	hd_cmd_out(&cmd);
 	interrupt_wait();
 
@@ -155,13 +154,13 @@ PRIVATE void get_part_table(int drive, int sect_nr, struct part_ent * entry)
 PRIVATE void partition(int device, int style)
 {
 	int i;
-	int drive = DRV_OF_DEV(device);
+	int drive = DRV_OF_DEV(device);   // 具体哪块硬盘
 	struct hd_info * hdi = &hd_info[drive];
 
 	struct part_ent part_tbl[NR_SUB_PER_DRIVE];
 
 	if (style == P_PRIMARY) {
-		get_part_table(drive, drive, part_tbl); // 第二块硬盘，那么取第二扇区吗？ 目前只有一块硬盘
+		get_part_table(drive, 0, part_tbl); // 第二块硬盘，那么取第二扇区吗？ 目前只有一块硬盘
 
 		int nr_prim_parts = 0;
 		for (i = 0; i < NR_PART_PER_DRIVE; i++) { /* 0~3 */
@@ -173,14 +172,14 @@ PRIVATE void partition(int device, int style)
 			hdi->primary[dev_nr].base = part_tbl[i].start_sect;
 			hdi->primary[dev_nr].size = part_tbl[i].nr_sects;
 
-			if (part_tbl[i].sys_id == EXT_PART) /* extended */
+			if (part_tbl[i].sys_id == EXT_PART) /* extended */  //扩展分区
 				partition(device + dev_nr, P_EXTENDED);
 		}
 		assert(nr_prim_parts != 0);
 	}
 	else if (style == P_EXTENDED) {
-		int j = device % NR_PRIM_PER_DRIVE; /* 1~4 */
-		int ext_start_sect = hdi->primary[j].base;
+		int j = device % NR_PRIM_PER_DRIVE; /* 1~4 */  // 只有一个硬盘
+		int ext_start_sect = hdi->primary[j].base;  // 扩展分区
 		int s = ext_start_sect;
 		int nr_1st_sub = (j - 1) * NR_SUB_PER_PART; /* 0/16/32/48 */
 
@@ -214,18 +213,16 @@ PRIVATE void partition(int device, int style)
 PRIVATE void hd_ioctl(MESSAGE * m)
 {
 	int device = m->DEVICE;
-	int drive = DRV_OF_DEV(device);
+	int drive = DRV_OF_DEV(device); // 哪块硬盘
 
 	struct hd_info * hdi = &hd_info[drive];
 
 	if (m->REQUEST == DIOCTL_GET_GEO) {
 		void * dst = va2la(m->PROC_NR, m->BUF);
 		void * src = va2la(TASK_HD,
-				   device < MAX_PRIM ?
-				   &hdi->primary[device] :
-				   &hdi->logical[(device - MINOR_hd1a) %
-						NR_SUB_PER_DRIVE]);
-
+				   			device < MAX_PRIM ?
+				   			&hdi->primary[device] :
+				   			&hdi->logical[(device - MINOR_hd1a) % NR_SUB_PER_DRIVE]);
 		phys_copy(dst, src, sizeof(struct part_info));
 	}
 	else {
@@ -287,9 +284,9 @@ PRIVATE void hd_rdwt(MESSAGE * m)
 		}
 		
 		if (bytes_left == bytes)
-                {
-                    break;
-                }
+        {
+        	break;
+        }
 
 		bytes_left -= SECTOR_SIZE;
 		la += SECTOR_SIZE;

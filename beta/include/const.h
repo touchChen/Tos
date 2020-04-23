@@ -49,17 +49,17 @@
 
 
 /* Hardware interrupts */
-#define NR_IRQ   16    /*两块8259A*/
-#define	CLOCK_IRQ	0
+#define NR_IRQ   		16    /*两块8259A*/
+#define	CLOCK_IRQ		0
 #define	KEYBOARD_IRQ	1
-#define	CASCADE_IRQ	2	/* cascade enable for 2nd AT controller */
-#define	ETHER_IRQ	3	/* default ethernet interrupt vector */
+#define	CASCADE_IRQ		2	/* cascade enable for 2nd AT controller */
+#define	ETHER_IRQ		3	/* default ethernet interrupt vector */
 #define	SECONDARY_IRQ	3	/* RS232 interrupt vector for port 2 */
-#define	RS232_IRQ	4	/* RS232 interrupt vector for port 1 */
-#define	XT_WINI_IRQ	5	/* xt winchester */
-#define	FLOPPY_IRQ	6	/* floppy disk */
-#define	PRINTER_IRQ	7
-#define	AT_WINI_IRQ	14	/* at winchester */
+#define	RS232_IRQ		4	/* RS232 interrupt vector for port 1 */
+#define	XT_WINI_IRQ		5	/* xt winchester */
+#define	FLOPPY_IRQ		6	/* floppy disk */
+#define	PRINTER_IRQ		7
+#define	AT_WINI_IRQ		14	/* at winchester */
 
 
 /* VGA */
@@ -79,7 +79,7 @@
 #define	DEV_FLOPPY		1
 #define	DEV_CDROM		2
 #define	DEV_HD			3
-#define	DEV_CHAR_TTY		4
+#define	DEV_CHAR_TTY	4
 #define	DEV_SCSI		5
 /* make device number from major and minor numbers */
 #define	MAJOR_SHIFT		8

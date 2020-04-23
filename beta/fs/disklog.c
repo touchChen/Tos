@@ -10,6 +10,7 @@
 #include "global.h"
 #include "proto.h"
 
+PRIVATE int read_pos();
 
 /*****************************************************************************
  * Perform syslog() system call .
@@ -52,7 +53,11 @@ PUBLIC int do_readlog()
 
 	char p_pos[8];	
 	phys_copy((void*)p_pos, fsbuf, 8);
+   
 	int pos = atoi(p_pos);
+
+    if (pos==0)
+       return 0;
 
 	int nr_sects = ((pos - 1) >> SECTOR_SIZE_SHIFT) + 1;
 	int nr_rd_sects = min(NR_SECTS_FOR_LOG, nr_sects);
@@ -71,6 +76,67 @@ PUBLIC int do_readlog()
 	return pos;
 }
 
+
+PRIVATE int read_pos()
+{
+	int device = root_inode->i_dev;
+	struct super_block * sb = get_super_block(device);
+	int nr_log_blk0_nr = sb->nr_sects - NR_SECTS_FOR_LOG;  // 除去 log 
+
+	memset(fsbuf, '\0', 9);
+	RD_SECT(device, nr_log_blk0_nr);
+
+	char p_pos[8];	
+	phys_copy((void*)p_pos, fsbuf, 8);
+    printl("p_pos:%s\n",p_pos);
+	int pos = atoi(p_pos);
+
+	return pos;
+}
+
+
+PUBLIC void do_clearlog()
+{
+	int device = root_inode->i_dev;
+	struct super_block * sb = get_super_block(device);
+	int nr_log_blk0_nr = sb->nr_sects - NR_SECTS_FOR_LOG;  // 除去 log 
+	int bits_per_sect = SECTOR_SIZE * 8; /* 4096 */
+
+	int smap_blk0_nr = 1 + 1 + sb->nr_imap_sects; /* 3 */
+	int sect_nr  = smap_blk0_nr + nr_log_blk0_nr / bits_per_sect; 
+	int byte_off = (nr_log_blk0_nr % bits_per_sect) / 8; 
+	int bit_off  = (nr_log_blk0_nr % bits_per_sect) % 8; 
+	int sect_cnt = NR_SECTS_FOR_LOG / bits_per_sect + 2; 
+	int bits_left= NR_SECTS_FOR_LOG;
+
+	int i;
+	for (i = 0; i < sect_cnt; i++) {
+		RD_SECT(device, sect_nr + i); 
+
+		for (; byte_off < SECTOR_SIZE && bits_left > 0; byte_off++) {
+			for (; bit_off < 8; bit_off++) { /* repeat till enough bits are set */
+				fsbuf[byte_off] &= ~(1 << bit_off);
+				if (--bits_left  == 0)
+					break;
+			}
+
+			bit_off = 0;
+		}
+		byte_off = 0;
+		bit_off = 0;
+
+		WR_SECT(device, sect_nr + i);
+
+		if (bits_left == 0)
+			break;
+	}
+	
+    RD_SECT(device, nr_log_blk0_nr);	
+	sprintf((char*)fsbuf, "%8d\n", 0);
+	WR_SECT(device, nr_log_blk0_nr);
+	
+}
+
 /*****************************************************************************
  * <Ring 1> This routine handles the DEV_LOG message.
  * 
@@ -83,6 +149,14 @@ PUBLIC int disklog(char * logstr)
 	int nr_log_blk0_nr = sb->nr_sects - NR_SECTS_FOR_LOG;  // 除去 log 
 
 	static int pos = 0;
+    if (!pos)
+    {
+		if (is_do_mkfs == UN_MK_FS) 
+        {  
+            pos = read_pos();
+        }
+    }
+    
 	//printl("static pos:%d, &pos:%0x%x\n", pos, &pos);
 	if (!pos) { /* first time invoking this routine */
         printl("nr_log_blk0_nr: %d\n", nr_log_blk0_nr);

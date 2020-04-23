@@ -383,7 +383,7 @@ PUBLIC void dump_fd_graph(const char * fmt, ...)
 
 	/* separator */
 	int pos = SYSLOG("--separator--\n");
-	printl("dump_fd_graph(%s)::logpos:%d\n", title, pos);
+	printl("dump_fd_graph(%s)::pos:%d\n", title, pos);
 
 
 }

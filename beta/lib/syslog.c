@@ -68,14 +68,20 @@ PUBLIC int readlog(void *buf)
 
 
 
-/*****************************************************************************
- * @param buf    Buffer to write.
- * @return position of log file.
- *****************************************************************************/
 PUBLIC void graphlog()
 {
 	MESSAGE msg;
 	msg.type = GRAPH_LOG;
+    
+	send_recv(BOTH, TASK_FS, &msg);
+
+}
+
+
+PUBLIC void clearlog()
+{
+	MESSAGE msg;
+	msg.type = CLEAR_LOG;
     
 	send_recv(BOTH, TASK_FS, &msg);
 

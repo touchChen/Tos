@@ -45,13 +45,18 @@ PUBLIC int open(const char *pathname, int flags)
  *****************************************************************************/
 PUBLIC int close(int fd)
 {
-	MESSAGE msg;
-	msg.type   = CLOSE;
-	msg.FD     = fd;
+    if (fd >= 0)
+    {
+		MESSAGE msg;
+		msg.type   = CLOSE;
+		msg.FD     = fd;
 
-	send_recv(BOTH, TASK_FS, &msg);
+		send_recv(BOTH, TASK_FS, &msg);
 
-	return msg.RETVAL;
+		return msg.RETVAL;
+    }
+	
+	return -1;
 }
 
 

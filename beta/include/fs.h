@@ -115,7 +115,7 @@ struct file_desc {
 #define ENABLE_DISK_LOG
 #define SET_LOG_SECT_SMAP_AT_STARTUP
 #define MEMSET_LOG_SECTS
-#define	NR_SECTS_FOR_LOG	NR_DEFAULT_FILE_SECTS
+#define	NR_SECTS_FOR_LOG	NR_DEFAULT_FILE_SECTS * 8
 
 
 #ifdef ENABLE_DISK_LOG
@@ -123,6 +123,8 @@ struct file_desc {
 #endif
 
 
+#define MK_FS  1
+#define UN_MK_FS 0
 
 
 #endif /* _TOS_FS_H_ */

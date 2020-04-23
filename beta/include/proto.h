@@ -57,6 +57,7 @@ PUBLIC int get_u_ticks();
 PUBLIC int syslog(const char *fmt, ...);
 PUBLIC int readlog(void *buf);
 PUBLIC void graphlog();
+PUBLIC void clearlog();
 
 
 
@@ -181,6 +182,7 @@ PUBLIC int strip_path(char * filename, const char * pathname, struct inode** ppi
 /****** disklog.c ******/
 PUBLIC int do_disklog();
 PUBLIC int do_readlog();
+PUBLIC void do_clearlog();
 PUBLIC int disklog(char * logstr);
 
 
@@ -194,7 +196,7 @@ PUBLIC void dump_fd_graph(const char * fmt, ...);
 
 
 
-/*************************** fs ***************************************/
+/*************************** local ***************************************/
 /****** main.c ******/
 PUBLIC void TestA();
 PUBLIC void TestB();

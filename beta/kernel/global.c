@@ -59,5 +59,6 @@ PUBLIC  int  kernelfile_phyaddr_len = 0x10000;
 PUBLIC  u8 * bss_clean_addr = (u8*)0x3d000;
 PUBLIC  int  bss_clean_len = 0x1000;
  
+PUBLIC  u8   is_do_mkfs = UN_MK_FS;
 
 

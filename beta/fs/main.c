@@ -58,7 +58,8 @@ PUBLIC void task_fs()
 				break;
 			case UNLINK:
 				fs_msg.RETVAL = do_unlink();
-				break;			
+				break;
+			case CLEAR_LOG:	
 			case DISK_LOG:
 			case READ_LOG:
 			case GRAPH_LOG:
@@ -75,16 +76,9 @@ PUBLIC void task_fs()
 #ifdef ENABLE_DISK_LOG
 		switch (msg_type) {
 			case OPEN:
-				syslog("Open just finished.\n");
-				break;
 			case CLOSE:
-				syslog("CLOSE just finished.\n");
-				break;
 			case READ:
-				syslog("READ just finished.\n");
-				break;
-			case WRITE:
-				syslog("WRITE just finished.\n");					
+			case WRITE:					
 				break;
 			case UNLINK:
 				break;
@@ -93,6 +87,9 @@ PUBLIC void task_fs()
 				break;			
 			case DISK_LOG:	
 				break;
+			case CLEAR_LOG:
+				do_clearlog();
+				break;	
             case GRAPH_LOG:
   				dump_fd_graph("... DISK_LOG ...");		
 				break;
@@ -136,9 +133,12 @@ PRIVATE void init_fs()
 	driver_msg.DEVICE = MINOR(ROOT_DEV);
 	assert(dd_map[MAJOR(ROOT_DEV)].driver_nr != INVALID_DRIVER);
 	send_recv(BOTH, dd_map[MAJOR(ROOT_DEV)].driver_nr, &driver_msg);
-
-	/* make FS */
-	mkfs();
+    
+    if (is_do_mkfs == MK_FS)
+    {
+		/* make FS */
+		mkfs();
+    }
 
 	/* load super block of ROOT */
 	read_super_block(ROOT_DEV);
@@ -163,25 +163,25 @@ PRIVATE void mkfs()
 	/* get the geometry of ROOTDEV */
 	struct part_info geo;
 	driver_msg.type		= DEV_IOCTL;
-	driver_msg.DEVICE	= MINOR(ROOT_DEV);
+	driver_msg.DEVICE	= MINOR(ROOT_DEV); // 次设备号  具体到分区了
 	driver_msg.REQUEST	= DIOCTL_GET_GEO;
 	driver_msg.BUF		= &geo;
 	driver_msg.PROC_NR	= TASK_FS;
-	assert(dd_map[MAJOR(ROOT_DEV)].driver_nr != INVALID_DRIVER);
+	assert(dd_map[MAJOR(ROOT_DEV)].driver_nr != INVALID_DRIVER); // 主设备号
 	send_recv(BOTH, TASK_HD, &driver_msg);
   
 
 
 	/*      super block     */
 	struct super_block sb;
-	sb.magic	  = MAGIC_V1;
+	sb.magic	  	  = MAGIC_V1;
 	sb.nr_inodes	  = SECTOR_SIZE;  // inode nr
 	sb.nr_inode_sects = sb.nr_inodes * INODE_SIZE / SECTOR_SIZE;  // INODE_SIZE: 文件占的空间
-	sb.nr_sects	  = geo.size; /* partition size in sector */
+	sb.nr_sects	  	  = geo.size; /* partition size in sector */
 	sb.nr_imap_sects  = 1;
 	sb.nr_smap_sects  = sb.nr_sects / bits_per_sect + 1;
 	sb.n_1st_sect	  = 1 + 1 +   /* boot sector & super block */
-		sb.nr_imap_sects + sb.nr_smap_sects + sb.nr_inode_sects;
+	  			        sb.nr_imap_sects + sb.nr_smap_sects + sb.nr_inode_sects;
 	sb.root_inode	  = ROOT_INODE;
 	sb.inode_size	  = INODE_SIZE;
 	struct inode x;
@@ -461,6 +461,7 @@ PRIVATE int do_open()
 PRIVATE int do_close()
 {
 	int fd = fs_msg.FD;
+	assert(fd >= 0);
     //printl("do_close fd_inode: %d\n",pcaller->filp[fd]->fd_inode->i_num);
 	put_inode(pcaller->filp[fd]->fd_inode);
 	pcaller->filp[fd]->fd_inode = 0;   // f_desc_table 
@@ -480,7 +481,7 @@ PRIVATE int do_close()
  *****************************************************************************/
 PRIVATE int do_rdwt()
 {
-	int fd = fs_msg.FD;	/**< file descriptor. */
+	int fd = fs_msg.FD;		/**< file descriptor. */
 	void *buf = fs_msg.BUF; /**< r/w buffer */
 	int len = fs_msg.CNT;	/**< r/w bytes */
 
@@ -508,8 +509,8 @@ PRIVATE int do_rdwt()
 		assert(MAJOR(dev) == 4);
 
 		fs_msg.DEVICE	= MINOR(dev);
-		fs_msg.BUF	= buf;
-		fs_msg.CNT	= len;
+		fs_msg.BUF		= buf;
+		fs_msg.CNT		= len;
 		fs_msg.PROC_NR	= src;
 		assert(dd_map[MAJOR(dev)].driver_nr != INVALID_DRIVER);
 		send_recv(BOTH, dd_map[MAJOR(dev)].driver_nr, &fs_msg);

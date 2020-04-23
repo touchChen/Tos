@@ -59,7 +59,10 @@ PRIVATE void test_static_int()
 
 void test_fs()
 { 
+	//clearlog();
+
 	int fd = open("/tc", O_CREAT);
+	printf("fd:%d\n",fd);    
 	close(fd);
     test_static_int();
 	test_static_int();
@@ -77,9 +80,12 @@ void test_fs()
 
 	printf("Read len: %d, buf: %s\n",rlen,bufr);
     
+    
 	char buf[512*32];
+    buf[0] = '\0';
 	int log_pos = readlog(buf); 
 	printf("log pos: %d, log len %d\nlog:", log_pos, strlen(buf));
+    
     
     /*
 	printf("==============================\n");

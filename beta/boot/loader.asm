@@ -112,7 +112,7 @@ LABEL_NO_KERNELBIN:
 	jmp	$			            ; 没有找到 KERNEL.BIN, 死循环在这里
 
 LABEL_FILENAME_FOUND:			; 找到 KERNEL.BIN 后便来到这里继续
-	and	di, 0FFE0h		; di -> 当前条目的开始
+	and	di, 0FFE0h				; di -> 当前条目的开始
 
 	push	eax
 	mov	eax, [es : di + 01Ch]		; ┓
@@ -190,12 +190,12 @@ dwKernelSize		dd	0		; KERNEL.BIN 文件大小
 ;============================================================================
 ;字符串
 ;----------------------------------------------------------------------------
-KernelFileName		db	"KERNEL  BIN", 0	; KERNEL.BIN 之文件名
+KernelFileName		db		"KERNEL  BIN", 0	; KERNEL.BIN 之文件名
 ; 为简化代码, 下面每个字符串的长度均为 MessageLength
-MessageLength		equ	9
-LoadMessage:		db	"Loading  "
-Message1		db	"Ready.   "
-Message2		db	"No KERNEL"
+MessageLength		equ		9
+LoadMessage:		db		"Loading  "
+Message1		db		"Ready.   "
+Message2		db		"No KERNEL"
 ;============================================================================
 
 ;----------------------------------------------------------------------------
@@ -355,7 +355,7 @@ LABEL_PM_START:
 
 	push	szMemChkTitle
 	call	DispStr
-	add	esp, 4
+	add		esp, 4
 
 	call	DispMemInfo
 	call	SetupPaging
@@ -564,7 +564,7 @@ DispStr:
 DispReturn:
 	push	szReturn
 	call	DispStr			;printf("\n");
-	add	esp, 4
+	add		esp, 4
 
 	ret
 ; DispReturn 结束---------------------------------------------------------
@@ -577,15 +577,15 @@ DispReturn:
 ; ------------------------------------------------------------------------
 MemCpy:
 	push	ebp
-	mov	ebp, esp
+	mov		ebp, esp
 
 	push	esi
 	push	edi
 	push	ecx
 
-	mov	edi, [ebp + 8]	; Destination
-	mov	esi, [ebp + 12]	; Source
-	mov	ecx, [ebp + 16]	; Counter
+	mov		edi, [ebp + 8]	; Destination
+	mov		esi, [ebp + 12]	; Source
+	mov		ecx, [ebp + 16]	; Counter
 .1:
 	cmp	ecx, 0		; 判断计数器
 	jz	.2		; 计数器为零时跳出
@@ -621,13 +621,13 @@ DispMemInfo:
 
 	mov	esi, MemChkBuf
 	mov	ecx, [dwMCRNumber]	;for(int i=0;i<[MCRNumber];i++) // 每次得到一个ARDS(Address Range Descriptor Structure)结构
-.loop:					;{
-	mov	edx, 5			;	for(int j=0;j<5;j++)	// 每次得到一个ARDS中的成员，共5个成员
-	mov	edi, ARDStruct		;	{			// 依次显示：BaseAddrLow，BaseAddrHigh，LengthLow，LengthHigh，Type
-.1:					;
+.loop:						;{
+	mov	edx, 5				;	for(int j=0;j<5;j++)	// 每次得到一个ARDS中的成员，共5个成员
+	mov	edi, ARDStruct		;	{	// 依次显示：BaseAddrLow，BaseAddrHigh，LengthLow，LengthHigh，Type
+.1:							;
 	push	dword [esi]		;
 	call	DispInt			;		DispInt(MemChkBuf[j*4]); // 显示一个成员
-	pop	eax			;
+	pop		eax				;
 	stosd				;		ARDStruct[j*4] = MemChkBuf[j*4];
 	add	esi, 4			;
 	dec	edx			;
@@ -716,12 +716,12 @@ SetupPaging:
 ; InitKernel ---------------------------------------------------------------------------------
 ; 将 KERNEL.BIN 的内容经过整理对齐后放到新的位置
 ; --------------------------------------------------------------------------------------------
-InitKernel:	; 遍历每一个 Program Header，根据 Program Header 中的信息来确定把什么放进内存，放到什么位置，以及放多少。
+InitKernel:			; 遍历每一个 Program Header，根据 Program Header 中的信息来确定把什么放进内存，放到什么位置，以及放多少。
 	xor	esi, esi
 	mov	cx, word [BaseOfKernelFilePhyAddr + 2Ch]; ┓ ecx <- pELFHdr->e_phnum  Program header table 中的条数
 	movzx	ecx, cx								; ┛
 	mov	esi, [BaseOfKernelFilePhyAddr + 1Ch]	; esi <- pELFHdr->e_phoff    Program header table 中elf文件中的偏移
-	add	esi, BaseOfKernelFilePhyAddr		; esi <- OffsetOfKernel + pELFHdr->e_phoff
+	add	esi, BaseOfKernelFilePhyAddr			; esi <- OffsetOfKernel + pELFHdr->e_phoff
 .Begin:
 
 
@@ -736,12 +736,12 @@ InitKernel:	; 遍历每一个 Program Header，根据 Program Header 中的信�
 	cmp	eax, 0				; PT_NULL
 	jz	.NoAction
 	push	dword [esi + 010h]		; size	┓
-	mov	eax, [esi + 04h]		;	┃
+	mov	eax, [esi + 04h]				;	┃
 	add	eax, BaseOfKernelFilePhyAddr	;	┣ ::memcpy(	(void*)(pPHdr->p_vaddr),
-	push	eax				; src	┃		uchCode + pPHdr->p_offset,
+	push	eax						; src	┃		uchCode + pPHdr->p_offset,
 	push	dword [esi + 08h]		; dst	┃		pPHdr->p_filesz;
-	call	MemCpy				;	┃
-	add	esp, 12				;	┛
+	call	MemCpy						;	┃
+	add	esp, 12							;	┛
 .NoAction:
 	add	esi, 020h			; esi += pELFHdr->e_phentsize
 	dec	ecx
