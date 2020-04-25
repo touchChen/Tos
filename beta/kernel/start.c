@@ -14,8 +14,8 @@ PUBLIC void cstart()
 {
 
 	/******** 内存清零 ********/
-    memset(kernelfile_phyaddr, 0, kernelfile_phyaddr_len);
-	memset(bss_clean_addr, 0,  bss_clean_len);   // 临时
+    //memset(kernelfile_phyaddr, 0, kernelfile_phyaddr_len);
+	//memset(bss_clean_addr, 0,  bss_clean_len);   // 临时
 
 
 	disp_pos = 15*2*80;
