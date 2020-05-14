@@ -145,8 +145,17 @@ LABEL_GOON_LOADING_FILE:
 	cmp		ax,	0FFFh
 	jz		LABEL_FILE_LOADED
 	push	ax				; 保存 Sector 在 FAT 中的序号
-	add		bx, [BPB_BytsPerSec]        ; 下一个扇区
     add 	ax, SectorFakeDataArea  	; -> ax: fat值对应真实的数据区所在的扇区号
+	add		bx, [BPB_BytsPerSec]        ; 下一个扇区
+	jc		.1				; 如果 bx 溢出了，即 bx = 0 ，说明内核大于 64KB
+	jmp		.2
+.1:
+	push	ax				; es += 0x1000  ← es 指向下一个段
+	mov		ax, es
+	add		ax, 1000h
+	mov		es, ax
+	pop		ax
+.2:
 	jmp		LABEL_GOON_LOADING_FILE
 LABEL_FILE_LOADED:
 	call	KillMotor		; 关闭软驱马达
@@ -428,6 +437,7 @@ LABEL_PM_START:
 	;
 
 
+; 重新说吗。。。。。。。。。
 
 
 ; ------------------------------------------------------------------------
