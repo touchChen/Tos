@@ -437,7 +437,7 @@ LABEL_PM_START:
 	;
 
 
-; 重新说吗。。。。。。。。。
+	; 重新设置地址。。。。。。。。。
 
 
 ; ------------------------------------------------------------------------
@@ -818,7 +818,7 @@ ARDStruct			equ		BaseOfLoaderPhyAddr + _ARDStruct
 MemChkBuf			equ		BaseOfLoaderPhyAddr + _MemChkBuf
 
 
-kernelFileLen		equ		10000h
+kernelFileLen		equ		20000h
 ; 堆栈就在数据段的末尾
 StackSpace:	times	1000h	db	0
 TopOfStack	equ	BaseOfLoaderPhyAddr + $	; 栈顶

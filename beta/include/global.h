@@ -43,13 +43,3 @@ extern	struct dev_drv_map	dd_map[];
 EXTERN  u8   				is_do_mkfs;
 
 
-/* mem */
-extern	u8 * 	kernelfile_phyaddr;
-extern  int  	kernelfile_phyaddr_len;
-extern	u8 * 	bss_clean_addr;
-extern  int  	bss_clean_len;
-
-
-
-
-

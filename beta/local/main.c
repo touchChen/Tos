@@ -59,7 +59,7 @@ PRIVATE void test_static_int()
 
 void test_fs()
 { 
-	//clearlog();
+	clearlog();
 
 	int fd = open("/tc", O_CREAT);
 	printf("fd:%d\n",fd);    

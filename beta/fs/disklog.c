@@ -148,6 +148,7 @@ PUBLIC int disklog(char * logstr)
 	struct super_block * sb = get_super_block(device);
 	int nr_log_blk0_nr = sb->nr_sects - NR_SECTS_FOR_LOG;  // 除去 log 
 
+	//printl("nr_log_blk0_nr: %x\n", nr_log_blk0_nr);
 	static int pos = 0;
     if (!pos)
     {
@@ -159,7 +160,7 @@ PUBLIC int disklog(char * logstr)
     
 	//printl("static pos:%d, &pos:%0x%x\n", pos, &pos);
 	if (!pos) { /* first time invoking this routine */
-        printl("nr_log_blk0_nr: %d\n", nr_log_blk0_nr);
+        printl("nr_log_blk0_nr: %x\n", nr_log_blk0_nr);
 #ifdef SET_LOG_SECT_SMAP_AT_STARTUP
 		/*
 		 * set sector-map so that other files cannot use the log sectors
