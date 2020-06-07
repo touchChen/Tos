@@ -28,6 +28,7 @@ EXTERN  CONSOLE         console_table[];
 
 
 EXTERN  int             nr_current_console;
+EXTERN	int				key_pressed;
 
 
 /* FS */

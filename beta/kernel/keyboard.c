@@ -39,6 +39,8 @@ PRIVATE void    kb_ack();
 
 PUBLIC void keyboard_handler(int irq)
 {
+	key_pressed = 1;
+
 	u8 scan_code = in_byte(KB_DATA);
 
 	if (kb_in.count < KB_IN_BYTES) {
@@ -54,6 +56,8 @@ PUBLIC void keyboard_handler(int irq)
 
 PUBLIC void init_keyboard()
 {	
+	key_pressed = 0;
+
 	kb_in.count = 0;
 	kb_in.p_head = kb_in.p_tail = kb_in.buf;
 
@@ -81,21 +85,19 @@ PUBLIC void keyboard_read(TTY* p_tty)
 	int	make;	/* TRUE: make;  FALSE: break. */
 
 	u32	key = 0;/* 用一个整型来表示一个键。比如，如果 Home 被按下，
-			 * 则 key 值将为定义在 keyboard.h 中的 'HOME'。
-			 */
-	u32*	keyrow;	/* 指向 keymap[] 的某一行 */
+			 	 * 则 key 值将为定义在 keyboard.h 中的 'HOME'。
+			     */
+	u32* keyrow;	/* 指向 keymap[] 的某一行 */
 
 
 	if(kb_in.count > 0){
 		scan_code = get_byte_from_kbuf();
-
-                code_with_E0 = 0;
+        code_with_E0 = 0;
 
 		/* 下面开始解析扫描码 */
 		if (scan_code == 0xE1) {
 			int i;
-			u8 pausebrk_scode[] = {0xE1, 0x1D, 0x45,
-					       0xE1, 0x9D, 0xC5};
+			u8 pausebrk_scode[] = {0xE1, 0x1D, 0x45,0xE1, 0x9D, 0xC5};
 			int is_pausebreak = 1;
 			for(i=1;i<6;i++){
 				if (get_byte_from_kbuf() != pausebrk_scode[i]) {
@@ -176,7 +178,7 @@ PUBLIC void keyboard_read(TTY* p_tty)
 				case ALT_R:
 					alt_l = make;
 					break;
-                                case CAPS_LOCK:
+                case CAPS_LOCK:
 					if (make) {
 						caps_lock   = !caps_lock;
 						set_leds();
@@ -273,7 +275,7 @@ PUBLIC void keyboard_read(TTY* p_tty)
 				key |= ctrl_r	? FLAG_CTRL_R	: 0;
 				key |= alt_l	? FLAG_ALT_L	: 0;
 				key |= alt_r	? FLAG_ALT_R	: 0;
-                                key |= pad      ? FLAG_PAD      : 0;
+                key |= pad      ? FLAG_PAD      : 0;
 			
 				in_process(p_tty, key);
 			}
@@ -284,20 +286,19 @@ PUBLIC void keyboard_read(TTY* p_tty)
 
 PRIVATE u8 get_byte_from_kbuf()       /* 从键盘缓冲区中读取下一个字节 */
 {
-        u8 scan_code;
+    u8 scan_code;
+    while (kb_in.count <= 0) {}   /* 等待下一个字节到来 */
 
-        while (kb_in.count <= 0) {}   /* 等待下一个字节到来 */
+    disable_int();
+    scan_code = *(kb_in.p_tail);
+    kb_in.p_tail++;
+    if (kb_in.p_tail == kb_in.buf + KB_IN_BYTES) {
+        kb_in.p_tail = kb_in.buf;
+    }
+    kb_in.count--;
+    enable_int();
 
-        disable_int();
-        scan_code = *(kb_in.p_tail);
-        kb_in.p_tail++;
-        if (kb_in.p_tail == kb_in.buf + KB_IN_BYTES) {
-                kb_in.p_tail = kb_in.buf;
-        }
-        kb_in.count--;
-        enable_int();
-
-        return scan_code;
+    return scan_code;
 }
 
 

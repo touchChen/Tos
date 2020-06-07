@@ -17,13 +17,17 @@
  ***********************************************/
 PUBLIC void clock_handler(int irq)
 {
-        ticks ++;
-        p_proc_ready->ticks--;
+	ticks ++;
+	p_proc_ready->ticks--;
 
-        if(k_reenter!=0) // k_reenter >0,即是重入，不进行调度
-        {
-            return;
-        }
+	if (key_pressed)
+		inform_int(TASK_TTY);
+
+	if (k_reenter != 0) // k_reenter >0,即是重入，不进行调度
+	{
+		return;
+	}
+
 
 	schedule();
 }

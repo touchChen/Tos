@@ -49,13 +49,6 @@ void TestC()
 }
 
 
-PRIVATE void test_static_int()
-{
-    static  int  bss_i = 0;
-    static  int  data_i = 1;
-    printf("&bss_i=0x%xh, bss_i=%d,   &data_i=0x%x, data_i=%d\n", &bss_i, ++bss_i, &data_i, ++data_i);
-}
-
 
 void test_fs()
 { 
@@ -64,8 +57,6 @@ void test_fs()
 	int fd = open("/tc", O_CREAT);
 	printf("fd:%d\n",fd);    
 	close(fd);
-    test_static_int();
-	test_static_int();
 
 	fd = open("/tc", O_RDWR);
 	char bufw[] = "hello world, this is a test of reading and writing file!";

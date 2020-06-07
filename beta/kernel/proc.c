@@ -25,7 +25,7 @@ PUBLIC void schedule()
 		for (p = proc_table; p < proc_table+NR_TASKS_AND_PROCS; p++) {
 			if (p->p_flags == 0) { // 进程运行状态
 				if (p->ticks > greatest_ticks) 
-                                {
+                {
 					greatest_ticks = p->ticks;
 					p_proc_ready = p;
 				}
@@ -509,7 +509,15 @@ PRIVATE int msg_receive(PROCESS* current, int src, MESSAGE* m)
 
 		block(p_who_wanna_recv);
 
-		assert(p_who_wanna_recv->p_flags == RECEIVING);
+		if(p_who_wanna_recv -> pid == 2)
+        {
+            printf("HD p_flags:%d\n", p_who_wanna_recv->p_flags);
+        }
+		//assert(p_who_wanna_recv->p_flags == RECEIVING);
+		if(p_who_wanna_recv->p_flags != RECEIVING)
+ 		{
+            printf("pid:%d, p_flags:%d\n", p_who_wanna_recv -> pid, p_who_wanna_recv->p_flags);
+        }
 		assert(p_who_wanna_recv->p_msg != 0);
 		assert(p_who_wanna_recv->p_recvfrom != NO_TASK);
 		assert(p_who_wanna_recv->p_sendto == NO_TASK);

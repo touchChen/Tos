@@ -349,11 +349,11 @@ sys_call:                             ; 没有往堆栈里读取数据
         push	dword [p_proc_ready]
         push    edx
         push	ecx
-	push	ebx
+		push	ebx
 
         call    [sys_call_table + eax * 4]   ; system_call的指针类型为：void*, 函数指针
                                              ; 地址增量 eax*4
-        add	esp, 4 * 4          ; 系统调用 4 个参数
+        add		esp, 4 * 4          ; 系统调用 4 个参数
 
         mov     [esi + EAXREG - P_STACKBASE], eax  ; 返回值
 
