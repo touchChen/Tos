@@ -39,8 +39,6 @@ PRIVATE void    kb_ack();
 
 PUBLIC void keyboard_handler(int irq)
 {
-	key_pressed = 1;
-
 	u8 scan_code = in_byte(KB_DATA);
 
 	if (kb_in.count < KB_IN_BYTES) {
@@ -51,6 +49,8 @@ PUBLIC void keyboard_handler(int irq)
 		}
 		kb_in.count++;
 	}
+	
+	key_pressed = 1;
 }
 
 

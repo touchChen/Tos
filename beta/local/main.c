@@ -27,13 +27,33 @@ void TestA()
 
 void TestB()
 {
-	while(1){
-		//disp_str("B");
-		//disp_int_c(get_ticks());
-        //printf("ticks:%x.\n",get_ticks());
-        printf("B.c");
-        milli_delay(10000);
+	char tty_name[] = "/dev_tty2";
+
+	int fd_stdin  = open(tty_name, O_RDWR);
+	assert(fd_stdin  == 0);
+	int fd_stdout = open(tty_name, O_RDWR);
+	assert(fd_stdout == 1);
+
+	char rdbuf[128];
+
+	while (1) {
+		write(fd_stdout, "$ ", 2);
+		int r = read(fd_stdin, rdbuf, 70);
+		rdbuf[r] = 0;
+
+		if (strcmp(rdbuf, "hello") == 0) {
+			write(fd_stdout, "hello world!\n", 13);
+		}
+		else {
+			if (rdbuf[0]) {
+				write(fd_stdout, "{", 1);
+				write(fd_stdout, rdbuf, r);
+				write(fd_stdout, "}\n", 2);
+			}
+		}
 	}
+
+	assert(0); /* never arrive here */
 }
 
 

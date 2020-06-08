@@ -507,21 +507,16 @@ PRIVATE int msg_receive(PROCESS* current, int src, MESSAGE* m)
 		else
 			p_who_wanna_recv->p_recvfrom = proc2pid(p_from);
 
-		block(p_who_wanna_recv);
+		//block(p_who_wanna_recv);
 
-		if(p_who_wanna_recv -> pid == 2)
-        {
-            printf("HD p_flags:%d\n", p_who_wanna_recv->p_flags);
-        }
-		//assert(p_who_wanna_recv->p_flags == RECEIVING);
-		if(p_who_wanna_recv->p_flags != RECEIVING)
- 		{
-            printf("pid:%d, p_flags:%d\n", p_who_wanna_recv -> pid, p_who_wanna_recv->p_flags);
-        }
+		assert(p_who_wanna_recv->p_flags == RECEIVING);
 		assert(p_who_wanna_recv->p_msg != 0);
 		assert(p_who_wanna_recv->p_recvfrom != NO_TASK);
 		assert(p_who_wanna_recv->p_sendto == NO_TASK);
 		assert(p_who_wanna_recv->has_int_msg == 0);
+
+		block(p_who_wanna_recv);
+
 	}
 
 	return 0;

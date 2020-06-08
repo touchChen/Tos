@@ -59,6 +59,9 @@ PUBLIC void task_fs()
 			case UNLINK:
 				fs_msg.RETVAL = do_unlink();
 				break;
+			case RESUME_PROC:
+				src = fs_msg.PROC_NR;
+				break;
 			case CLEAR_LOG:	
 			case DISK_LOG:
 			case READ_LOG:
@@ -78,7 +81,9 @@ PUBLIC void task_fs()
 			case OPEN:
 			case CLOSE:
 			case READ:
-			case WRITE:					
+			case WRITE:
+			case RESUME_PROC:
+			case SUSPEND_PROC:
 				break;
 			case UNLINK:
 				break;
@@ -100,8 +105,10 @@ PUBLIC void task_fs()
     
 
 		/* reply */
-		fs_msg.type = SYSCALL_RET;
-		send_recv(SEND, src, &fs_msg);
+		if (fs_msg.type != SUSPEND_PROC) {
+			fs_msg.type = SYSCALL_RET;
+			send_recv(SEND, src, &fs_msg);
+		}
 	}
   
 }

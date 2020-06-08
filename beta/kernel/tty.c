@@ -88,6 +88,8 @@ PRIVATE void init_tty(TTY* p_tty)
 	p_tty->ibuf_cnt = 0;
 	p_tty->ibuf_head = p_tty->ibuf_tail = p_tty->ibuf;
 
+	p_tty->tty_left_cnt = 0;
+
     /*
 	int nr_tty = p_tty - tty_table;
 	p_tty->p_console = console_table + nr_tty;    //指针
@@ -145,7 +147,7 @@ PRIVATE void tty_dev_write(TTY* tty)
 				msg.type = RESUME_PROC;
 				msg.PROC_NR = tty->tty_procnr;
 				msg.CNT = tty->tty_trans_cnt;
-				send_recv(SEND, tty->tty_caller, &msg);
+				send_recv(SEND, tty->tty_caller, &msg);  // 发送给文件系统
 				tty->tty_left_cnt = 0;
 			}
 		}
