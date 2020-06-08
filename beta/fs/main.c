@@ -265,14 +265,14 @@ PRIVATE void mkfs()
 
 
 	/*       inodes         */
-	/* inode of `/' */
+	/* 		inode of `/' 	*/
 	memset(fsbuf, 0, SECTOR_SIZE);
 	struct inode * pi = (struct inode*)fsbuf;
 	pi->i_mode = I_DIRECTORY;
 	pi->i_size = DIR_ENTRY_SIZE * 4; /* 4 files:
-					  * `.',
-					  * `dev_tty0', `dev_tty1', `dev_tty2',
-					  */
+									  * `.',
+									  * `dev_tty0', `dev_tty1', `dev_tty2',
+									  */
 	pi->i_start_sect = sb.n_1st_sect;
 	pi->i_nr_sects = NR_DEFAULT_FILE_SECTS;
 	/* inode of `/dev_tty0~2' */
@@ -1182,12 +1182,11 @@ PRIVATE int search_file(char * path)
 	 */
 	int dir_blk0_nr = dir_inode->i_start_sect;
 	int nr_dir_blks = (dir_inode->i_size + SECTOR_SIZE - 1) / SECTOR_SIZE;
-	int nr_dir_entries =
-	  dir_inode->i_size / DIR_ENTRY_SIZE; /**
-					       * including unused slots
-					       * (the file has been deleted
-					       * but the slot is still there)
-					       */
+	int nr_dir_entries = dir_inode->i_size / DIR_ENTRY_SIZE;  /**
+															   * including unused slots
+															   * (the file has been deleted
+															   * but the slot is still there)
+															   */
 	int m = 0;
 	struct dir_entry * pde;
 	for (i = 0; i < nr_dir_blks; i++) {

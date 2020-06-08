@@ -79,6 +79,8 @@ void test_fs()
 	close(fd);
 
 	fd = open("/tc", O_RDWR);
+	int fd2 = open("/tc", O_RDWR);
+	printf("fd1:%d, fd2:%d\n",fd,fd2);
 	char bufw[] = "hello world, this is a test of reading and writing file!";
 	int wlen = write(fd, bufw, strlen(bufw));
 	close(fd);
