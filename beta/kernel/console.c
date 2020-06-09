@@ -20,7 +20,7 @@ PUBLIC void init_screen(TTY* p_tty)
 
 	int v_mem_size = V_MEM_SIZE >> 1;	/* 显存总大小 (in WORD) */
 
-	int con_v_mem_size                   = v_mem_size / NR_CONSOLES;
+	int con_v_mem_size                 = v_mem_size / NR_CONSOLES;
 	p_tty->console->original_addr      = nr_tty * con_v_mem_size;
 	p_tty->console->v_mem_limit        = con_v_mem_size;
 	p_tty->console->current_start_addr = p_tty->console->original_addr;
@@ -42,7 +42,6 @@ PUBLIC void init_screen(TTY* p_tty)
 }
 
 /************************************************************************
- *                            
  * nr_console:  0 ~ (NR_CONSOLES - 1) 
  ***********************************************************************/
 PUBLIC void select_console(int nr_console)	
@@ -53,11 +52,7 @@ PUBLIC void select_console(int nr_console)
 
 	nr_current_console = nr_console;
 
-    /*
-	set_cursor(console_table[nr_console].cursor);   // 光标位置
-	set_video_start_addr(console_table[nr_console].current_start_addr);  // 屏幕开始地址
-    */
-    flush(&console_table[nr_console]);
+	flush(&console_table[nr_console]);
 }
 
 /************************************************************************
@@ -98,7 +93,7 @@ PUBLIC void out_char(CONSOLE* p_con, char ch)
 {
 	u8* p_vmem = (u8*)(V_MEM_BASE + p_con->cursor*2);  //disp_pos tty=0
         
-    switch(ch) {
+	switch(ch) {
 		case '\n':
 			if (p_con->cursor < p_con->original_addr + p_con->v_mem_limit - SCREEN_WIDTH) {
 				p_con->cursor = p_con->original_addr + SCREEN_WIDTH * ((p_con->cursor - p_con->original_addr) / SCREEN_WIDTH + 1);
