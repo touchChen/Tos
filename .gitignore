@@ -14,4 +14,8 @@ debug/*
 
 *.png
 
+#ctags
 tags
+
+# bin file
+*.bin

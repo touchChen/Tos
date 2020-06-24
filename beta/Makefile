@@ -3,14 +3,14 @@ ENTRYPOINT	= 0x1000
 
 # Offset of entry point in kernel file
 # It depends on ENTRYPOINT
-ENTRYOFFSET	=   0x400
+ENTRYOFFSET	= 0x400
 
 # Programs, flags, etc.
-ASM			= nasm
+ASM		= nasm
 #DASM		= ndisasm
 DASM		= objdump
-CC			= gcc
-LD			= ld
+CC		= gcc
+LD		= ld
 ASMBFLAGS	= -I boot/include/
 ASMKFLAGS	= -I include/ -f elf
 CFLAGS		= -I include/ -c -fno-builtin -m32  -Wall -fno-stack-protector
@@ -24,20 +24,20 @@ DASMFLAGS	= -D
 
 
 # This Program
-BOOT    	= boot/boot.bin boot/loader.bin
-KERNEL	    = kernel.bin
+BOOT		= boot/boot.bin boot/loader.bin
+KERNEL		= kernel.bin
 OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
-              kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/syscall.o \
-              kernel/proc.o kernel/tty.o kernel/console.o \
-              kernel/systask.o kernel/printf.o kernel/hd.o kernel/global.o \
-              lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/fslib.o \
-              lib/proclib.o lib/syslog.o \
-		  	  fs/fslib.o fs/main.o fs/disklog.o fs/graph.o \
-              local/main.o # 注意连接的头
+		  kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/syscall.o \
+		  kernel/proc.o kernel/tty.o kernel/console.o \
+		  kernel/systask.o kernel/printf.o kernel/hd.o kernel/global.o \
+		  lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/fslib.o \
+		  lib/proclib.o lib/syslog.o \
+		  fs/fslib.o fs/main.o fs/disklog.o fs/graph.o \
+		  local/main.o # 注意连接的头
 DASMOUTPUT	= kernel.bin.asm
 
-IMG             = x.img
-FLOPPY          = /mnt/fd/
+IMG		= x.img
+FLOPPY		= /mnt/fd/
 
 # All Phony Targets
 .PHONY : everything final image clean realclean disasm all buildimg
