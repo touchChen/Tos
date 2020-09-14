@@ -93,37 +93,23 @@ void test_fs()
 
 	printf("Read len: %d, buf: %s\n",rlen,bufr);
     
-    
+    /*
 	char buf[512*32];
     buf[0] = '\0';
 	int log_pos = readlog(buf); 
 	printf("log pos: %d, log len %d\nlog:", log_pos, strlen(buf));
+	*/
     
-    
-    /*
-	printf("==============================\n");
-	char _buf[256];
-    do{
-        int l = min(255,strlen(buf));
-        memcpy((void*)_buf, (void*)buf, l);
-		if(strlen(buf)>255)
-		{  
-			_buf[l] = '\0';
-            memcpy((void*)buf, (void*)(&buf[255]), (strlen(buf)-255));			
-		}else{
-			buf[0] = '\0';
-		}
-
-		//printf(_buf);
-    }while(strlen(buf)>0);
-	printf("==============================\n");
-    */
 
 	int nfd = open("/tt", O_CREAT);
 
 	graphlog();
 	close(nfd);
 
+	char buf[512*32];
+    buf[0] = '\0';
+	int log_pos = readlog(buf); 
+	printf("log pos: %d, log len %d\nlog:", log_pos, strlen(buf));
 	
 	
 	int ul = unlink("/tt");

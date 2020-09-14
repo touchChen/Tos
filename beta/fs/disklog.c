@@ -97,12 +97,13 @@ PRIVATE int read_pos()
 
 PUBLIC void do_clearlog()
 {
+	
 	int device = root_inode->i_dev;
 	struct super_block * sb = get_super_block(device);
 	int nr_log_blk0_nr = sb->nr_sects - NR_SECTS_FOR_LOG;  // 除去 log 
-	int bits_per_sect = SECTOR_SIZE * 8; /* 4096 */
+	int bits_per_sect = SECTOR_SIZE * 8; 
 
-	int smap_blk0_nr = 1 + 1 + sb->nr_imap_sects; /* 3 */
+	int smap_blk0_nr = 1 + 1 + sb->nr_imap_sects; 
 	int sect_nr  = smap_blk0_nr + nr_log_blk0_nr / bits_per_sect; 
 	int byte_off = (nr_log_blk0_nr % bits_per_sect) / 8; 
 	int bit_off  = (nr_log_blk0_nr % bits_per_sect) % 8; 
@@ -114,7 +115,7 @@ PUBLIC void do_clearlog()
 		RD_SECT(device, sect_nr + i); 
 
 		for (; byte_off < SECTOR_SIZE && bits_left > 0; byte_off++) {
-			for (; bit_off < 8; bit_off++) { /* repeat till enough bits are set */
+			for (; bit_off < 8; bit_off++) {
 				fsbuf[byte_off] &= ~(1 << bit_off);
 				if (--bits_left  == 0)
 					break;
@@ -131,6 +132,12 @@ PUBLIC void do_clearlog()
 			break;
 	}
 	
+	/*
+	int device = root_inode->i_dev;
+	struct super_block * sb = get_super_block(device);
+	int nr_log_blk0_nr = sb->nr_sects - NR_SECTS_FOR_LOG;  
+	*/
+
     RD_SECT(device, nr_log_blk0_nr);	
 	sprintf((char*)fsbuf, "%8d\n", 0);
 	WR_SECT(device, nr_log_blk0_nr);
@@ -164,6 +171,7 @@ PUBLIC int disklog(char * logstr)
 #ifdef SET_LOG_SECT_SMAP_AT_STARTUP
 		/*
 		 * set sector-map so that other files cannot use the log sectors
+		 *  全部已占用
 		 */
 
 		int bits_per_sect = SECTOR_SIZE * 8; /* 4096 */
@@ -258,8 +266,10 @@ PUBLIC int disklog(char * logstr)
 	fsbuf[63] = '\n';
 
 	WR_SECT(device, nr_log_blk0_nr);
+    /*
 	memset(fsbuf+64, fsbuf[32+19], 512-64);
 	WR_SECT(device, nr_log_blk0_nr + NR_SECTS_FOR_LOG - 1);
+	*/
 
 	return pos;
 }

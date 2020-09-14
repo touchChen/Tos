@@ -66,7 +66,7 @@ PUBLIC void task_fs()
 			case DISK_LOG:
 			case READ_LOG:
 			case GRAPH_LOG:
-				printl("LOG...\n");
+				//printl("LOG...\n");
 				break;		
 			default:
 				dump_msg("FS::unknown message:", &fs_msg);
@@ -231,14 +231,14 @@ PRIVATE void mkfs()
 		fsbuf[0] |= 1 << i;
 
 	assert(fsbuf[0] == 0x1F);/* 0001 1111 : 
-				  *    | ||||
-				  *    | |||`--- bit 0 : reserved   保留
-				  *    | ||`---- bit 1 : the first inode,
-				  *    | ||              which indicates `/'  根 node
-				  *    | |`----- bit 2 : /dev_tty0
-				  *    | `------ bit 3 : /dev_tty1
-				  *    `-------- bit 4 : /dev_tty2
-				  */
+							  *    | ||||
+							  *    | |||`--- bit 0 : reserved   保留
+							  *    | ||`---- bit 1 : the first inode,
+							  *    | ||              which indicates `/'  根 node
+							  *    | |`----- bit 2 : /dev_tty0
+							  *    | `------ bit 3 : /dev_tty1
+							  *    `-------- bit 4 : /dev_tty2
+							  */
 	WR_SECT(ROOT_DEV, 2);   // 默认一个扇区 × 8 个 inode
 
 
@@ -371,13 +371,13 @@ PRIVATE int do_open()
 			return -1;
 		}
 		else {
-			printl("create file.\n");
+			//printl("create file.\n");
 			pin = create_file(pathname, flags);
 		}
 	}
 	else {
 		assert(flags & O_RDWR);
-        printl("read or write file.\n");
+        //printl("read or write file.\n");
 
 		char filename[MAX_PATH];
 		struct inode * dir_inode;
