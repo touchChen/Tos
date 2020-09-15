@@ -3,7 +3,7 @@
 echo
 echo "[syslog]"
 echo "--------"
-syslog_tmp_file=/tmp/prntdisk.tmp
+syslog_tmp_file=./debug/headlog.tmp
 syslog_file=./debug/fslog.log
 dot_file=./debug/filedesc.dot
 dd if=50m.img of=$syslog_tmp_file bs=1 count=32 skip=`echo "obase=10;ibase=16;26F0200" | bc` 2> /dev/null
