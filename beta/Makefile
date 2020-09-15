@@ -38,6 +38,7 @@ DASMOUTPUT	= kernel.bin.asm
 
 IMG		= x.img
 FLOPPY		= /mnt/fd/
+UPTARGET        = rstyh.t@10.136.0.69:/home/rstyh.t/
 
 # All Phony Targets
 .PHONY : everything final image clean realclean disasm all buildimg
@@ -68,6 +69,8 @@ buildimg :
 	sudo cp -fv kernel.bin $(FLOPPY)
 	sudo umount $(FLOPPY)
 
+up : ${IMG}
+	scp ${IMG} ${UPTARGET}
 
 boot/boot.bin : boot/boot.asm 
 	$(ASM) $(ASMBFLAGS) -o $@ $<
