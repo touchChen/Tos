@@ -36,6 +36,7 @@ void TestB()
 
 	char rdbuf[128];
 
+	syslog("hello world");
 	while (1) {
 		write(fd_stdout, "$ ", 2);
 		int r = read(fd_stdin, rdbuf, 70);

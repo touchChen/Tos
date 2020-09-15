@@ -90,7 +90,8 @@ PUBLIC void task_fs()
  			case READ_LOG:
 				fs_msg.POS = do_readlog();
 				break;			
-			case DISK_LOG:	
+			case DISK_LOG:
+				fs_msg.POS = do_disklog();
 				break;
 			case CLEAR_LOG:
 				do_clearlog();

@@ -38,7 +38,7 @@ DASMOUTPUT	= kernel.bin.asm
 
 IMG		= x.img
 FLOPPY		= /mnt/fd/
-UPTARGET        = rstyh.t@10.136.0.69:/home/rstyh.t/
+UPTARGET        = tc@192.168.2.13:/home/tc/beta/
 
 # All Phony Targets
 .PHONY : everything final image clean realclean disasm all buildimg
