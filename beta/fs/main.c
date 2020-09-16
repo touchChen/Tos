@@ -385,7 +385,7 @@ PRIVATE int do_open()
 				if (strip_path(filename, pathname, &dir_inode) != 0)
 					return -1;
 				        
-				pin = get_inode(dir_inode->i_dev, inode_nr);
+				pin = get_inode(dir_inode->i_dev, inode_nr); // inode_table 中的 inode
 			}else{
 				printl("file does not exist.\n");
 				return -1;
@@ -398,7 +398,6 @@ PRIVATE int do_open()
 		/* find a free slot in PROCESS::filp[] */
 		int i;
 		for (i = 0; i < NR_FILES; i++) {
-			//printl("filp[%d]:%d, address:0x%xh\n", i, pcaller->filp[i], &pcaller->filp[i]);
 			if (pcaller->filp[i] == 0) {
 				fd = i;
 				break;
@@ -412,7 +411,6 @@ PRIVATE int do_open()
 		}
 			
 
-
 		/* find a free slot in f_desc_table[] */
 		for (i = 0; i < NR_FILE_DESC; i++)
 			if (f_desc_table[i].fd_inode == 0)
@@ -422,7 +420,7 @@ PRIVATE int do_open()
 
 
 		/* connects proc with file_descriptor */
-		pcaller->filp[fd] = &f_desc_table[i];
+		pcaller->filp[fd] = &f_desc_table[i];  //file_desc 指针
 
 		/* connects file_descriptor with inode */
 		f_desc_table[i].fd_inode = pin;
@@ -435,7 +433,7 @@ PRIVATE int do_open()
 		if (imode == I_CHAR_SPECIAL) {
 			MESSAGE driver_msg;
 
-			driver_msg.type = DEV_OPEN;
+			driver_msg.type = DEV_OPEN;   //tty open
 			int dev = pin->i_start_sect;
 			driver_msg.DEVICE = MINOR(dev);
 			assert(MAJOR(dev) == 4);
@@ -450,14 +448,11 @@ PRIVATE int do_open()
 		}
 		else {
 			assert(pin->i_mode == I_REGULAR);
-            //printl("file'mode is I_REGULAR\n");
 		}
 	}
 	else {
 		return -1;
 	}
-
-
 
 	return fd;
 }
