@@ -362,7 +362,7 @@ PRIVATE int do_open()
 	//printl("open filename(ring 1): %s\n", pathname);
 
 
-    int inode_nr = search_file(pathname);
+    int inode_nr = search_file(pathname); // 根目录下
     //printl("inode_nr of search_file: %d\n",inode_nr); 
 
 	struct inode * pin = 0;
@@ -372,22 +372,24 @@ PRIVATE int do_open()
 			return -1;
 		}
 		else {
-			//printl("create file.\n");
 			pin = create_file(pathname, flags);
 		}
 	}
 	else {
-		assert(flags & O_RDWR);
-        //printl("read or write file.\n");
-
-		char filename[MAX_PATH];
-		struct inode * dir_inode;
-                
-		if (strip_path(filename, pathname, &dir_inode) != 0)
-			return -1;
-                
-		pin = get_inode(dir_inode->i_dev, inode_nr);
-		
+			assert(flags & O_RDWR);
+		    
+			if (inode_nr) {
+				char filename[MAX_PATH];
+				struct inode * dir_inode;
+				        
+				if (strip_path(filename, pathname, &dir_inode) != 0)
+					return -1;
+				        
+				pin = get_inode(dir_inode->i_dev, inode_nr);
+			}else{
+				printl("file does not exist.\n");
+				return -1;
+			}
 	}
 
 
@@ -1087,7 +1089,7 @@ PRIVATE void sync_inode(struct inode * p)
 	struct inode * pinode;
 	struct super_block * sb = get_super_block(p->i_dev);
 	int blk_nr = 1 + 1 + sb->nr_imap_sects + sb->nr_smap_sects +
-		((p->i_num - 1) / (SECTOR_SIZE / INODE_SIZE));
+		((p->i_num - 1) / (SECTOR_SIZE / INODE_SIZE));   // 减一，因为 inode(0) 是保留的
 	RD_SECT(p->i_dev, blk_nr);
 	pinode = (struct inode*)((u8*)fsbuf +
 				 (((p->i_num - 1) % (SECTOR_SIZE / INODE_SIZE))

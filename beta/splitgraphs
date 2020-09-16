@@ -1,3 +1,5 @@
+#!/bin/bash
+
 while read line
 do
     kw=`echo $line | awk -F "[ ]" '{print $1}'`
