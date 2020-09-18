@@ -86,10 +86,10 @@ PRIVATE int read_pos()
 	memset(fsbuf, '\0', 9);
 	RD_SECT(device, nr_log_blk0_nr);
 
-	char p_pos[8];	
+	char p_pos[9];	
 	phys_copy((void*)p_pos, fsbuf, 8);
-    printl("p_pos:%s\n",p_pos);
 	int pos = atoi(p_pos);
+	//printl("int pos:%d\n",pos);
 
 	return pos;
 }

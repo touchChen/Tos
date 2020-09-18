@@ -36,8 +36,9 @@ OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
 		  local/main.o # 注意连接的头
 DASMOUTPUT	= kernel.bin.asm
 
-IMG		= x.img
+IMG			= x.img
 FLOPPY		= /mnt/fd/
+UPTARGET	= tc@192.168.2.13:/home/tc/beta/
 
 # All Phony Targets
 .PHONY : everything final image clean realclean disasm all buildimg
@@ -68,6 +69,8 @@ buildimg :
 	sudo cp -fv kernel.bin $(FLOPPY)
 	sudo umount $(FLOPPY)
 
+up : ${IMG}
+	scp ${IMG} ${UPTARGET}
 
 boot/boot.bin : boot/boot.asm 
 	$(ASM) $(ASMBFLAGS) -o $@ $<

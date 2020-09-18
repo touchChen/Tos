@@ -90,7 +90,8 @@ PUBLIC void task_fs()
  			case READ_LOG:
 				fs_msg.POS = do_readlog();
 				break;			
-			case DISK_LOG:	
+			case DISK_LOG:
+				fs_msg.POS = do_disklog();
 				break;
 			case CLEAR_LOG:
 				do_clearlog();
@@ -361,7 +362,7 @@ PRIVATE int do_open()
 	//printl("open filename(ring 1): %s\n", pathname);
 
 
-    int inode_nr = search_file(pathname);
+    int inode_nr = search_file(pathname); // 根目录下
     //printl("inode_nr of search_file: %d\n",inode_nr); 
 
 	struct inode * pin = 0;
@@ -371,22 +372,24 @@ PRIVATE int do_open()
 			return -1;
 		}
 		else {
-			//printl("create file.\n");
 			pin = create_file(pathname, flags);
 		}
 	}
 	else {
-		assert(flags & O_RDWR);
-        //printl("read or write file.\n");
-
-		char filename[MAX_PATH];
-		struct inode * dir_inode;
-                
-		if (strip_path(filename, pathname, &dir_inode) != 0)
-			return -1;
-                
-		pin = get_inode(dir_inode->i_dev, inode_nr);
-		
+			assert(flags & O_RDWR);
+		    
+			if (inode_nr) {
+				char filename[MAX_PATH];
+				struct inode * dir_inode;
+				        
+				if (strip_path(filename, pathname, &dir_inode) != 0)
+					return -1;
+				        
+				pin = get_inode(dir_inode->i_dev, inode_nr); // inode_table 中的 inode
+			}else{
+				printl("file does not exist.\n");
+				return -1;
+			}
 	}
 
 
@@ -395,7 +398,6 @@ PRIVATE int do_open()
 		/* find a free slot in PROCESS::filp[] */
 		int i;
 		for (i = 0; i < NR_FILES; i++) {
-			//printl("filp[%d]:%d, address:0x%xh\n", i, pcaller->filp[i], &pcaller->filp[i]);
 			if (pcaller->filp[i] == 0) {
 				fd = i;
 				break;
@@ -403,12 +405,14 @@ PRIVATE int do_open()
 		}
 		if ((fd < 0) || (fd >= NR_FILES))
  		{
-			//printl("NR_FILES:%d\n",NR_FILES);
+
+			//printl("-----test-----\n");
+			//struct inode *iin = &inode_table[5];
+			//printl("size:%d,num:%d\n",iin->i_size,iin->i_num);
 			//__asm__ __volatile__("hlt");
 			panic("filp[] is full (PID:%d)", proc2pid(pcaller));
 		}
 			
-
 
 		/* find a free slot in f_desc_table[] */
 		for (i = 0; i < NR_FILE_DESC; i++)
@@ -419,7 +423,7 @@ PRIVATE int do_open()
 
 
 		/* connects proc with file_descriptor */
-		pcaller->filp[fd] = &f_desc_table[i];
+		pcaller->filp[fd] = &f_desc_table[i];  //file_desc 指针
 
 		/* connects file_descriptor with inode */
 		f_desc_table[i].fd_inode = pin;
@@ -432,7 +436,7 @@ PRIVATE int do_open()
 		if (imode == I_CHAR_SPECIAL) {
 			MESSAGE driver_msg;
 
-			driver_msg.type = DEV_OPEN;
+			driver_msg.type = DEV_OPEN;   //tty open
 			int dev = pin->i_start_sect;
 			driver_msg.DEVICE = MINOR(dev);
 			assert(MAJOR(dev) == 4);
@@ -447,14 +451,11 @@ PRIVATE int do_open()
 		}
 		else {
 			assert(pin->i_mode == I_REGULAR);
-            //printl("file'mode is I_REGULAR\n");
 		}
 	}
 	else {
 		return -1;
 	}
-
-
 
 	return fd;
 }
@@ -488,11 +489,11 @@ PRIVATE int do_close()
  *****************************************************************************/
 PRIVATE int do_rdwt()
 {
-	int fd = fs_msg.FD;		/**< file descriptor. */
-	void *buf = fs_msg.BUF; /**< r/w buffer */
-	int len = fs_msg.CNT;	/**< r/w bytes */
+	int fd = fs_msg.FD;			/**< file descriptor. */
+	void *buf = fs_msg.BUF; 	/**< r/w buffer */
+	int len = fs_msg.CNT;		/**< r/w bytes */
 
-	int src = fs_msg.source;		/* caller proc nr. */
+	int src = fs_msg.source;		/* caller proc nr. */ // 调用者的pid
 
 	assert((pcaller->filp[fd] >= &f_desc_table[0]) &&
 	       (pcaller->filp[fd] < &f_desc_table[NR_FILE_DESC]));
@@ -502,13 +503,13 @@ PRIVATE int do_rdwt()
 
 	int pos = pcaller->filp[fd]->fd_pos;
 
-	struct inode * pin = pcaller->filp[fd]->fd_inode;
+	struct inode * pin = pcaller->filp[fd]->fd_inode;  //inode_table
 
 	assert(pin >= &inode_table[0] && pin < &inode_table[NR_INODE]);
 
 	int imode = pin->i_mode & I_TYPE_MASK;
 
-	if (imode == I_CHAR_SPECIAL) {
+	if (imode == I_CHAR_SPECIAL) { //tty
 		int t = fs_msg.type == READ ? DEV_READ : DEV_WRITE;
 		fs_msg.type = t;
 
@@ -1086,7 +1087,7 @@ PRIVATE void sync_inode(struct inode * p)
 	struct inode * pinode;
 	struct super_block * sb = get_super_block(p->i_dev);
 	int blk_nr = 1 + 1 + sb->nr_imap_sects + sb->nr_smap_sects +
-		((p->i_num - 1) / (SECTOR_SIZE / INODE_SIZE));
+		((p->i_num - 1) / (SECTOR_SIZE / INODE_SIZE));   // 减一，因为 inode(0) 是保留的
 	RD_SECT(p->i_dev, blk_nr);
 	pinode = (struct inode*)((u8*)fsbuf +
 				 (((p->i_num - 1) % (SECTOR_SIZE / INODE_SIZE))

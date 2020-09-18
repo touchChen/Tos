@@ -36,6 +36,7 @@ void TestB()
 
 	char rdbuf[128];
 
+	//syslog("hello world\n");
 	while (1) {
 		write(fd_stdout, "$ ", 2);
 		int r = read(fd_stdin, rdbuf, 70);
@@ -77,6 +78,7 @@ void test_fs()
 	int fd = open("/tc", O_CREAT);
 	printf("fd:%d\n",fd);    
 	close(fd);
+	
 
 	fd = open("/tc", O_RDWR);
 	int fd2 = open("/tc", O_RDWR);
@@ -93,31 +95,32 @@ void test_fs()
 
 	printf("Read len: %d, buf: %s\n",rlen,bufr);
     
-    /*
-	char buf[512*32];
-    buf[0] = '\0';
-	int log_pos = readlog(buf); 
-	printf("log pos: %d, log len %d\nlog:", log_pos, strlen(buf));
-	*/
-    
 
-	int nfd = open("/tt", O_CREAT);
+	fd = open("/tt", O_CREAT);
+	close(fd);
 
-	graphlog();
-	close(nfd);
-
-	char buf[512*32];
-    buf[0] = '\0';
-	int log_pos = readlog(buf); 
-	printf("log pos: %d, log len %d\nlog:", log_pos, strlen(buf));
-	
 	
 	int ul = unlink("/tt");
 	if(ul == 0)
 	{
 		printf(" unlink success!\n");
     }
+
+	fd = open("new_file", O_CREAT);
+	close(fd);
+
+	fd = open("/chen", O_RDWR);
+	printf("fd:%d\n",fd);    
+	close(fd);
+
+/*
+	char buf[512*32];
+	buf[0] = '\0';
+	int log_pos = readlog(buf); 
+	printf("log pos: %d, log len %d\nlog:", log_pos, strlen(buf));
+*/
     
+	graphlog();
 
     spin("Test FS...");
 }

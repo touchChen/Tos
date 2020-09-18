@@ -85,6 +85,27 @@ _start:
 	;           0h ┗━━━━━━━━━━━━━━━━━━┛ ← cs, ds, es, fs, ss
 	;
 	;
+
+	; 新的内存结构：
+	;              ┃                                    ┃
+	;              ┃                 ...                ┃
+	;              ┣━━━━━━━━━━━━━━━━━━┫
+	;              ┃■■■■■■Page  Tables■■■■■■┃
+	;              ┃■■■■■(大小由LOADER决定)■■■■┃ PageTblBase
+	;    00101000h ┣━━━━━━━━━━━━━━━━━━┫
+	;              ┃■■■■Page Directory Table■■■■┃ PageDirBase = 1M
+	;    00100000h ┣━━━━━━━━━━━━━━━━━━┫
+	;              ┃□□□□ Hardware  Reserved □□□□┃ B8000h ← gs
+	;       9FC00h ┣━━━━━━━━━━━━━━━━━━┫
+	;              ┃■■■■■■■LOADER.BIN■■■■■■┃ somewhere in LOADER ← esp
+	;       90000h ┣━━━━━━━━━━━━━━━━━━┫
+	;              ┃■■■■■■■KERNEL.BIN■■■■■■┃
+	;       70000h ┣━━━━━━━━━━━━━━━━━━┫
+	;              ┃■■■■■■■■KERNEL■■■■■■■┃ 1000h ← KERNEL 入口 (KernelEntryPointPhyAddr)
+	;       1000h  ┣━━━━━━━━━━━━━━━━━━┫
+	;              ┋                                    ┋
+	;           0h ┗━━━━━━━━━━━━━━━━━━┛ ← cs, ds, es, fs, ss
+
 	; GDT 以及相应的描述符是这样的：
 	;
 	;		              Descriptors               Selectors
@@ -120,7 +141,7 @@ _start:
 	jmp	SELECTOR_KERNEL_CS:csinit
         
 csinit:		; “这个跳转指令强制使用刚刚初始化的结构”——<<OS:D&I 2nd>> P90.        
-        xor	eax, eax
+	xor	eax, eax
 	mov	ax, SELECTOR_TSS
 	ltr	ax
         
