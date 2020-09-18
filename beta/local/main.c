@@ -78,6 +78,7 @@ void test_fs()
 	int fd = open("/tc", O_CREAT);
 	printf("fd:%d\n",fd);    
 	close(fd);
+	
 
 	fd = open("/tc", O_RDWR);
 	int fd2 = open("/tc", O_RDWR);
@@ -96,8 +97,6 @@ void test_fs()
     
 
 	fd = open("/tt", O_CREAT);
-
-	graphlog();
 	close(fd);
 
 	
@@ -108,19 +107,20 @@ void test_fs()
     }
 
 	fd = open("new_file", O_CREAT);
-	graphlog();
 	close(fd);
 
 	fd = open("/chen", O_RDWR);
 	printf("fd:%d\n",fd);    
 	close(fd);
 
+/*
 	char buf[512*32];
 	buf[0] = '\0';
 	int log_pos = readlog(buf); 
 	printf("log pos: %d, log len %d\nlog:", log_pos, strlen(buf));
-
+*/
     
+	graphlog();
 
     spin("Test FS...");
 }

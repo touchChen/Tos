@@ -23,9 +23,9 @@ PUBLIC void init_prot()
 	init_8259A();
 
 	// 全部初始化成中断门(没有陷阱门)
-        /****************************************************
-         **  异常
-         ***************************************************/
+	/****************************************************
+	 **  异常
+	***************************************************/
 	init_idt_desc(INT_VECTOR_DIVIDE,	DA_386IGate,
 		      divide_error,		PRIVILEGE_KRNL);
 
@@ -75,67 +75,65 @@ PUBLIC void init_prot()
 		      copr_error,		PRIVILEGE_KRNL);
 
 
+	/****************************************************
+	 **  硬件中断
+	***************************************************/
 
-
-        /****************************************************
-         **  硬件中断
-         ***************************************************/
-
-        init_idt_desc(INT_VECTOR_IRQ0 + 0,      DA_386IGate,
+	init_idt_desc(INT_VECTOR_IRQ0 + 0,      DA_386IGate,
                       hwint00,                  PRIVILEGE_KRNL);
 
-        init_idt_desc(INT_VECTOR_IRQ0 + 1,      DA_386IGate,
+	init_idt_desc(INT_VECTOR_IRQ0 + 1,      DA_386IGate,
                       hwint01,                  PRIVILEGE_KRNL);
 
-        init_idt_desc(INT_VECTOR_IRQ0 + 2,      DA_386IGate,
+	init_idt_desc(INT_VECTOR_IRQ0 + 2,      DA_386IGate,
                       hwint02,                  PRIVILEGE_KRNL);
 
-        init_idt_desc(INT_VECTOR_IRQ0 + 3,      DA_386IGate,
+	init_idt_desc(INT_VECTOR_IRQ0 + 3,      DA_386IGate,
                       hwint03,                  PRIVILEGE_KRNL);
 
-        init_idt_desc(INT_VECTOR_IRQ0 + 4,      DA_386IGate,
+	init_idt_desc(INT_VECTOR_IRQ0 + 4,      DA_386IGate,
                       hwint04,                  PRIVILEGE_KRNL);
 
-        init_idt_desc(INT_VECTOR_IRQ0 + 5,      DA_386IGate,
+	init_idt_desc(INT_VECTOR_IRQ0 + 5,      DA_386IGate,
                       hwint05,                  PRIVILEGE_KRNL);
 
-        init_idt_desc(INT_VECTOR_IRQ0 + 6,      DA_386IGate,
+	init_idt_desc(INT_VECTOR_IRQ0 + 6,      DA_386IGate,
                       hwint06,                  PRIVILEGE_KRNL);
 
-        init_idt_desc(INT_VECTOR_IRQ0 + 7,      DA_386IGate,
+	init_idt_desc(INT_VECTOR_IRQ0 + 7,      DA_386IGate,
                       hwint07,                  PRIVILEGE_KRNL);
 
-        init_idt_desc(INT_VECTOR_IRQ8 + 0,      DA_386IGate,
+	init_idt_desc(INT_VECTOR_IRQ8 + 0,      DA_386IGate,
                       hwint08,                  PRIVILEGE_KRNL);
 
-        init_idt_desc(INT_VECTOR_IRQ8 + 1,      DA_386IGate,
+	init_idt_desc(INT_VECTOR_IRQ8 + 1,      DA_386IGate,
                       hwint09,                  PRIVILEGE_KRNL);
 
-        init_idt_desc(INT_VECTOR_IRQ8 + 2,      DA_386IGate,
+	init_idt_desc(INT_VECTOR_IRQ8 + 2,      DA_386IGate,
                       hwint10,                  PRIVILEGE_KRNL);
 
-        init_idt_desc(INT_VECTOR_IRQ8 + 3,      DA_386IGate,
+	init_idt_desc(INT_VECTOR_IRQ8 + 3,      DA_386IGate,
                       hwint11,                  PRIVILEGE_KRNL);
 
-        init_idt_desc(INT_VECTOR_IRQ8 + 4,      DA_386IGate,
+	init_idt_desc(INT_VECTOR_IRQ8 + 4,      DA_386IGate,
                       hwint12,                  PRIVILEGE_KRNL);
 
-        init_idt_desc(INT_VECTOR_IRQ8 + 5,      DA_386IGate,
+	init_idt_desc(INT_VECTOR_IRQ8 + 5,      DA_386IGate,
                       hwint13,                  PRIVILEGE_KRNL);
 
-        init_idt_desc(INT_VECTOR_IRQ8 + 6,      DA_386IGate,
+	init_idt_desc(INT_VECTOR_IRQ8 + 6,      DA_386IGate,
                       hwint14,                  PRIVILEGE_KRNL);
 
-        init_idt_desc(INT_VECTOR_IRQ8 + 7,      DA_386IGate,
+	init_idt_desc(INT_VECTOR_IRQ8 + 7,      DA_386IGate,
                       hwint15,                  PRIVILEGE_KRNL);
 
 
      
-        /****************************************************
-         **  系统中断
-         ***************************************************/
+	/****************************************************
+	 **  系统中断
+	***************************************************/
 
-        init_idt_desc(INT_VECTOR_SYS_CALL,	DA_386IGate,
+	init_idt_desc(INT_VECTOR_SYS_CALL,	DA_386IGate,
 		      sys_call,			PRIVILEGE_USER);
 
 
@@ -151,16 +149,17 @@ PUBLIC void init_prot()
 
 	tss.iobase = sizeof(tss); /* 没有I/O许可位图 */
 	/* 填充 GDT 中进程的 LDT 的描述符 */
-        /*
+	/*
 	init_descriptor(&gdt[INDEX_LDT_FIRST],               vir2phys(seg2phys(SELECTOR_KERNEL_DS), proc_table[0].ldts),
 		        LDT_SIZE * sizeof(DESCRIPTOR) - 1,   DA_LDT);
-        */
-        // 填充 GDT 中进程的 LDT 的描述符
+	*/
+
+	// 填充 GDT 中进程的 LDT 的描述符
 	int i;
 	PROCESS* p_proc	= proc_table;
 	u16 selector_ldt = INDEX_LDT_FIRST << 3;
 	for(i=0;i<NR_TASKS_AND_PROCS;i++)
-        {
+	{
 	    init_descriptor(&gdt[selector_ldt>>3],
 		            vir2phys(seg2phys(SELECTOR_KERNEL_DS), proc_table[i].ldts),
 			    LDT_SIZE * sizeof(DESCRIPTOR) - 1,

@@ -34,7 +34,7 @@ PUBLIC void cstart()
 	*p_idt_base  = (u32)&idt;
 
          
-    init_prot();
+	init_prot();
 
     
 }

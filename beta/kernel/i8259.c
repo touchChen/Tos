@@ -46,11 +46,11 @@ PUBLIC void init_8259A()
 	out_byte(INT_S_CTLMASK,	0xFF);
 
 
-        int i;
+	int i;
 	for (i = 0; i < NR_IRQ; i++)
-        {
-            irq_table[i] = spurious_irq;
-        }
+	{
+		irq_table[i] = spurious_irq;
+	}
 		
 }
 

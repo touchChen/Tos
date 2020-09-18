@@ -3,6 +3,7 @@
 #define	EXTERN
 #endif
 
+
 EXTERN	int			disp_pos;
 EXTERN	u8			gdt_ptr[6];	/* 0~15:Limit  16~47:Base */
 EXTERN	DESCRIPTOR	gdt[GDT_SIZE];  // GDT_SIZE = 128, 为了后续可以继续添加描述符
@@ -35,12 +36,12 @@ EXTERN	int				key_pressed;
 EXTERN	struct file_desc	f_desc_table[NR_FILE_DESC];
 EXTERN	struct inode		inode_table[NR_INODE];
 EXTERN	struct super_block	super_block[NR_SUPER_BLOCK];
-extern	u8 *				fsbuf;
-extern	const int			FSBUF_SIZE;
+EXTERN	u8 *				fsbuf;
+EXTERN	const int			FSBUF_SIZE;
 EXTERN	MESSAGE				fs_msg;
 EXTERN	PROCESS *	        pcaller;
 EXTERN	struct inode *		root_inode;
-extern	struct dev_drv_map	dd_map[];
+EXTERN	struct dev_drv_map	dd_map[];
 EXTERN  u8   				is_do_mkfs;
 
 

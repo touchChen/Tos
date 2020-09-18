@@ -405,7 +405,10 @@ PRIVATE int do_open()
 		}
 		if ((fd < 0) || (fd >= NR_FILES))
  		{
-			//printl("NR_FILES:%d\n",NR_FILES);
+
+			//printl("-----test-----\n");
+			//struct inode *iin = &inode_table[5];
+			//printl("size:%d,num:%d\n",iin->i_size,iin->i_num);
 			//__asm__ __volatile__("hlt");
 			panic("filp[] is full (PID:%d)", proc2pid(pcaller));
 		}
@@ -486,11 +489,11 @@ PRIVATE int do_close()
  *****************************************************************************/
 PRIVATE int do_rdwt()
 {
-	int fd = fs_msg.FD;		/**< file descriptor. */
-	void *buf = fs_msg.BUF; /**< r/w buffer */
-	int len = fs_msg.CNT;	/**< r/w bytes */
+	int fd = fs_msg.FD;			/**< file descriptor. */
+	void *buf = fs_msg.BUF; 	/**< r/w buffer */
+	int len = fs_msg.CNT;		/**< r/w bytes */
 
-	int src = fs_msg.source;		/* caller proc nr. */
+	int src = fs_msg.source;		/* caller proc nr. */ // 调用者的pid
 
 	assert((pcaller->filp[fd] >= &f_desc_table[0]) &&
 	       (pcaller->filp[fd] < &f_desc_table[NR_FILE_DESC]));
@@ -500,13 +503,13 @@ PRIVATE int do_rdwt()
 
 	int pos = pcaller->filp[fd]->fd_pos;
 
-	struct inode * pin = pcaller->filp[fd]->fd_inode;
+	struct inode * pin = pcaller->filp[fd]->fd_inode;  //inode_table
 
 	assert(pin >= &inode_table[0] && pin < &inode_table[NR_INODE]);
 
 	int imode = pin->i_mode & I_TYPE_MASK;
 
-	if (imode == I_CHAR_SPECIAL) {
+	if (imode == I_CHAR_SPECIAL) { //tty
 		int t = fs_msg.type == READ ? DEV_READ : DEV_WRITE;
 		fs_msg.type = t;
 
