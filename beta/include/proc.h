@@ -109,6 +109,11 @@ typedef struct s_proc {
 								   * next proc in the sending queue (q_sending)
 								   */
 
+	int p_parent; 					/**< pid of parent process */
+
+	int exit_status; 				/**< for parent */
+
+
     int nr_tty;
 
     struct file_desc * filp[NR_FILES];
@@ -130,13 +135,28 @@ typedef struct s_task {
 /* Process */
 #define SENDING   0x02	/* set when proc trying to send */
 #define RECEIVING 0x04	/* set when proc trying to recv */
+#define WAITING   0x08	/* set when proc waiting for the child to terminate */
+#define HANGING   0x10	/* set when proc exits without being waited by parent */
+#define FREE_SLOT 0x20	/* set when proc table entry is not used
+ 	 	 	 	 	 	 * (ok to allocated to a new process)
+ 	 	 	 	 	 	 */
 
+
+/* 时间片 */
+#define TIMESLICE_TASK	20
+#define TIMESLICE_USER_PROC	10
 
 /* Number of tasks */
 #define NR_TASKS	4
 
 /* Number of user proc */
-#define NR_PROCS	4
+#define NR_PROCS	32
+
+#define NR_NATIVE_PROCS		5
+
+#define FIRST_PROC		proc_table[0]
+#define LAST_PROC		proc_table[NR_TASKS + NR_PROCS - 1]
+
 
 #define NR_TASKS_AND_PROCS    (NR_TASKS + NR_PROCS)
 
@@ -146,8 +166,24 @@ typedef struct s_task {
 /* TTY */
 #define NR_CONSOLES	3	
 
+
+/**
+ * All forked proc will use memory above PROCS_BASE.
+ *
+ * @attention make sure PROCS_BASE is higher than any buffers, such as
+ *            fsbuf, mmbuf, etc
+ * @see global.c
+ * @see global.h
+ */
+#define	PROCS_BASE				0xA00000 /* 10 MB */
+#define	PROC_IMAGE_SIZE_DEFAULT	0x100000 /*  1 MB */
+#define	PROC_ORIGIN_STACK		0x400    /*  1 KB */
+
 /* stacks of tasks */
-#define	STACK_SIZE_DEFAULT	0x2000 /* 16 KB */
+#define	STACK_SIZE_DEFAULT	0x2000 /* 8 KB */
+
+#define STACK_SIZE_INIT		STACK_SIZE_DEFAULT
+#define STACK_SIZE_TESTA	STACK_SIZE_DEFAULT
 #define STACK_SIZE_TESTA	STACK_SIZE_DEFAULT
 #define STACK_SIZE_TESTB	STACK_SIZE_DEFAULT
 #define STACK_SIZE_TESTC	STACK_SIZE_DEFAULT
@@ -157,7 +193,8 @@ typedef struct s_task {
 #define STACK_SIZE_HD		STACK_SIZE_DEFAULT
 #define STACK_SIZE_FS		STACK_SIZE_DEFAULT
 
-#define STACK_SIZE_TOTAL	(STACK_SIZE_TESTA + \
+#define STACK_SIZE_TOTAL	(STACK_SIZE_INIT + \
+							STACK_SIZE_TESTA + \
                             STACK_SIZE_TESTC + \
 				 			STACK_SIZE_TESTB + \
                             STACK_SIZE_TESTFS + \

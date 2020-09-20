@@ -11,7 +11,6 @@
 #include "proto.h"
 
 
-
 PRIVATE void init_fs();
 PRIVATE void mkfs();
 PRIVATE int do_open();
@@ -73,9 +72,7 @@ PUBLIC void task_fs()
 				assert(0);
 				break;
 		}
- 
 		
-
 #ifdef ENABLE_DISK_LOG
 		switch (msg_type) {
 			case OPEN:

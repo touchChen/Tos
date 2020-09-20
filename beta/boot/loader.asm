@@ -150,6 +150,7 @@ LABEL_GOON_LOADING_FILE:
 	jc		.1				; 如果 bx 溢出了，即 bx = 0 ，说明内核大于 64KB
 	jmp		.2
 .1:
+	hlt
 	push	ax				; es += 0x1000  ← es 指向下一个段
 	mov		ax, es
 	add		ax, 1000h
@@ -366,6 +367,16 @@ LABEL_PM_START:
 	mov		ah, 	0Fh				; 0000: 黑底    1111: 白字
 	mov		al, 	'P'
 	mov		[gs:((80 * 0 + 39) * 2)],	ax	; 屏幕第 0 行, 第 39 列。
+
+	;; fill in BootParam[]
+	mov		dword [BOOT_PARAM_ADDR], BOOT_PARAM_MAGIC ; Magic Number
+	mov		eax, [dwMemSize]
+	mov		[BOOT_PARAM_ADDR + 4], eax ; memory size
+	mov		eax, BaseOfKernelFile
+	shl		eax, 4
+	add		eax, OffsetOfKernelFile
+	mov		[BOOT_PARAM_ADDR + 8], eax ; phy-addr of kernel.bin
+
 
 	;***************************************************************
 	jmp		SelectorFlatC:KernelEntryPointPhyAddr	; 正式进入内核 *

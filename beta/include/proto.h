@@ -85,6 +85,7 @@ PUBLIC void cstart();  // kernel.asm 跳转 到此函数，c语言开端
 PUBLIC void init_prot();
 PUBLIC u32 seg2phys(u16 seg);
 PUBLIC void spurious_irq(int irq);
+PUBLIC void init_descriptor(DESCRIPTOR * p_desc, u32 base, u32 limit, u16 attribute);
 PUBLIC void exception_handler(int vec_no,int err_code,int eip,int cs,int eflags);
 
 
@@ -96,6 +97,7 @@ PUBLIC void milli_delay(int milli_sec);
 
 /****** main.c ******/
 PUBLIC int kernel_main();  //内核主程序
+PUBLIC void Init();
 
 
 /****** syscall.asm ******/  //系统中断
