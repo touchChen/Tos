@@ -45,3 +45,9 @@ EXTERN	struct dev_drv_map	dd_map[];
 EXTERN  u8   				is_do_mkfs;
 
 
+/* MM */
+EXTERN	MESSAGE			mm_msg;
+extern	u8 *			mmbuf;
+extern	const int		MMBUF_SIZE;
+EXTERN	int				memory_size;
+

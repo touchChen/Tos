@@ -7,14 +7,13 @@
 #include "fs.h"
 #include "proc.h"
 #include "global.h"
+#include "elf.h"
 #include "proto.h"
 
 
 
+
 /*****************************************************************************
- *                                get_boot_params
- *****************************************************************************/
-/**
  * <Ring 0~1> The boot parameters have been saved by LOADER.
  *            We just read them out.
  *
@@ -35,17 +34,21 @@ PUBLIC void get_boot_params(struct boot_params * pbp)
 	 * the kernel file should be a ELF executable,
 	 * check it's magic number
 	 */
-	assert(memcmp(pbp->kernel_file, ELFMAG, SELFMAG) == 0);
+
+	/*
+	Elf32_Ehdr* elf_header = (Elf32_Ehdr*)(pbp->kernel_file);
+	disp_str(elf_header->e_ident);
+	__asm__ __volatile__("hlt");
+	int elf_mag = ELFMAG;
+	assert(memcmp(pbp->kernel_file, (void *)&elf_mag, SELFMAG) == 0);
+	*/
 }
 
 
 /*****************************************************************************
- *                                get_kernel_map
- *****************************************************************************/
-/**
  * <Ring 0~1> Parse the kernel file, get the memory range of the kernel image.
  *
- * - The meaning of `base':	base => first_valid_byte
+ * - The meaning of `base':		base => first_valid_byte
  * - The meaning of `limit':	base + limit => last_valid_byte
  *
  * @param b   Memory base of kernel.
@@ -59,8 +62,11 @@ PUBLIC int get_kernel_map(unsigned int * b, unsigned int * l)
 	Elf32_Ehdr* elf_header = (Elf32_Ehdr*)(bp.kernel_file);
 
 	/* the kernel file should be in ELF format */
-	if (memcmp(elf_header->e_ident, ELFMAG, SELFMAG) != 0)
+	/*
+	int elf_mag = ELFMAG;
+	if (memcmp(elf_header->e_ident, (void *)&elf_mag, SELFMAG) != 0)
 		return -1;
+	*/
 
 	*b = ~0;
 	unsigned int t = 0;

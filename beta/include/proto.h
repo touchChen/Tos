@@ -23,7 +23,9 @@ PUBLIC void port_read(u16 port, void* buf, int n);
 PUBLIC void port_write(u16 port, void* buf, int n);
 
 
-/****** klibc.c ******/  
+/****** klibc.c ******/
+PUBLIC void get_boot_params(struct boot_params * pbp);
+PUBLIC int get_kernel_map(unsigned int * b, unsigned int * l);
 PUBLIC char* itoa(char * str, int num);
 PUBLIC int atoi(char * str);
 PUBLIC void disp_int_c(int input);

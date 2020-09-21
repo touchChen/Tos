@@ -179,6 +179,22 @@ typedef struct s_task {
 #define	PROC_IMAGE_SIZE_DEFAULT	0x100000 /*  1 MB */
 #define	PROC_ORIGIN_STACK		0x400    /*  1 KB */
 
+/**
+ * boot parameters are stored by the loader, they should be
+ * there when kernel is running and should not be overwritten
+ * since kernel might use them at any time.
+ */
+#define	BOOT_PARAM_ADDR			0x900  /* physical address */
+#define	BOOT_PARAM_MAGIC		0xB007 /* magic number */
+#define	BI_MAG					0
+#define	BI_MEM_SIZE				1
+#define	BI_KERNEL_FILE			2
+
+struct boot_params {
+	int				mem_size;		/* memory size */
+	unsigned char *	kernel_file;	/* addr of kernel file */
+};
+
 /* stacks of tasks */
 #define	STACK_SIZE_DEFAULT	0x2000 /* 8 KB */
 
