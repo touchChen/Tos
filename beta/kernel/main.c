@@ -161,7 +161,9 @@ PUBLIC void Init()
 	int fd_stdout = open("/dev_tty0", O_RDWR);
 	assert(fd_stdout == 1);
 
-	printf("Init() is running ...\n");
+	//printf("Init() is running ...\n");
+
+	t_test();
 
 	spin("Init...");
 

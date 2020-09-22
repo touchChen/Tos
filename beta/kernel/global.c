@@ -19,7 +19,7 @@ PUBLIC  TASK  task_table[NR_TASKS] = {{task_tty, TIMESLICE_TASK, 0, STACK_SIZE_T
                                       {task_fs, TIMESLICE_TASK, 1, STACK_SIZE_FS,  "fs"}};
 
 
-PUBLIC  TASK  user_proc_table[NR_NATIVE_PROCS] = {{Init, TIMESLICE_USER_PROC, 0, STACK_SIZE_INIT, "INIT"},
+PUBLIC  TASK  user_proc_table[NR_NATIVE_PROCS] = {{Init, TIMESLICE_USER_PROC, 0, STACK_SIZE_INIT, "INIT2"},
 											{TestA, 0, 0, STACK_SIZE_TESTA, "TestA"},
 					   						{TestB, TIMESLICE_USER_PROC, 2, STACK_SIZE_TESTB, "TestB"},
 					  						{TestC, 0, 0, STACK_SIZE_TESTC, "TestC"},
@@ -28,7 +28,8 @@ PUBLIC  TASK  user_proc_table[NR_NATIVE_PROCS] = {{Init, TIMESLICE_USER_PROC, 0,
 
 PUBLIC	system_call  sys_call_table[NR_SYS_CALL] = {sys_printx, 
                                                     sys_sendrec,
-                                                    sys_get_ticks};
+                                                    sys_get_ticks,
+													sys_test};
 
 
 PUBLIC  TTY             tty_table[NR_CONSOLES];

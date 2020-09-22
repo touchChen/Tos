@@ -14,6 +14,7 @@ global	get_ticks ; 导出符号
 
 global	printx
 global	sendrec
+global	t_test
 
 bits 32
 [section .text]
@@ -25,6 +26,15 @@ bits 32
 ; ====================================================================================
 get_ticks:
 	mov	eax, _NR_get_ticks
+	int	INT_VECTOR_SYS_CALL
+	ret
+
+
+; ====================================================================================
+;                          int get_ticks();
+; ====================================================================================
+t_test:
+	mov	eax, _NR_test
 	int	INT_VECTOR_SYS_CALL
 	ret
 

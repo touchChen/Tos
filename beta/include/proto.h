@@ -210,6 +210,9 @@ PUBLIC void test_fs();
 
 
 
+/*************************** 测试 ***************************************/
+PUBLIC int t_test();
+PUBLIC int  sys_test();
 
 
 

@@ -1,0 +1,17 @@
+#include "type.h"
+#include "const.h"
+#include "protect.h"
+#include "tty.h"
+#include "console.h"
+#include "hd.h"
+#include "fs.h"
+#include "proc.h"
+#include "global.h"
+#include "proto.h"
+
+PUBLIC int sys_test()
+{
+	printl("hello test.....");
+
+	return 0;
+}

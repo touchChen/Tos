@@ -30,6 +30,7 @@ OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
 		  kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/syscall.o \
 		  kernel/proc.o kernel/tty.o kernel/console.o \
 		  kernel/systask.o kernel/printf.o kernel/hd.o kernel/global.o \
+		  kernel/test.o \
 		  lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/fslib.o \
 		  lib/proclib.o lib/syslog.o \
 		  fs/fslib.o fs/main.o fs/disklog.o fs/graph.o \
@@ -124,6 +125,9 @@ kernel/printf.o : kernel/printf.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 kernel/hd.o : kernel/hd.c
+	$(CC) $(CFLAGS) -o $@ $<
+	
+kernel/test.o : kernel/test.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 fs/fslib.o : fs/fslib.c
