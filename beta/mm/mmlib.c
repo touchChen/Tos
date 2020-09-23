@@ -1,18 +1,16 @@
 #include "type.h"
-#include "stdio.h"
 #include "const.h"
 #include "protect.h"
-#include "string.h"
-#include "fs.h"
-#include "proc.h"
 #include "tty.h"
 #include "console.h"
-#include "global.h"
+#include "hd.h"
+#include "fs.h"
+#include "proc.h"
 #include "keyboard.h"
+#include "global.h"
 #include "proto.h"
 
-
-PRIVATE void cleanup(struct proc * proc);
+PRIVATE void cleanup(PROCESS * proc);
 
 
 /*****************************************************************************
@@ -23,7 +21,7 @@ PRIVATE void cleanup(struct proc * proc);
 PUBLIC int do_fork()
 {
 	/* find a free slot in proc_table */
-	struct PROCESS * p = proc_table;
+	PROCESS * p = proc_table;
 	int i;
 	for (i = 0; i < NR_TASKS + NR_PROCS; i++,p++)
 		if (p->p_flags == FREE_SLOT)
@@ -44,13 +42,13 @@ PUBLIC int do_fork()
 	*p = proc_table[pid];    // 修改指针指向的内容， 复制父进程信息到子进程中
 	p->ldt_sel = child_ldt_sel;  // 恢复 子进程的选择子
 	p->p_parent = pid;
-	sprintf(p->name, "%s_%d", proc_table[pid].name, child_pid);
+	sprintf(p->p_name, "%s_%d", proc_table[pid].p_name, child_pid);
 
 	
 
 	/********** 描述符 获取父进程内存状况 ***********/
 	/* duplicate the process: T, D & S */
-	struct descriptor * ppd;
+	DESCRIPTOR * ppd;
 
 	/* Text segment */
 	ppd = &proc_table[pid].ldts[INDEX_LDT_C];
@@ -102,11 +100,11 @@ PUBLIC int do_fork()
 
 	/**************** 进程描述符 *********************/
 	/* child's LDT */
-	init_desc(&p->ldts[INDEX_LDT_C],
+	init_descriptor(&p->ldts[INDEX_LDT_C],
 		  child_base,
 		  (PROC_IMAGE_SIZE_DEFAULT - 1) >> LIMIT_4K_SHIFT,
 		  DA_LIMIT_4K | DA_32 | DA_C | PRIVILEGE_USER << 5);
-	init_desc(&p->ldts[INDEX_LDT_RW],
+	init_descriptor(&p->ldts[INDEX_LDT_RW],
 		  child_base,
 		  (PROC_IMAGE_SIZE_DEFAULT - 1) >> LIMIT_4K_SHIFT,
 		  DA_LIMIT_4K | DA_32 | DA_DRW | PRIVILEGE_USER << 5);
@@ -188,7 +186,7 @@ PUBLIC void do_exit(int status)
 	int i;
 	int pid = mm_msg.source; /* PID of caller */
 	int parent_pid = proc_table[pid].p_parent;
-	struct proc * p = &proc_table[pid];
+	PROCESS * p = &proc_table[pid];
 	/* struct proc * p_parent = &proc_table[parent_pid]; */
 
 	/* tell FS, see fs_exit() */
@@ -211,8 +209,8 @@ PUBLIC void do_exit(int status)
 
 	if (proc_table[parent_pid].p_flags & WAITING) { /* parent is waiting */
 		printl("{MM} ((--do_exit():: %s (%d) is WAITING, %s (%d) will be cleaned up.--))\n",
-		       proc_table[parent_pid].name, parent_pid,
-		       p->name, pid);
+		       proc_table[parent_pid].p_name, parent_pid,
+		       p->p_name, pid);
 		/* dump_fd_graph("((--do_exit():: %s (%d) is WAITING, %s (%d) will be cleaned up.--))", */
 		/*        proc_table[parent_pid].name, parent_pid, */
 		/*        p->name, pid); */
@@ -226,8 +224,8 @@ PUBLIC void do_exit(int status)
 	}
 	else { /* parent is not waiting */
 		printl("{MM} ((--do_exit():: %s (%d) is not WAITING, %s (%d) will be HANGING--))\n",
-		       proc_table[parent_pid].name, parent_pid,
-		       p->name, pid);
+		       proc_table[parent_pid].p_name, parent_pid,
+		       p->p_name, pid);
 		/* dump_fd_graph("((--do_exit():: %s (%d) is not WAITING, %s (%d) will be HANGING--))", */
 		/*        proc_table[parent_pid].name, parent_pid, */
 		/*        p->name, pid); */
@@ -239,7 +237,7 @@ PUBLIC void do_exit(int status)
 		if (proc_table[i].p_parent == pid) { /* is a child */
 			proc_table[i].p_parent = INIT; /* FIXME: make sure INIT always waits */
 			printl("{MM} %s (%d) exit(), so %s (%d) is INIT's child now\n",
-			       p->name, pid, proc_table[i].name, i);
+			       p->p_name, pid, proc_table[i].p_name, i);
 			/* dump_fd_graph("%s (%d) exit(), so %s (%d) is INIT's child now", */
 			/*        p->name, pid, proc_table[i].name, i); */
 			printl("{MM} ((--do_exit():2: proc_table[INIT].p_flags: 0x%x--))\n",
@@ -270,7 +268,7 @@ PUBLIC void do_exit(int status)
  * 
  * @param proc  Process to clean up.
  *****************************************************************************/
-PRIVATE void cleanup(struct proc * proc)
+PRIVATE void cleanup(PROCESS * proc)
 {
 	MESSAGE msg2parent;
 	msg2parent.type = SYSCALL_RET;
@@ -280,14 +278,11 @@ PRIVATE void cleanup(struct proc * proc)
 
 	proc->p_flags = FREE_SLOT;
 
-	printl("{MM} ((--cleanup():: %s (%d) has been cleaned up.--))\n", proc->name, proc2pid(proc));
+	printl("{MM} ((--cleanup():: %s (%d) has been cleaned up.--))\n", proc->p_name, proc2pid(proc));
 	/* dump_fd_graph("((--cleanup():: %s (%d) has been cleaned up.--))", proc->name, proc2pid(proc)); */
 }
 
 /*****************************************************************************
- *                                do_wait
- *****************************************************************************/
-/**
  * Perform the wait() syscall.
  *
  * If proc P calls wait(), then MM will do the following in this routine:
@@ -315,14 +310,14 @@ PUBLIC void do_wait()
 
 	int i;
 	int children = 0;
-	struct proc* p_proc = proc_table;
+	PROCESS * p_proc = proc_table;
 	for (i = 0; i < NR_TASKS + NR_PROCS; i++,p_proc++) {
 		if (p_proc->p_parent == pid) {
 			children++;
 			if (p_proc->p_flags & HANGING) {
 				printl("{MM} ((--do_wait():: %s (%d) is HANGING, "
 				       "so let's clean it up.--))",
-				       p_proc->name, i);
+				       p_proc->p_name, i);
 				/* dump_fd_graph("((--do_wait():: %s (%d) is HANGING, " */
 				/*        "so let's clean it up.--))", */
 				/*        p_proc->name, i); */
@@ -336,14 +331,14 @@ PUBLIC void do_wait()
 		/* has children, but no child is HANGING */
 		proc_table[pid].p_flags |= WAITING;
 		printl("{MM} ((--do_wait():: %s (%d) is WAITING for child "
-		       "to exit().--))\n", proc_table[pid].name, pid);
+		       "to exit().--))\n", proc_table[pid].p_name, pid);
 		/* dump_fd_graph("((--do_wait():: %s (%d) is WAITING for child " */
 		/*        "to exit().--))", proc_table[pid].name, pid); */
 	}
 	else {
 		/* no child at all */
 		printl("{MM} ((--do_wait():: %s (%d) has no child at all.--))\n",
-		       proc_table[pid].name, pid);
+		       proc_table[pid].p_name, pid);
 		/* dump_fd_graph("((--do_wait():: %s (%d) is has no child at all.--))", */
 		/*        proc_table[pid].name, pid); */
 		MESSAGE msg;

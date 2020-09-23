@@ -101,9 +101,7 @@ PRIVATE void init_process()
 				  0,
 				  (k_base + k_limit) >> LIMIT_4K_SHIFT,
 				  DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
-			
 		}
-
 
 		p_proc->regs.cs	= ((8 * 0) & SA_RPL_MASK & SA_TI_MASK)
 			| SA_TIL | rpl;
@@ -157,13 +155,7 @@ PUBLIC void Init()
 	int fd_stdout = open("/dev_tty0", O_RDWR);
 	assert(fd_stdout == 1);
 
-	//printf("Init() is running ...\n");
 
-	//t_test();
-
-	spin("Init...");
-
-	/*
 	int pid = fork();
 	if (pid != 0) { // parent process
 		printf("parent is running, child pid:%d\n", pid);
@@ -173,7 +165,9 @@ PUBLIC void Init()
 		printf("child is running, pid:%d\n", getpid());
 		spin("child");
 	}
-	*/
+
+
+	spin("Init...");
 }
 
 

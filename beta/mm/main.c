@@ -1,18 +1,15 @@
 #include "type.h"
-#include "config.h"
-#include "stdio.h"
 #include "const.h"
 #include "protect.h"
-#include "string.h"
-#include "fs.h"
-#include "proc.h"
 #include "tty.h"
 #include "console.h"
-#include "global.h"
+#include "hd.h"
+#include "fs.h"
+#include "proc.h"
 #include "keyboard.h"
+#include "global.h"
 #include "proto.h"
 
-PUBLIC void do_fork_test();
 
 PRIVATE void init_mm();
 
@@ -79,9 +76,6 @@ PRIVATE void init_mm()
 }
 
 /*****************************************************************************
- *                                alloc_mem
- *****************************************************************************/
-/**
  * Allocate a memory block for a proc.
  * 
  * @param pid  Which proc the memory is for.
@@ -109,9 +103,6 @@ PUBLIC int alloc_mem(int pid, int memsize)
 }
 
 /*****************************************************************************
- *                                free_mem
- *****************************************************************************/
-/**
  * Free a memory block. Because a memory block is corresponding with a PID, so
  * we don't need to really `free' anything. In another word, a memory block is
  * dedicated to one and only one PID, no matter what proc actually uses this

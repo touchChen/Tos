@@ -150,7 +150,8 @@ LABEL_GOON_LOADING_FILE:
 	jc		.1				; 如果 bx 溢出了，即 bx = 0 ，说明内核大于 64KB
 	jmp		.2
 .1:
-	hlt
+	;hlt
+
 	push	ax				; es += 0x1000  ← es 指向下一个段
 	mov		ax, es
 	add		ax, 1000h
@@ -257,6 +258,16 @@ ReadSector:
 	; 至此, "柱面号, 起始扇区, 磁头号" 全部得到 ^^^^^^^^^^^^^^^^^^^^^^^^
 	mov		dl, [BS_DrvNum]		; 驱动器号 (0 表示 A 盘)
 .GoOnReading:
+
+	push	ax				; ┓
+	push	bx				; ┃
+	mov		ah, 0Eh			; ┃
+	mov		al, '#'			; ┃
+	mov		bl, 0Fh			; ┃
+	int		10h			    ; ┃
+	pop		bx			    ; ┃
+	pop		ax			    ; ┛
+
 	mov		ah, 2				; 读
 	mov		al, byte [bp-2]		; 读 al 个扇区
 	int		13h
@@ -289,7 +300,7 @@ GetFATEntry:
 	cmp		dx, 0
 	jz		LABEL_EVEN
 	mov		byte [bOdd], 1
-LABEL_EVEN:;偶数 
+LABEL_EVEN:					;偶数
 	xor		dx, dx			; 现在 ax 中是 FATEntry 在 FAT 中的偏移量. 下面来计算 FATEntry 在哪个扇区中(FAT占用不止一个扇区)
 	mov		bx, [BPB_BytsPerSec]
 	div		bx				; dx:ax / BPB_BytsPerSec  ==>	ax <- 商   (FATEntry 所在的扇区相对于 FAT 来说的扇区号)

@@ -32,8 +32,9 @@ OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
 		  kernel/systask.o kernel/printf.o kernel/hd.o kernel/global.o \
 		  kernel/test.o \
 		  lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/fslib.o \
-		  lib/proclib.o lib/syslog.o \
+		  lib/proclib.o lib/syslog.o lib/mmlib.o \
 		  fs/fslib.o fs/main.o fs/disklog.o fs/graph.o \
+		  mm/main.o mm/mmlib.o \
 		  local/main.o # 注意连接的头
 DASMOUTPUT	= kernel.bin.asm
 
@@ -141,7 +142,12 @@ fs/disklog.o : fs/disklog.c
 
 fs/graph.o : fs/graph.c
 	$(CC) $(CFLAGS) -o $@ $<
+	
+mm/mmlib.o : mm/mmlib.c
+	$(CC) $(CFLAGS) -o $@ $<
 
+mm/main.o : mm/main.c
+	$(CC) $(CFLAGS) -o $@ $<
 
 lib/klib.o : lib/klib.asm
 	$(ASM) $(ASMKFLAGS) -o $@ $<
@@ -164,9 +170,8 @@ lib/proclib.o : lib/proclib.c
 lib/syslog.o : lib/syslog.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-
+lib/mmlib.o : lib/mmlib.c
+	$(CC) $(CFLAGS) -o $@ $<
 
 local/main.o : local/main.c
 	$(CC) $(CFLAGS) -o $@ $<
-
-

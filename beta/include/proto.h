@@ -63,6 +63,11 @@ PUBLIC void clearlog();
 
 
 
+/****** mmlib.c ******/
+PUBLIC int fork();
+
+
+
 
 
 
@@ -192,6 +197,21 @@ PUBLIC int disklog(char * logstr);
 
 /****** graph.c ******/
 PUBLIC void dump_fd_graph(const char * fmt, ...);
+
+
+
+
+/*************************** mm ***************************************/
+/****** main.c ******/
+PUBLIC void task_mm();
+PUBLIC int alloc_mem(int pid, int memsize);
+PUBLIC int free_mem(int pid);
+
+
+/****** mmlib.c ******/
+PUBLIC int do_fork();
+PUBLIC void do_exit(int status);
+PUBLIC void do_wait();
 
  
 

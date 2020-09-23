@@ -34,6 +34,7 @@ struct mess3 {
 	int	m3i3;
 	int	m3i4;
 	int m3i5;
+	int m3i6;
 	u64	m3l1;
 	u64	m3l2;
 	void*	m3p1;
@@ -147,7 +148,7 @@ typedef struct s_task {
 #define TIMESLICE_USER_PROC	10
 
 /* Number of tasks */
-#define NR_TASKS	4
+#define NR_TASKS	5
 
 /* Number of user proc */
 #define NR_PROCS	32
@@ -210,6 +211,7 @@ struct boot_params {
 #define STACK_SIZE_SYS		STACK_SIZE_DEFAULT
 #define STACK_SIZE_HD		STACK_SIZE_DEFAULT
 #define STACK_SIZE_FS		STACK_SIZE_DEFAULT
+#define STACK_SIZE_MM		STACK_SIZE_DEFAULT
 
 #define STACK_SIZE_TOTAL	(STACK_SIZE_INIT + \
 							STACK_SIZE_TESTA + \
@@ -219,7 +221,8 @@ struct boot_params {
                             STACK_SIZE_TTY + \
                             STACK_SIZE_SYS + \
                             STACK_SIZE_HD + \
-                            STACK_SIZE_FS)
+                            STACK_SIZE_FS + \
+							STACK_SIZE_MM)
 
 #define ANY		(NR_TASKS + NR_PROCS + 10)
 #define NO_TASK		(NR_TASKS + NR_PROCS + 20)
@@ -239,6 +242,8 @@ struct boot_params {
 #define TASK_SYS	1
 #define TASK_HD		2
 #define TASK_FS		3
+#define TASK_MM		4
+#define INIT		5
 
 
 
@@ -261,6 +266,12 @@ enum msgtype {
 
 	/* FS & TTY */
 	SUSPEND_PROC, RESUME_PROC,
+
+	/* MM */
+	EXEC, WAIT,
+
+	/* FS & MM */
+	FORK, EXIT,
 
 	/* TTY, SYS, FS, MM, etc */
 	SYSCALL_RET,
@@ -294,6 +305,8 @@ enum msgtype {
 
 #define	PID			u.m3.m3i2
 #define POS         u.m3.m3i5
+
+#define STATUS      u.m3.m3i6
 
 
 #define	STR_DEFAULT_LEN	1024

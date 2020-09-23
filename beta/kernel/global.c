@@ -17,7 +17,8 @@ PUBLIC	PROCESS proc_table[NR_TASKS + NR_PROCS];
 PUBLIC  TASK  task_table[NR_TASKS] = {{task_tty, TIMESLICE_TASK, 0, STACK_SIZE_TTY, "tty"},  //进程体、时间片、tty、堆栈、进程名
                                       {task_sys, TIMESLICE_TASK, 0, STACK_SIZE_SYS, "sys"},
                                       {task_hd, TIMESLICE_TASK, 0, STACK_SIZE_HD,  "hd"},
-                                      {task_fs, TIMESLICE_TASK, 1, STACK_SIZE_FS,  "fs"}};
+                                      {task_fs, TIMESLICE_TASK, 1, STACK_SIZE_FS,  "fs"},
+									  {task_fs, TIMESLICE_TASK, 1, STACK_SIZE_FS,  "mm"}};
 
 
 PUBLIC  TASK  user_proc_table[NR_NATIVE_PROCS] = {{Init, TIMESLICE_USER_PROC, 0, STACK_SIZE_INIT, "INIT"},

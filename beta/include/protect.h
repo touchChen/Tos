@@ -13,6 +13,11 @@ typedef struct s_descriptor		/* 共 8 个字节 */
 }DESCRIPTOR;
 
 
+#define	reassembly(high, high_shift, mid, mid_shift, low)	\
+		(((high) << (high_shift)) +				\
+				((mid)  << (mid_shift)) +				\
+				(low))
+
 /* 门描述符 */
 typedef struct s_gate
 {

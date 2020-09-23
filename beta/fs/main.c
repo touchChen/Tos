@@ -29,6 +29,9 @@ PRIVATE void sync_inode(struct inode * p);
 PRIVATE struct inode * new_inode(int dev, int inode_nr, int start_sect);
 PRIVATE void new_dir_entry(struct inode *dir_inode,int inode_nr,char *filename);
 
+PRIVATE int fs_fork();
+PRIVATE int fs_exit();
+
 /*****************************************************************************
  * task_fs
  * <Ring 1> The main loop of TASK FS.
@@ -61,6 +64,12 @@ PUBLIC void task_fs()
 			case RESUME_PROC:
 				src = fs_msg.PROC_NR;
 				break;
+			case FORK:
+				fs_msg.RETVAL = fs_fork();
+				break;
+			case EXIT:
+				fs_msg.RETVAL = fs_exit();
+				break;
 			case CLEAR_LOG:	
 			case DISK_LOG:
 			case READ_LOG:
@@ -81,6 +90,8 @@ PUBLIC void task_fs()
 			case WRITE:
 			case RESUME_PROC:
 			case SUSPEND_PROC:
+			case FORK:
+			case EXIT:
 				break;
 			case UNLINK:
 				break;
@@ -426,6 +437,7 @@ PRIVATE int do_open()
 		f_desc_table[i].fd_inode = pin;
 
 		f_desc_table[i].fd_mode = flags;
+		f_desc_table[i].fd_cnt = 1;
 		f_desc_table[i].fd_pos = 0;
 
 		int imode = pin->i_mode & I_TYPE_MASK;
@@ -469,6 +481,8 @@ PRIVATE int do_close()
 	assert(fd >= 0);
     //printl("do_close fd_inode: %d\n",pcaller->filp[fd]->fd_inode->i_num);
 	put_inode(pcaller->filp[fd]->fd_inode);
+	if (--pcaller->filp[fd]->fd_cnt == 0)
+		pcaller->filp[fd]->fd_inode = 0;
 	pcaller->filp[fd]->fd_inode = 0;   // f_desc_table 
 	pcaller->filp[fd] = 0;
 
@@ -1204,3 +1218,52 @@ PRIVATE int search_file(char * path)
 	/* file not found */
 	return 0;
 }
+
+/*****************************************************************************
+ *                                fs_fork
+ *****************************************************************************/
+/**
+ * Perform the aspects of fork() that relate to files.
+ *
+ * @return Zero if success, otherwise a negative integer.
+ *****************************************************************************/
+PRIVATE int fs_fork()
+{
+	int i;
+	PROCESS * child = &proc_table[fs_msg.PID];
+	for (i = 0; i < NR_FILES; i++) {
+		if (child->filp[i]) {
+			child->filp[i]->fd_cnt++;
+			child->filp[i]->fd_inode->i_cnt++;
+		}
+	}
+
+	return 0;
+}
+
+
+/*****************************************************************************
+ *                                fs_exit
+ *****************************************************************************/
+/**
+ * Perform the aspects of exit() that relate to files.
+ *
+ * @return Zero if success.
+ *****************************************************************************/
+PRIVATE int fs_exit()
+{
+	int i;
+	PROCESS * p = &proc_table[fs_msg.PID];
+	for (i = 0; i < NR_FILES; i++) {
+		if (p->filp[i]) {
+			/* release the inode */
+			p->filp[i]->fd_inode->i_cnt--;
+			/* release the file desc slot */
+			if (--p->filp[i]->fd_cnt == 0)
+				p->filp[i]->fd_inode = 0;
+			p->filp[i] = 0;
+		}
+	}
+	return 0;
+}
+
