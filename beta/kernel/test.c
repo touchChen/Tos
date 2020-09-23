@@ -11,7 +11,14 @@
 
 PUBLIC int sys_test()
 {
-	printl("hello test.....");
+
+	unsigned int k_base;
+	unsigned int k_limit;
+	int ret = get_kernel_map(&k_base, &k_limit);
+
+	printl("bl:0x%x, 4k:0x%x",(k_base + k_limit),(k_base + k_limit) >> LIMIT_4K_SHIFT);
+	assert(ret == 0);
+	
 
 	return 0;
 }

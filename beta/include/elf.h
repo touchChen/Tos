@@ -51,8 +51,8 @@ typedef struct
 }Elf32_Shdr;
 
 /* 定义elf魔数 */
-// #define ELFMAG  0x464c457f
-#define ELFMAG  1179403647
+#define ELFMAG  0x464c457f
+//define ELFMAG  1179403647
 /* 定义elf mag长度 */
 #define SELFMAG 4
 

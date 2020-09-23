@@ -91,21 +91,17 @@ PRIVATE void init_process()
 			unsigned int k_limit;
 			int ret = get_kernel_map(&k_base, &k_limit);
 			assert(ret == 0);
+           
 			init_descriptor(&p_proc->ldts[INDEX_LDT_C],
-				  0, /* bytes before the entry point
-					  * are useless (wasted) for the
-					  * INIT process, doesn't matter
-					  */
+				  0, 
 				  (k_base + k_limit) >> LIMIT_4K_SHIFT,
 				  DA_32 | DA_LIMIT_4K | DA_C | privilege << 5);
 
 			init_descriptor(&p_proc->ldts[INDEX_LDT_RW],
-				  0, /* bytes before the entry point
-					  * are useless (wasted) for the
-					  * INIT process, doesn't matter
-					  */
+				  0,
 				  (k_base + k_limit) >> LIMIT_4K_SHIFT,
 				  DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
+			
 		}
 
 
@@ -163,7 +159,7 @@ PUBLIC void Init()
 
 	//printf("Init() is running ...\n");
 
-	t_test();
+	//t_test();
 
 	spin("Init...");
 

@@ -44,8 +44,8 @@ LABEL_START:			; <--- 从这里开始 *************
 	mov		ebx, 0				; ebx = 后续值, 开始时需为 0
 	mov		di, _MemChkBuf		; es:di 指向一个地址范围描述符结构（Address Range Descriptor Structure）
 .MemChkLoop:
-	mov		eax, 0E820h		; eax = 0000E820h
-	mov		ecx, 20			; ecx = 地址范围描述符结构的大小
+	mov		eax, 0E820h			; eax = 0000E820h
+	mov		ecx, 20				; ecx = 地址范围描述符结构的大小
 	mov		edx, 0534D4150h		; edx = 'SMAP'
 	int		15h			; int 15h
 	jc		.MemChkFail
@@ -362,7 +362,7 @@ LABEL_PM_START:
 	call	SetupPaging
 
     call	InitKernel
-	call	ClearMem
+	;call	ClearMem
 
 	mov		ah, 	0Fh				; 0000: 黑底    1111: 白字
 	mov		al, 	'P'

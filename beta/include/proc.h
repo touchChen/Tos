@@ -195,6 +195,8 @@ struct boot_params {
 	unsigned char *	kernel_file;	/* addr of kernel file */
 };
 
+
+
 /* stacks of tasks */
 #define	STACK_SIZE_DEFAULT	0x2000 /* 8 KB */
 

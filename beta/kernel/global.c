@@ -12,6 +12,7 @@
 #include "proto.h"
 
 
+PUBLIC	PROCESS proc_table[NR_TASKS + NR_PROCS];
 
 PUBLIC  TASK  task_table[NR_TASKS] = {{task_tty, TIMESLICE_TASK, 0, STACK_SIZE_TTY, "tty"},  //进程体、时间片、tty、堆栈、进程名
                                       {task_sys, TIMESLICE_TASK, 0, STACK_SIZE_SYS, "sys"},
@@ -19,7 +20,7 @@ PUBLIC  TASK  task_table[NR_TASKS] = {{task_tty, TIMESLICE_TASK, 0, STACK_SIZE_T
                                       {task_fs, TIMESLICE_TASK, 1, STACK_SIZE_FS,  "fs"}};
 
 
-PUBLIC  TASK  user_proc_table[NR_NATIVE_PROCS] = {{Init, TIMESLICE_USER_PROC, 0, STACK_SIZE_INIT, "INIT2"},
+PUBLIC  TASK  user_proc_table[NR_NATIVE_PROCS] = {{Init, TIMESLICE_USER_PROC, 0, STACK_SIZE_INIT, "INIT"},
 											{TestA, 0, 0, STACK_SIZE_TESTA, "TestA"},
 					   						{TestB, TIMESLICE_USER_PROC, 2, STACK_SIZE_TESTB, "TestB"},
 					  						{TestC, 0, 0, STACK_SIZE_TESTC, "TestC"},

@@ -156,8 +156,10 @@ PUBLIC void init_prot()
 	int i;
 	PROCESS* p_proc	= proc_table;
 	u16 selector_ldt = INDEX_LDT_FIRST << 3;
-	for(i=0;i<NR_TASKS_AND_PROCS;i++)
+	for(i=0;i<NR_TASKS + NR_PROCS;i++)
 	{
+		memset(&proc_table[i], 0, sizeof(struct s_proc));
+
 	    init_descriptor(&gdt[selector_ldt>>3],
 		            vir2phys(seg2phys(SELECTOR_KERNEL_DS), proc_table[i].ldts),
 			    LDT_SIZE * sizeof(DESCRIPTOR) - 1,
@@ -194,6 +196,8 @@ PUBLIC void init_descriptor(DESCRIPTOR *p_desc, u32 base, u32 limit, u16 attribu
 	p_desc->limit_high_attr2= ((limit>>16) & 0x0F) | ((attribute>>8) & 0xF0);
 	p_desc->base_high	= (base >> 24) & 0x0FF;
 }
+
+
 
 
 

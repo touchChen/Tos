@@ -30,18 +30,14 @@ PUBLIC void get_boot_params(struct boot_params * pbp)
 	pbp->mem_size = p[BI_MEM_SIZE];
 	pbp->kernel_file = (unsigned char *)(p[BI_KERNEL_FILE]);
 
+	
 	/**
 	 * the kernel file should be a ELF executable,
 	 * check it's magic number
 	 */
-
-	/*
-	Elf32_Ehdr* elf_header = (Elf32_Ehdr*)(pbp->kernel_file);
-	disp_str(elf_header->e_ident);
-	__asm__ __volatile__("hlt");
 	int elf_mag = ELFMAG;
 	assert(memcmp(pbp->kernel_file, (void *)&elf_mag, SELFMAG) == 0);
-	*/
+
 }
 
 
@@ -62,11 +58,11 @@ PUBLIC int get_kernel_map(unsigned int * b, unsigned int * l)
 	Elf32_Ehdr* elf_header = (Elf32_Ehdr*)(bp.kernel_file);
 
 	/* the kernel file should be in ELF format */
-	/*
+	
 	int elf_mag = ELFMAG;
 	if (memcmp(elf_header->e_ident, (void *)&elf_mag, SELFMAG) != 0)
 		return -1;
-	*/
+	
 
 	*b = ~0;
 	unsigned int t = 0;
@@ -90,6 +86,8 @@ PUBLIC int get_kernel_map(unsigned int * b, unsigned int * l)
 	}
 	assert(*b < t);
 	*l = t - *b - 1;
+
+	//printl("base:0x%x, top:0x%x, limit:0x%x\n", *b,t,*l);
 
 	return 0;
 }
