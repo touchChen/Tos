@@ -68,7 +68,7 @@ PUBLIC int do_fork()
 			      ((ppd->limit_high_attr2 & (DA_LIMIT_4K >> 8)) ?
 			       4096 : 1));
 
-	printl("MM#caller_T_base=0x%x, limit=0x%x, size=0x%x\n",caller_T_base,caller_T_limit,caller_T_size);
+	printl("MM# caller_T_base=0x%x, limit=0x%x, size=0x%x\n",caller_T_base,caller_T_limit,caller_T_size);
 
 	/* Data & Stack segments */
 	ppd = &proc_table[pid].ldts[INDEX_LDT_RW];
@@ -99,10 +99,11 @@ PUBLIC int do_fork()
 	/* int child_limit = caller_T_limit; */
 	printl("MM# 0x%x <- 0x%x (0x%x bytes)\n",
 	       child_base, caller_T_base, caller_T_size);
+
 	/* child is a copy of the parent */
-	printl("MM# before copy mem \n");
-	phys_copy((void*)child_base, (void*)caller_T_base, caller_T_size/1);
-	printl("MM# after copy mem \n");
+	phys_copy((void*)child_base, (void*)caller_T_base, caller_T_size);
+
+
 	/**************** 进程描述符 *********************/
 	/* child's LDT */
 	init_descriptor(&p->ldts[INDEX_LDT_C],
@@ -115,11 +116,15 @@ PUBLIC int do_fork()
 		  DA_LIMIT_4K | DA_32 | DA_DRW | PRIVILEGE_USER << 5);
 
 	printl("MM# after mem set\n");
+
 	/* tell FS, see fs_fork() */
 	MESSAGE msg2fs;
 	msg2fs.type = FORK;
 	msg2fs.PID = child_pid;
 	send_recv(BOTH, TASK_FS, &msg2fs);
+
+	//while(1){}
+
 
 	/* child PID will be returned to the parent proc */
 	mm_msg.PID = child_pid;
@@ -130,7 +135,7 @@ PUBLIC int do_fork()
 	m.RETVAL = 0;
 	m.PID = 0;
 	send_recv(SEND, child_pid, &m);  // 子进程返回
-
+	while(1){}
 	return 0;   /* 父进程 返回 */
 }
 

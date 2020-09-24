@@ -155,7 +155,7 @@ PUBLIC void Init()
 	int fd_stdout = open("/dev_tty0", O_RDWR);
 	assert(fd_stdout == 1);
 
-    
+
 	int pid = fork();
 	if (pid != 0) { // parent process
 		printf("parent is running, child pid:%d\n", pid);
@@ -165,6 +165,7 @@ PUBLIC void Init()
 		printf("child is running, pid:%d\n", getpid());
 		spin("child");
 	}
+
     
 
 	spin("Init...");

@@ -178,7 +178,19 @@ PUBLIC void* va2la(int pid, void* va)
 	u32 la = seg_base + (u32)va;
 
 	if (pid < NR_TASKS + NR_PROCS) {
+		/*
+		printl("pid=%d\n",pid);
+		printl("la=0x%x,va=0x%x\n",la,(u32)va);
+		if(la != (u32)va)
+		{
+			printl("eeeee\n");
+			__asm__ __volatile__("hlt");
+		}else{
+
+		}*/
+
 		assert(la == (u32)va);  // 虚拟地址等于线性地址
+
 	}
 
 	return (void*)la;

@@ -66,6 +66,7 @@ PUBLIC void task_fs()
 				break;
 			case FORK:
 				fs_msg.RETVAL = fs_fork();
+				printl("fs_fork\n");
 				break;
 			case EXIT:
 				fs_msg.RETVAL = fs_exit();
@@ -413,10 +414,6 @@ PRIVATE int do_open()
 		}
 		if ((fd < 0) || (fd >= NR_FILES))
  		{
-
-			//printl("-----test-----\n");
-			//struct inode *iin = &inode_table[5];
-			//printl("size:%d,num:%d\n",iin->i_size,iin->i_num);
 			//__asm__ __volatile__("hlt");
 			panic("filp[] is full (PID:%d)", proc2pid(pcaller));
 		}
