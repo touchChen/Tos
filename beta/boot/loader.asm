@@ -262,7 +262,7 @@ ReadSector:
 	push	ax				; ┓
 	push	bx				; ┃
 	mov		ah, 0Eh			; ┃
-	mov		al, '#'			; ┃
+	mov		al, '#'			; ┃    两次，一次内容，一次是fat表
 	mov		bl, 0Fh			; ┃
 	int		10h			    ; ┃
 	pop		bx			    ; ┃

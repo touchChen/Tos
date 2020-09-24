@@ -34,6 +34,8 @@ PUBLIC int do_fork()
 		return -1;
 	assert(i < NR_TASKS + NR_PROCS);
 
+	//printl("MM#child_pid=%d\n",child_pid);
+
 
 	/******** 进程表 ************/
 	/* duplicate the process table */
@@ -66,6 +68,8 @@ PUBLIC int do_fork()
 			      ((ppd->limit_high_attr2 & (DA_LIMIT_4K >> 8)) ?
 			       4096 : 1));
 
+	printl("MM#caller_T_base=0x%x, limit=0x%x, size=0x%x\n",caller_T_base,caller_T_limit,caller_T_size);
+
 	/* Data & Stack segments */
 	ppd = &proc_table[pid].ldts[INDEX_LDT_RW];
 	/* base of D&S-seg, in bytes */
@@ -93,11 +97,12 @@ PUBLIC int do_fork()
 	   so we allocate memory just once */
 	int child_base = alloc_mem(child_pid, caller_T_size);
 	/* int child_limit = caller_T_limit; */
-	printl("{MM} 0x%x <- 0x%x (0x%x bytes)\n",
+	printl("MM# 0x%x <- 0x%x (0x%x bytes)\n",
 	       child_base, caller_T_base, caller_T_size);
 	/* child is a copy of the parent */
-	phys_copy((void*)child_base, (void*)caller_T_base, caller_T_size);
-
+	printl("MM# before copy mem \n");
+	phys_copy((void*)child_base, (void*)caller_T_base, caller_T_size/1);
+	printl("MM# after copy mem \n");
 	/**************** 进程描述符 *********************/
 	/* child's LDT */
 	init_descriptor(&p->ldts[INDEX_LDT_C],
@@ -109,6 +114,7 @@ PUBLIC int do_fork()
 		  (PROC_IMAGE_SIZE_DEFAULT - 1) >> LIMIT_4K_SHIFT,
 		  DA_LIMIT_4K | DA_32 | DA_DRW | PRIVILEGE_USER << 5);
 
+	printl("MM# after mem set\n");
 	/* tell FS, see fs_fork() */
 	MESSAGE msg2fs;
 	msg2fs.type = FORK;

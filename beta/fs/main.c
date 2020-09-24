@@ -960,7 +960,7 @@ PRIVATE void read_super_block(int dev)
 			break;
 	if (i == NR_SUPER_BLOCK)
 		panic("super_block slots used up");
-
+	
 	assert(i == 0); /* currently we use only the 1st slot */
 
 	struct super_block * psb = (struct super_block *)fsbuf;
