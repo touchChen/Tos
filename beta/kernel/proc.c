@@ -131,12 +131,27 @@ PUBLIC int send_recv(int function, int src_dest, MESSAGE* msg)
 			break;
 		case SEND:
 		case RECEIVE:
+			if(src_dest == 10)
+			{
+				printl("before sendrec\n");
+				while(1){}
+			}
 			ret = sendrec(function, src_dest, msg);
+			if(src_dest == 10)
+			{
+				printl("after sendrec\n");
+				while(1){}
+			}
 			break;
 		default:
 			assert((function == BOTH) ||
 			       (function == SEND) || (function == RECEIVE));
 			break;
+	}
+
+	if(src_dest==10)
+	{
+		while(1){}
 	}
 
 	return ret;
@@ -178,19 +193,7 @@ PUBLIC void* va2la(int pid, void* va)
 	u32 la = seg_base + (u32)va;
 
 	if (pid < NR_TASKS + NR_PROCS) {
-		/*
-		printl("pid=%d\n",pid);
-		printl("la=0x%x,va=0x%x\n",la,(u32)va);
-		if(la != (u32)va)
-		{
-			printl("eeeee\n");
-			__asm__ __volatile__("hlt");
-		}else{
-
-		}*/
-
-		assert(la == (u32)va);  // 虚拟地址等于线性地址
-
+		//assert(la == (u32)va);  // 虚拟地址等于线性地址
 	}
 
 	return (void*)la;
@@ -315,6 +318,7 @@ PRIVATE int msg_send(PROCESS* current, int dest, MESSAGE* m)
 		assert(p_dest->p_msg);  // 消息体不为空 ？
 		assert(m);
 
+
 		phys_copy(va2la(dest, p_dest->p_msg),
 			  va2la(proc2pid(sender), m),
 			  sizeof(MESSAGE));
@@ -322,6 +326,7 @@ PRIVATE int msg_send(PROCESS* current, int dest, MESSAGE* m)
 		p_dest->p_msg = 0;  // 消息体设置为空 ？那么接收体怎么获取 ？
 		p_dest->p_flags &= ~RECEIVING; /* dest has received the msg */
 		p_dest->p_recvfrom = NO_TASK;
+	
 		unblock(p_dest);
 
 		assert(p_dest->p_flags == 0);
@@ -358,7 +363,7 @@ PRIVATE int msg_send(PROCESS* current, int dest, MESSAGE* m)
 		assert(sender->p_msg != 0);
 		assert(sender->p_recvfrom == NO_TASK);
 		assert(sender->p_sendto == dest);
-	}
+	} 
 
 	return 0;
 }

@@ -123,19 +123,17 @@ PUBLIC int do_fork()
 	msg2fs.PID = child_pid;
 	send_recv(BOTH, TASK_FS, &msg2fs);
 
-	//while(1){}
-
-
 	/* child PID will be returned to the parent proc */
 	mm_msg.PID = child_pid;
 
 	/* birth of the child */
+	
 	MESSAGE m;
 	m.type = SYSCALL_RET;
 	m.RETVAL = 0;
 	m.PID = 0;
 	send_recv(SEND, child_pid, &m);  // 子进程返回
-	while(1){}
+	
 	return 0;   /* 父进程 返回 */
 }
 
