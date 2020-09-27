@@ -42,6 +42,21 @@ PUBLIC void spin(char *func_name);
 PUBLIC void assertion_failure(char *exp, char *file, char *base_file, int line);
 
 
+/****** syscall.asm ******/  //系统中断
+PUBLIC void printx(char* s);
+PUBLIC int sendrec(int function, int src_dest, MESSAGE* msg);
+PUBLIC int get_ticks();
+//PUBLIC void write(char* buf, int len);
+
+
+/****** printf.c ******/
+PUBLIC int printf(const char *fmt, ...);
+#define	printl	printf
+PUBLIC int sprintf(char *buf, const char *fmt, ...);
+PUBLIC int vsprintf(char *buf, const char *fmt, va_list args);
+PUBLIC void panic(const char *fmt, ...);
+
+
 /****** fslib.c ******/
 PUBLIC int open(const char *pathname, int flags);
 PUBLIC int close(int fd);
@@ -107,13 +122,6 @@ PUBLIC int kernel_main();  //内核主程序
 PUBLIC void Init();
 
 
-/****** syscall.asm ******/  //系统中断
-PUBLIC void printx(char* s);
-PUBLIC int sendrec(int function, int src_dest, MESSAGE* msg);
-PUBLIC int get_ticks();
-//PUBLIC void write(char* buf, int len);
-
-
 /****** proc.c ******/   //进程
 PUBLIC void schedule();
 PUBLIC int sys_sendrec(int function, int src_dest, MESSAGE* m, PROCESS* p);
@@ -156,14 +164,6 @@ PUBLIC int sys_printx(int _unused1, int _unused2, char* s, PROCESS* p_proc);
 
 /****** systask.c ******/
 PUBLIC void task_sys();
-
-
-/****** printf.c ******/
-PUBLIC int printf(const char *fmt, ...);
-#define	printl	printf
-PUBLIC int sprintf(char *buf, const char *fmt, ...);
-PUBLIC int vsprintf(char *buf, const char *fmt, va_list args);
-PUBLIC void panic(const char *fmt, ...);
 
 
 /****** hd.c ******/
