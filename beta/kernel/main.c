@@ -46,6 +46,13 @@ PRIVATE void init_process()
 	for(i=0;i<NR_TASKS + NR_PROCS;i++){
 		if (i >= NR_TASKS + NR_NATIVE_PROCS) {
 			p_proc->p_flags = FREE_SLOT;
+			p_proc->ldt_sel = selector_ldt;
+
+			if(i<NR_TASKS + NR_PROCS-1)
+			{
+				p_proc++;  
+				selector_ldt += 1 << 3;
+			}
 			continue;
 		}
 
@@ -158,13 +165,13 @@ PUBLIC void Init()
 
 	
 	int pid = fork();
-	if (pid != 0) { // parent process
-		printf("parent is running, child pid:%d\n", pid);
-		spin("parent");
-	}
-	else {	// child process
+	if (pid == 0) { // parent process
 		printf("child is running, pid:%d\n", getpid());
 		spin("child");
+	}
+	else {	// child process
+		printf("parent is running, child pid:%d\n", pid);
+		spin("parent");
 	}
 	
 

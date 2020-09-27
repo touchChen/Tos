@@ -56,10 +56,10 @@ typedef struct {
 ************** process 进程 ******************************
 *********************************************************/
 typedef struct s_stackframe {
-	u32	gs;		/* \                                    */
-	u32	fs;		/* |                                    */
-	u32	es;		/* |                                    */
-	u32	ds;		/* |                                    */
+	u32	gs;			/* \                                    */
+	u32	fs;			/* |                                    */
+	u32	es;			/* |                                    */
+	u32	ds;			/* |                                    */
 	u32	edi;		/* |                                    */
 	u32	esi;		/* | pushed by save()                   */
 	u32	ebp;		/* |                                    */
@@ -70,10 +70,10 @@ typedef struct s_stackframe {
 	u32	eax;		/* /                                    */
 	u32	retaddr;	/* return addr for kernel.asm::save()   */
 	u32	eip;		/* \                                    */
-	u32	cs;		/* |                                    */
+	u32	cs;			/* |                                    */
 	u32	eflags;		/* | pushed by CPU during interrupt     */
 	u32	esp;		/* |                                    */
-	u32	ss;		/* /                                    */
+	u32	ss;			/* /                                    */
 }STACK_FRAME;
 
 

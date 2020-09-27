@@ -34,7 +34,7 @@ PUBLIC int do_fork()
 		return -1;
 	assert(i < NR_TASKS + NR_PROCS);
 
-	//printl("MM#child_pid=%d\n",child_pid);
+	printl("MM#ldt_sel=0%d\n",p->ldt_sel);
 
 
 	/******** 进程表 ************/
@@ -114,8 +114,7 @@ PUBLIC int do_fork()
 		  child_base,
 		  (PROC_IMAGE_SIZE_DEFAULT - 1) >> LIMIT_4K_SHIFT,
 		  DA_LIMIT_4K | DA_32 | DA_DRW | PRIVILEGE_USER << 5);
-
-	printl("MM# after mem set\n");
+ 
 
 	/* tell FS, see fs_fork() */
 	MESSAGE msg2fs;
@@ -127,7 +126,6 @@ PUBLIC int do_fork()
 	mm_msg.PID = child_pid;
 
 	/* birth of the child */
-	
 	MESSAGE m;
 	m.type = SYSCALL_RET;
 	m.RETVAL = 0;

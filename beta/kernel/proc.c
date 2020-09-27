@@ -131,27 +131,12 @@ PUBLIC int send_recv(int function, int src_dest, MESSAGE* msg)
 			break;
 		case SEND:
 		case RECEIVE:
-			if(src_dest == 10)
-			{
-				printl("before sendrec\n");
-				while(1){}
-			}
 			ret = sendrec(function, src_dest, msg);
-			if(src_dest == 10)
-			{
-				printl("after sendrec\n");
-				while(1){}
-			}
 			break;
 		default:
 			assert((function == BOTH) ||
 			       (function == SEND) || (function == RECEIVE));
 			break;
-	}
-
-	if(src_dest==10)
-	{
-		while(1){}
 	}
 
 	return ret;

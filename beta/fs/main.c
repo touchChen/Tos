@@ -66,7 +66,6 @@ PUBLIC void task_fs()
 				break;
 			case FORK:
 				fs_msg.RETVAL = fs_fork();
-				printl("fs_fork\n");
 				break;
 			case EXIT:
 				fs_msg.RETVAL = fs_exit();
