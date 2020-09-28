@@ -145,7 +145,7 @@ typedef struct s_task {
 
 /* 时间片 */
 #define TIMESLICE_TASK	50
-#define TIMESLICE_USER_PROC	5
+#define TIMESLICE_USER_PROC	10
 
 /* Number of tasks */
 #define NR_TASKS	5

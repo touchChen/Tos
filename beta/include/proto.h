@@ -65,6 +65,8 @@ PUBLIC void clearlog();
 
 /****** mmlib.c ******/
 PUBLIC int fork();
+PUBLIC void exit(int status);
+PUBLIC int wait(int * status);
 
 
 

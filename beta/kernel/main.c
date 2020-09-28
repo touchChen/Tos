@@ -165,18 +165,21 @@ PUBLIC void Init()
 
 	
 	int pid = fork();
-	if (pid == 0) { // parent process
+	if (pid == 0) { // child process
 		printf("child is running, pid:%d\n", getpid());
-		spin("child");
+
+		exit(99);
 	}
-	else {	// child process
+	else {	// parent process
 		printf("parent is running, child pid:%d\n", pid);
-		spin("parent");
+
+		int s;
+		int child = wait(&s);
+		printf("parent process::child (%d) exited with status: %d.\n", child, s);
 	}
 	
 
     
-
 	spin("Init...");
 }
 

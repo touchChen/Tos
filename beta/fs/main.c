@@ -1239,9 +1239,6 @@ PRIVATE int fs_fork()
 
 
 /*****************************************************************************
- *                                fs_exit
- *****************************************************************************/
-/**
  * Perform the aspects of exit() that relate to files.
  *
  * @return Zero if success.
@@ -1257,6 +1254,7 @@ PRIVATE int fs_exit()
 			/* release the file desc slot */
 			if (--p->filp[i]->fd_cnt == 0)
 				p->filp[i]->fd_inode = 0;
+
 			p->filp[i] = 0;
 		}
 	}

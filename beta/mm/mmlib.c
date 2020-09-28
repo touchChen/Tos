@@ -136,9 +136,6 @@ PUBLIC int do_fork()
 }
 
 /*****************************************************************************
- *                                do_exit
- *****************************************************************************/
-/**
  * Perform the exit() syscall.
  *
  * If proc A calls exit(), then MM will do the following in this routine:
@@ -176,7 +173,7 @@ PUBLIC int do_fork()
  *     - HANGING: everything except the proc_table entry has been cleaned up.
  *     - WAITING: a proc has at least one child, and it is waiting for the
  *                child(ren) to exit()
- *     - zombie: say P has a child A, A will become a zombie if
+ *     - zombie(僵尸): say P has a child A, A will become a zombie if
  *         - A exit(), and
  *         - P does not wait(), neither does it exit(). that is to say, P just
  *           keeps running without terminating itself or its child
@@ -215,27 +212,19 @@ PUBLIC void do_exit(int status)
 	p->exit_status = status;
 
 	if (proc_table[parent_pid].p_flags & WAITING) { /* parent is waiting */
-		printl("{MM} ((--do_exit():: %s (%d) is WAITING, %s (%d) will be cleaned up.--))\n",
+		printl("MM# do_exit():: %s (%d) is WAITING, %s (%d) will be cleaned up.\n",
 		       proc_table[parent_pid].p_name, parent_pid,
 		       p->p_name, pid);
-		/* dump_fd_graph("((--do_exit():: %s (%d) is WAITING, %s (%d) will be cleaned up.--))", */
-		/*        proc_table[parent_pid].name, parent_pid, */
-		/*        p->name, pid); */
-		/* assert(proc_table[parent_pid].p_flags & RECEIVING); */
-		printl("{MM} ((--do_exit():1: proc_table[parent_pid].p_flags: 0x%x--))\n",
+		printl("MM# do_exit():: proc_table[parent_pid].p_flags: 0x%x\n",
 		       proc_table[parent_pid].p_flags);
-		/* dump_fd_graph("((--do_exit():1: proc_table[parent_pid].p_flags: 0x%x--))", */
-		/*        proc_table[parent_pid].p_flags); */
+		
 		proc_table[parent_pid].p_flags &= ~WAITING;
-		cleanup(&proc_table[pid]);
+		cleanup(&proc_table[pid]);  // parent must wait...
 	}
-	else { /* parent is not waiting */
-		printl("{MM} ((--do_exit():: %s (%d) is not WAITING, %s (%d) will be HANGING--))\n",
+	else { /* parent is not waiting */  //没有清空进程表里的资源
+		printl("MM# do_exit():: %s (%d) is not WAITING, %s (%d) will be HANGING.\n",
 		       proc_table[parent_pid].p_name, parent_pid,
 		       p->p_name, pid);
-		/* dump_fd_graph("((--do_exit():: %s (%d) is not WAITING, %s (%d) will be HANGING--))", */
-		/*        proc_table[parent_pid].name, parent_pid, */
-		/*        p->name, pid); */
 		proc_table[pid].p_flags |= HANGING;
 	}
 
@@ -243,14 +232,7 @@ PUBLIC void do_exit(int status)
 	for (i = 0; i < NR_TASKS + NR_PROCS; i++) {
 		if (proc_table[i].p_parent == pid) { /* is a child */
 			proc_table[i].p_parent = INIT; /* FIXME: make sure INIT always waits */
-			printl("{MM} %s (%d) exit(), so %s (%d) is INIT's child now\n",
-			       p->p_name, pid, proc_table[i].p_name, i);
-			/* dump_fd_graph("%s (%d) exit(), so %s (%d) is INIT's child now", */
-			/*        p->name, pid, proc_table[i].name, i); */
-			printl("{MM} ((--do_exit():2: proc_table[INIT].p_flags: 0x%x--))\n",
-			       proc_table[INIT].p_flags);
-			/* dump_fd_graph("((--do_exit():2: proc_table[INIT].p_flags: 0x%x--))", */
-			/*        proc_table[INIT].p_flags); */
+			
 			if ((proc_table[INIT].p_flags & WAITING) &&
 			    (proc_table[i].p_flags & HANGING)) {
 				/* assert(proc_table[INIT].p_flags & RECEIVING); */
@@ -266,9 +248,6 @@ PUBLIC void do_exit(int status)
 }
 
 /*****************************************************************************
- *                                cleanup
- *****************************************************************************/
-/**
  * Do the last jobs to clean up a proc thoroughly:
  *     - Send proc's parent a message to unblock it, and
  *     - release proc's proc_table[] entry
@@ -285,8 +264,7 @@ PRIVATE void cleanup(PROCESS * proc)
 
 	proc->p_flags = FREE_SLOT;
 
-	printl("{MM} ((--cleanup():: %s (%d) has been cleaned up.--))\n", proc->p_name, proc2pid(proc));
-	/* dump_fd_graph("((--cleanup():: %s (%d) has been cleaned up.--))", proc->name, proc2pid(proc)); */
+	//printl("{MM} ((--cleanup():: %s (%d) has been cleaned up.--))\n", proc->p_name, proc2pid(proc));
 }
 
 /*****************************************************************************
@@ -311,8 +289,6 @@ PRIVATE void cleanup(PROCESS * proc)
  *****************************************************************************/
 PUBLIC void do_wait()
 {
-	printl("{MM} ((--do_wait()--))");
-	/* dump_fd_graph("((--do_wait()--))"); */
 	int pid = mm_msg.source;
 
 	int i;
@@ -322,12 +298,6 @@ PUBLIC void do_wait()
 		if (p_proc->p_parent == pid) {
 			children++;
 			if (p_proc->p_flags & HANGING) {
-				printl("{MM} ((--do_wait():: %s (%d) is HANGING, "
-				       "so let's clean it up.--))",
-				       p_proc->p_name, i);
-				/* dump_fd_graph("((--do_wait():: %s (%d) is HANGING, " */
-				/*        "so let's clean it up.--))", */
-				/*        p_proc->name, i); */
 				cleanup(p_proc);
 				return;
 			}
@@ -337,20 +307,12 @@ PUBLIC void do_wait()
 	if (children) {
 		/* has children, but no child is HANGING */
 		proc_table[pid].p_flags |= WAITING;
-		printl("{MM} ((--do_wait():: %s (%d) is WAITING for child "
-		       "to exit().--))\n", proc_table[pid].p_name, pid);
-		/* dump_fd_graph("((--do_wait():: %s (%d) is WAITING for child " */
-		/*        "to exit().--))", proc_table[pid].name, pid); */
 	}
 	else {
-		/* no child at all */
-		printl("{MM} ((--do_wait():: %s (%d) has no child at all.--))\n",
-		       proc_table[pid].p_name, pid);
-		/* dump_fd_graph("((--do_wait():: %s (%d) is has no child at all.--))", */
-		/*        proc_table[pid].name, pid); */
 		MESSAGE msg;
 		msg.type = SYSCALL_RET;
 		msg.PID = NO_TASK;
 		send_recv(SEND, pid, &msg);
 	}
 }
+
