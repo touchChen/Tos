@@ -9,13 +9,13 @@ CC		= gcc
 LD		= ld
 ASMFLAGS	= -I ../include/ -f elf
 CFLAGS		= -I ../include/ -c -fno-builtin -m32  -Wall -fno-stack-protector
-LDFLAGS		= -Ttext 0x1000
+LDFLAGS		= -Ttext 0x1000 -m elf_i386
 DASMFLAGS	= -D
-LIB		= ../lib/orangescrt.a
+LIB		= ../lib/libh.a
 BIN		= echo pwd
 
 # All Phony Targets
-.PHONY : everything final clean realclean disasm all install
+.PHONY : everything final clean realclean disasm all install study
 
 # Default starting position
 everything : $(BIN)
@@ -40,14 +40,19 @@ kernel.bin :
 
 start.o : start.asm
 	$(ASM) $(ASMFLAGS) -o $@ $<
-
-echo.o: echo.c ../include/type.h ../include/stdio.h
+	
+study : echoo
+	
+echoo : echo.o $(LIB)
+	$(LD) $(LDFLAGS) -o $@ $?
+	
+echo.o: echo.c ../include/stdio.h
 	$(CC) $(CFLAGS) -o $@ $<
 
 echo : echo.o start.o $(LIB)
 	$(LD) $(LDFLAGS) -o $@ $?
 
-pwd.o: pwd.c ../include/type.h ../include/stdio.h
+pwd.o: pwd.c  ../include/stdio.h
 	$(CC) $(CFLAGS) -o $@ $<
 
 pwd : pwd.o start.o $(LIB)

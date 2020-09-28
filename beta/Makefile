@@ -45,7 +45,7 @@ FLOPPY		= /mnt/fd/
 UPTARGET	= tc@192.168.2.13:/home/tc/beta/
 
 # All Phony Targets
-.PHONY : everything final image clean realclean disasm all buildimg
+.PHONY : everything final image clean realclean disasm all buildimg arlib
 
 # Default starting position
 everything : $(BOOT) $(KERNEL)
@@ -60,7 +60,7 @@ clean :
 	rm -f $(OBJS) ${LIBOBJS}
 
 realclean :
-	rm -f $(OBJS) ${LIBOBJS} $(BOOT) $(KERNEL) $(DASMOUTPUT)
+	rm -f $(OBJS) ${LIBOBJS} ${LIB} $(BOOT) $(KERNEL) $(DASMOUTPUT)
 
 disasm :
 	$(DASM) $(DASMFLAGS) $(KERNEL) > $(DASMOUTPUT)
@@ -75,6 +75,8 @@ buildimg :
 
 up : ${IMG}
 	scp ${IMG} ${UPTARGET}
+
+arlib : $(LIB)
 
 $(LIB) : $(LIBOBJS)
 	$(AR) $(ARFLAGS) $@ $^

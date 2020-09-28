@@ -20,3 +20,8 @@ tags
 
 # bin file
 *.bin
+
+# libh.a
+beta/lib/libh.a
+*.a
+
