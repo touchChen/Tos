@@ -7,8 +7,8 @@ ENTRYOFFSET	= 0x400
 
 # Programs, flags, etc.
 ASM		= nasm
-#DASM		= ndisasm
-DASM		= objdump
+#DASM	= ndisasm
+DASM	= objdump
 CC		= gcc
 LD		= ld
 ASMBFLAGS	= -I boot/include/
@@ -27,12 +27,11 @@ DASMFLAGS	= -D
 BOOT		= boot/boot.bin boot/loader.bin
 KERNEL		= kernel.bin
 OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
-		  kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/syscall.o \
-		  kernel/proc.o kernel/tty.o kernel/console.o \
-		  kernel/systask.o kernel/printf.o kernel/hd.o kernel/global.o \
+		  kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/proc.o \
+		  kernel/tty.o kernel/console.o kernel/systask.o kernel/hd.o kernel/global.o \
 		  kernel/test.o \
-		  lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/fslib.o \
-		  lib/proclib.o lib/syslog.o lib/mmlib.o \
+		  lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/printf.o lib/syscall.o \
+		  lib/proclib.o lib/fslib.o lib/syslog.o lib/mmlib.o  \
 		  fs/fslib.o fs/main.o fs/disklog.o fs/graph.o \
 		  mm/main.o mm/mmlib.o \
 		  local/main.o # 注意连接的头
@@ -110,9 +109,6 @@ kernel/console.o : kernel/console.c
 kernel/main.o  : kernel/main.c 
 	$(CC) $(CFLAGS) -o $@ $<
 
-kernel/syscall.o : kernel/syscall.asm
-	$(ASM) $(ASMKFLAGS) -o $@ $<
-
 kernel/proc.o : kernel/proc.c
 	$(CC) $(CFLAGS) -o $@ $<
 
@@ -120,9 +116,6 @@ kernel/global.o : kernel/global.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 kernel/systask.o : kernel/systask.c
-	$(CC) $(CFLAGS) -o $@ $<
-
-kernel/printf.o : kernel/printf.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 kernel/hd.o : kernel/hd.c
@@ -164,6 +157,12 @@ lib/string.o : lib/string.asm
 lib/fslib.o : lib/fslib.c
 	$(CC) $(CFLAGS) -o $@ $<
 
+lib/syscall.o : lib/syscall.asm
+	$(ASM) $(ASMKFLAGS) -o $@ $<
+	
+lib/printf.o : lib/printf.c
+	$(CC) $(CFLAGS) -o $@ $<
+	
 lib/proclib.o : lib/proclib.c
 	$(CC) $(CFLAGS) -o $@ $<
 
