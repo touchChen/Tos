@@ -259,14 +259,14 @@ ReadSector:
 	mov		dl, [BS_DrvNum]		; 驱动器号 (0 表示 A 盘)
 .GoOnReading:
 
-	push	ax				; ┓
-	push	bx				; ┃
-	mov		ah, 0Eh			; ┃
-	mov		al, '#'			; ┃    两次，一次内容，一次是fat表
-	mov		bl, 0Fh			; ┃
-	int		10h			    ; ┃
-	pop		bx			    ; ┃
-	pop		ax			    ; ┛
+	;push		ax				; ┓
+	;push		bx				; ┃
+	;mov		ah, 0Eh			; ┃    调试
+	;mov		al, '#'			; ┃    两次，一次内容，一次是fat表
+	;mov		bl, 0Fh			; ┃
+	;int		10h			    ; ┃
+	;pop		bx			    ; ┃
+	;pop		ax			    ; ┛
 
 	mov		ah, 2				; 读
 	mov		al, byte [bp-2]		; 读 al 个扇区
@@ -487,7 +487,7 @@ LABEL_PM_START:
 	;       A0000h ┃□□□Display adapter reserved□□□┃
 	;              ┣━━━━━━━━━━━━━━━━━━┫
 	;              ┃□□□□□□□□□□□□□□□□□□┃
-	;       9FC00h ┃□□extended BIOS data area (EBDA)□┃
+	;       9F000h ┃□□extended BIOS data area (EBDA)□┃
 	;              ┣━━━━━━━━━━━━━━━━━━┫
 	;              ┃■■■■■■■■■■■■■■■■■■┃
 	;       90000h ┃■■■■■■■LOADER.BIN■■■■■■┃ somewhere in LOADER ← esp

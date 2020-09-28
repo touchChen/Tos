@@ -11,17 +11,19 @@ ASM		= nasm
 DASM	= objdump
 CC		= gcc
 LD		= ld
+AR		= ar
 ASMBFLAGS	= -I boot/include/
 ASMKFLAGS	= -I include/ -f elf
 CFLAGS		= -I include/ -c -fno-builtin -m32  -Wall -fno-stack-protector
 LDFLAGS		= -s -Ttext $(ENTRYPOINT) -m elf_i386  -Map ./debug/krnl.map
 #DASMFLAGS	= -u -o $(ENTRYPOINT) -e $(ENTRYOFFSET)
 DASMFLAGS	= -D
+ARFLAGS		= rcs
 
 
 #CFLAGS		= -I include/ -c -fno-builtin -Wall 
 #LDFLAGS	= -Ttext $(ENTRYPOINT) -Map krnl.map  
-
+LIB			= lib/libh.a
 
 # This Program
 BOOT		= boot/boot.bin boot/loader.bin
@@ -30,11 +32,12 @@ OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
 		  kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/proc.o \
 		  kernel/tty.o kernel/console.o kernel/systask.o kernel/hd.o kernel/global.o \
 		  kernel/test.o \
-		  lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/printf.o lib/syscall.o \
-		  lib/proclib.o lib/fslib.o lib/syslog.o lib/mmlib.o  \
 		  fs/fslib.o fs/main.o fs/disklog.o fs/graph.o \
 		  mm/main.o mm/mmlib.o \
 		  local/main.o # 注意连接的头
+LIBOBJS		= lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/printf.o lib/syscall.o \
+		  lib/proclib.o lib/fslib.o lib/syslog.o lib/mmlib.o  \
+		  
 DASMOUTPUT	= kernel.bin.asm
 
 IMG			= x.img
@@ -54,10 +57,10 @@ final : all clean
 image : final buildimg
 
 clean :
-	rm -f $(OBJS)
+	rm -f $(OBJS) ${LIBOBJS}
 
 realclean :
-	rm -f $(OBJS) $(BOOT) $(KERNEL) $(DASMOUTPUT)
+	rm -f $(OBJS) ${LIBOBJS} $(BOOT) $(KERNEL) $(DASMOUTPUT)
 
 disasm :
 	$(DASM) $(DASMFLAGS) $(KERNEL) > $(DASMOUTPUT)
@@ -73,14 +76,17 @@ buildimg :
 up : ${IMG}
 	scp ${IMG} ${UPTARGET}
 
+$(LIB) : $(LIBOBJS)
+	$(AR) $(ARFLAGS) $@ $^
+
 boot/boot.bin : boot/boot.asm 
 	$(ASM) $(ASMBFLAGS) -o $@ $<
 
 boot/loader.bin : boot/loader.asm
 	$(ASM) $(ASMBFLAGS) -o $@ $<
 
-$(KERNEL) : $(OBJS)
-	$(LD) $(LDFLAGS) -o $(KERNEL) $(OBJS)
+$(KERNEL) : $(OBJS) $(LIB)
+	$(LD) $(LDFLAGS) -o $(KERNEL) $^
 
 kernel/kernel.o : kernel/kernel.asm
 	$(ASM) $(ASMKFLAGS) -o $@ $<
