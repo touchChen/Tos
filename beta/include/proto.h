@@ -66,6 +66,7 @@ PUBLIC int unlink(const char * pathname);
 
 
 /****** proclib.c ******/
+PUBLIC int send_recv(int function, int src_dest, MESSAGE* msg);
 PUBLIC int getpid();
 PUBLIC int get_u_ticks();
 
@@ -129,7 +130,7 @@ PUBLIC void schedule();
 PUBLIC int sys_sendrec(int function, int src_dest, MESSAGE* m, PROCESS* p);
 PUBLIC int sys_get_ticks();
 
-PUBLIC int send_recv(int function, int src_dest, MESSAGE* msg); // 系统调用sendrec的替代
+//PUBLIC int send_recv(int function, int src_dest, MESSAGE* msg); // 系统调用sendrec的替代
 
 PUBLIC int ldt_seg_linear(PROCESS* p, int idx); // ldt段的段基址
 PUBLIC void* va2la(int pid, void* va); // 虚拟地址转线性地址

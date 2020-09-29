@@ -127,7 +127,7 @@ PRIVATE void tty_dev_write(TTY* tty)
 			tty->ibuf_tail = tty->ibuf;
 		tty->ibuf_cnt--;
 
-		if (tty->tty_left_cnt) {
+		if (tty->tty_left_cnt) {  // 在tty中输出，必须走 文件系统
 			if (ch >= ' ' && ch <= '~') { /* printable */
 				out_char(tty->console, ch);
 				void * p = tty->tty_req_buf + tty->tty_trans_cnt;
@@ -240,9 +240,8 @@ PUBLIC void in_process(TTY* p_tty, u32 key)
 {
 	if (!(key & FLAG_EXT)) {
 		/*
-		 output[0] = key & 0xFF;
-		 disp_str(output);
-		 set_disp_pos_cursor();
+		char ch = key & 0xFF;
+		out_char(p_tty->console, ch);
 		*/
 		put_key(p_tty, key);  // ptty 缓存数据栈
 	}else 

@@ -116,6 +116,7 @@ PUBLIC int sys_sendrec(int function, int src_dest, MESSAGE* m, PROCESS* p)
  * 
  * @return always 0.
  *****************************************************************************/
+/*
 PUBLIC int send_recv(int function, int src_dest, MESSAGE* msg)
 {
 	int ret = 0;
@@ -141,6 +142,7 @@ PUBLIC int send_recv(int function, int src_dest, MESSAGE* msg)
 
 	return ret;
 }
+*/
 
 
 /**
