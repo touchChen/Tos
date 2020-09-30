@@ -34,7 +34,7 @@ OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
 		  kernel/test.o \
 		  fs/fslib.o fs/main.o fs/disklog.o fs/graph.o \
 		  mm/main.o mm/mmlib.o \
-		  local/main.o # 注意连接的头
+		  local/main.o local/init.o # 注意连接的头
 LIBOBJS		= lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/printf.o lib/syscall.o \
 		  lib/proclib.o lib/fslib.o lib/syslog.o lib/mmlib.o  \
 		  
@@ -182,3 +182,7 @@ lib/mmlib.o : lib/mmlib.c
 
 local/main.o : local/main.c
 	$(CC) $(CFLAGS) -o $@ $<
+
+local/init.o : local/init.c
+	$(CC) $(CFLAGS) -o $@ $<
+

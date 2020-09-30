@@ -215,7 +215,7 @@ PUBLIC void do_exit(int status)
 		printl("MM# do_exit():: %s (%d) is WAITING, %s (%d) will be cleaned up.\n",
 		       proc_table[parent_pid].p_name, parent_pid,
 		       p->p_name, pid);
-		printl("MM# do_exit():: proc_table[parent_pid].p_flags: 0x%x\n",
+		printl("MM# do_exit():: proc_table[%d].p_flags: 0x%x\n", parent_pid,
 		       proc_table[parent_pid].p_flags);
 		
 		proc_table[parent_pid].p_flags &= ~WAITING;

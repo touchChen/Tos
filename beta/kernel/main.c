@@ -151,37 +151,6 @@ PRIVATE void init_process()
         
 }
 
-/*****************************************************************************
- *                                Init
- *****************************************************************************/
-
-PUBLIC void Init()
-{
-	int fd_stdin  = open("/dev_tty0", O_RDWR);
-	assert(fd_stdin  == 0);
-	int fd_stdout = open("/dev_tty0", O_RDWR);
-	assert(fd_stdout == 1);
-
-
-	
-	int pid = fork();
-	if (pid == 0) { // child process
-		printf("child is running, pid:%d\n", getpid());
-
-		exit(99);
-	}
-	else {	// parent process
-		printf("parent is running, child pid:%d\n", pid);
-
-		int s;
-		int child = wait(&s);
-		printf("parent process::child (%d) exited with status: %d.\n", child, s);
-	}
-	
-
-    
-	spin("Init...");
-}
 
 
 

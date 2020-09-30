@@ -153,7 +153,7 @@ typedef struct s_task {
 /* Number of user proc */
 #define NR_PROCS	32
 
-#define NR_NATIVE_PROCS		4
+#define NR_NATIVE_PROCS		5
 
 #define FIRST_PROC		proc_table[0]
 #define LAST_PROC		proc_table[NR_TASKS + NR_PROCS - 1]

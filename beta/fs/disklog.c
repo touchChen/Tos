@@ -103,6 +103,8 @@ PUBLIC void do_clearlog()
 	int nr_log_blk0_nr = sb->nr_sects - NR_SECTS_FOR_LOG;  // 除去 log 
 	int bits_per_sect = SECTOR_SIZE * 8; 
 
+	//printl("FS## nr_log_blk0_nr: %x\n", nr_log_blk0_nr);
+
 	int smap_blk0_nr = 1 + 1 + sb->nr_imap_sects; 
 	int sect_nr  = smap_blk0_nr + nr_log_blk0_nr / bits_per_sect; 
 	int byte_off = (nr_log_blk0_nr % bits_per_sect) / 8; 

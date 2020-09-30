@@ -122,7 +122,6 @@ PUBLIC void milli_delay(int milli_sec);
 
 /****** main.c ******/
 PUBLIC int kernel_main();  //内核主程序
-PUBLIC void Init();
 
 
 /****** proc.c ******/   //进程
@@ -230,6 +229,9 @@ PUBLIC void TestB();
 PUBLIC void TestC();
 PUBLIC void test_fs();
 
+
+/****** init.c ******/
+PUBLIC void Init();
 
 
 
