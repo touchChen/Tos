@@ -96,7 +96,7 @@ _start:
 	;              ┃■■■■Page Directory Table■■■■┃ PageDirBase = 1M
 	;    00100000h ┣━━━━━━━━━━━━━━━━━━┫
 	;              ┃□□□□ Hardware  Reserved □□□□┃ B8000h ← gs
-	;       9FC00h ┣━━━━━━━━━━━━━━━━━━┫
+	;       9F000h ┣━━━━━━━━━━━━━━━━━━┫
 	;              ┃■■■■■■■LOADER.BIN■■■■■■┃ somewhere in LOADER ← esp
 	;       90000h ┣━━━━━━━━━━━━━━━━━━┫
 	;              ┃■■■■■■■KERNEL.BIN■■■■■■┃
@@ -372,9 +372,9 @@ sys_call:                             ; 没有往堆栈里读取数据
         push	ecx
 		push	ebx
 
-        call    [sys_call_table + eax * 4]   ; system_call的指针类型为：void*, 函数指针
-                                             ; 地址增量 eax*4
-        add		esp, 4 * 4          ; 系统调用 4 个参数
+        call    [sys_call_table + eax * 4]	; system_call的指针类型为：void*, 函数指针
+											; 地址增量 eax*4
+        add		esp, 4 * 4					; 系统调用 4 个参数
 
         mov     [esi + EAXREG - P_STACKBASE], eax  ; 返回值
 

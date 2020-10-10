@@ -34,6 +34,7 @@ struct mess3 {
 	int	m3i3;
 	int	m3i4;
 	int m3i5;
+	int m3i6;
 	u64	m3l1;
 	u64	m3l2;
 	void*	m3p1;
@@ -55,10 +56,10 @@ typedef struct {
 ************** process 进程 ******************************
 *********************************************************/
 typedef struct s_stackframe {
-	u32	gs;		/* \                                    */
-	u32	fs;		/* |                                    */
-	u32	es;		/* |                                    */
-	u32	ds;		/* |                                    */
+	u32	gs;			/* \                                    */
+	u32	fs;			/* |                                    */
+	u32	es;			/* |                                    */
+	u32	ds;			/* |                                    */
 	u32	edi;		/* |                                    */
 	u32	esi;		/* | pushed by save()                   */
 	u32	ebp;		/* |                                    */
@@ -69,10 +70,10 @@ typedef struct s_stackframe {
 	u32	eax;		/* /                                    */
 	u32	retaddr;	/* return addr for kernel.asm::save()   */
 	u32	eip;		/* \                                    */
-	u32	cs;		/* |                                    */
+	u32	cs;			/* |                                    */
 	u32	eflags;		/* | pushed by CPU during interrupt     */
 	u32	esp;		/* |                                    */
-	u32	ss;		/* /                                    */
+	u32	ss;			/* /                                    */
 }STACK_FRAME;
 
 
@@ -109,6 +110,11 @@ typedef struct s_proc {
 								   * next proc in the sending queue (q_sending)
 								   */
 
+	int p_parent; 					/**< pid of parent process */
+
+	int exit_status; 				/**< for parent */
+
+
     int nr_tty;
 
     struct file_desc * filp[NR_FILES];
@@ -130,24 +136,73 @@ typedef struct s_task {
 /* Process */
 #define SENDING   0x02	/* set when proc trying to send */
 #define RECEIVING 0x04	/* set when proc trying to recv */
+#define WAITING   0x08	/* set when proc waiting for the child to terminate */
+#define HANGING   0x10	/* set when proc exits without being waited by parent */
+#define FREE_SLOT 0x20	/* set when proc table entry is not used
+ 	 	 	 	 	 	 * (ok to allocated to a new process)
+ 	 	 	 	 	 	 */
 
+
+/* 时间片 */
+#define TIMESLICE_TASK	50
+#define TIMESLICE_USER_PROC	10
 
 /* Number of tasks */
-#define NR_TASKS	4
+#define NR_TASKS	5
 
 /* Number of user proc */
-#define NR_PROCS	4
+#define NR_PROCS	32
+
+#define NR_NATIVE_PROCS		5
+
+#define FIRST_PROC		proc_table[0]
+#define LAST_PROC		proc_table[NR_TASKS + NR_PROCS - 1]
+
 
 #define NR_TASKS_AND_PROCS    (NR_TASKS + NR_PROCS)
 
 /* system call */
-#define NR_SYS_CALL     3
+#define NR_SYS_CALL     4
 
 /* TTY */
 #define NR_CONSOLES	3	
 
+
+/**
+ * All forked proc will use memory above PROCS_BASE.
+ *
+ * @attention make sure PROCS_BASE is higher than any buffers, such as
+ *            fsbuf, mmbuf, etc
+ * @see global.c
+ * @see global.h
+ */
+#define	PROCS_BASE				0xA00000 /* 10 MB */
+#define	PROC_IMAGE_SIZE_DEFAULT	0x100000 /*  1 MB */
+#define	PROC_ORIGIN_STACK		0x400    /*  1 KB */
+
+/**
+ * boot parameters are stored by the loader, they should be
+ * there when kernel is running and should not be overwritten
+ * since kernel might use them at any time.
+ */
+#define	BOOT_PARAM_ADDR			0x900  /* physical address */
+#define	BOOT_PARAM_MAGIC		0xB007 /* magic number */
+#define	BI_MAG					0
+#define	BI_MEM_SIZE				1
+#define	BI_KERNEL_FILE			2
+
+struct boot_params {
+	int				mem_size;		/* memory size */
+	unsigned char *	kernel_file;	/* addr of kernel file */
+};
+
+
+
 /* stacks of tasks */
-#define	STACK_SIZE_DEFAULT	0x2000 /* 16 KB */
+#define	STACK_SIZE_DEFAULT	0x2000 /* 8 KB */
+
+#define STACK_SIZE_INIT		STACK_SIZE_DEFAULT
+#define STACK_SIZE_TESTA	STACK_SIZE_DEFAULT
 #define STACK_SIZE_TESTA	STACK_SIZE_DEFAULT
 #define STACK_SIZE_TESTB	STACK_SIZE_DEFAULT
 #define STACK_SIZE_TESTC	STACK_SIZE_DEFAULT
@@ -156,15 +211,18 @@ typedef struct s_task {
 #define STACK_SIZE_SYS		STACK_SIZE_DEFAULT
 #define STACK_SIZE_HD		STACK_SIZE_DEFAULT
 #define STACK_SIZE_FS		STACK_SIZE_DEFAULT
+#define STACK_SIZE_MM		STACK_SIZE_DEFAULT
 
-#define STACK_SIZE_TOTAL	(STACK_SIZE_TESTA + \
+#define STACK_SIZE_TOTAL	(STACK_SIZE_INIT + \
+							STACK_SIZE_TESTA + \
                             STACK_SIZE_TESTC + \
 				 			STACK_SIZE_TESTB + \
                             STACK_SIZE_TESTFS + \
                             STACK_SIZE_TTY + \
                             STACK_SIZE_SYS + \
                             STACK_SIZE_HD + \
-                            STACK_SIZE_FS)
+                            STACK_SIZE_FS + \
+							STACK_SIZE_MM)
 
 #define ANY		(NR_TASKS + NR_PROCS + 10)
 #define NO_TASK		(NR_TASKS + NR_PROCS + 20)
@@ -184,6 +242,8 @@ typedef struct s_task {
 #define TASK_SYS	1
 #define TASK_HD		2
 #define TASK_FS		3
+#define TASK_MM		4
+#define INIT		5
 
 
 
@@ -206,6 +266,12 @@ enum msgtype {
 
 	/* FS & TTY */
 	SUSPEND_PROC, RESUME_PROC,
+
+	/* MM */
+	EXEC, WAIT,
+
+	/* FS & MM */
+	FORK, EXIT,
 
 	/* TTY, SYS, FS, MM, etc */
 	SYSCALL_RET,
@@ -239,6 +305,8 @@ enum msgtype {
 
 #define	PID			u.m3.m3i2
 #define POS         u.m3.m3i5
+
+#define STATUS      u.m3.m3i6
 
 
 #define	STR_DEFAULT_LEN	1024

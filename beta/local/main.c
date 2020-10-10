@@ -120,7 +120,7 @@ void test_fs()
 	printf("log pos: %d, log len %d\nlog:", log_pos, strlen(buf));
 */
     
-	graphlog();
+	//graphlog();
 
     spin("Test FS...");
 }

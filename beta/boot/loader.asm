@@ -44,8 +44,8 @@ LABEL_START:			; <--- 从这里开始 *************
 	mov		ebx, 0				; ebx = 后续值, 开始时需为 0
 	mov		di, _MemChkBuf		; es:di 指向一个地址范围描述符结构（Address Range Descriptor Structure）
 .MemChkLoop:
-	mov		eax, 0E820h		; eax = 0000E820h
-	mov		ecx, 20			; ecx = 地址范围描述符结构的大小
+	mov		eax, 0E820h			; eax = 0000E820h
+	mov		ecx, 20				; ecx = 地址范围描述符结构的大小
 	mov		edx, 0534D4150h		; edx = 'SMAP'
 	int		15h			; int 15h
 	jc		.MemChkFail
@@ -150,6 +150,8 @@ LABEL_GOON_LOADING_FILE:
 	jc		.1				; 如果 bx 溢出了，即 bx = 0 ，说明内核大于 64KB
 	jmp		.2
 .1:
+	;hlt
+
 	push	ax				; es += 0x1000  ← es 指向下一个段
 	mov		ax, es
 	add		ax, 1000h
@@ -256,6 +258,16 @@ ReadSector:
 	; 至此, "柱面号, 起始扇区, 磁头号" 全部得到 ^^^^^^^^^^^^^^^^^^^^^^^^
 	mov		dl, [BS_DrvNum]		; 驱动器号 (0 表示 A 盘)
 .GoOnReading:
+
+	;push		ax				; ┓
+	;push		bx				; ┃
+	;mov		ah, 0Eh			; ┃    调试
+	;mov		al, '#'			; ┃    两次，一次内容，一次是fat表
+	;mov		bl, 0Fh			; ┃
+	;int		10h			    ; ┃
+	;pop		bx			    ; ┃
+	;pop		ax			    ; ┛
+
 	mov		ah, 2				; 读
 	mov		al, byte [bp-2]		; 读 al 个扇区
 	int		13h
@@ -288,7 +300,7 @@ GetFATEntry:
 	cmp		dx, 0
 	jz		LABEL_EVEN
 	mov		byte [bOdd], 1
-LABEL_EVEN:;偶数 
+LABEL_EVEN:					;偶数
 	xor		dx, dx			; 现在 ax 中是 FATEntry 在 FAT 中的偏移量. 下面来计算 FATEntry 在哪个扇区中(FAT占用不止一个扇区)
 	mov		bx, [BPB_BytsPerSec]
 	div		bx				; dx:ax / BPB_BytsPerSec  ==>	ax <- 商   (FATEntry 所在的扇区相对于 FAT 来说的扇区号)
@@ -361,11 +373,21 @@ LABEL_PM_START:
 	call	SetupPaging
 
     call	InitKernel
-	call	ClearMem
+	;call	ClearMem
 
 	mov		ah, 	0Fh				; 0000: 黑底    1111: 白字
 	mov		al, 	'P'
 	mov		[gs:((80 * 0 + 39) * 2)],	ax	; 屏幕第 0 行, 第 39 列。
+
+	;; fill in BootParam[]
+	mov		dword [BOOT_PARAM_ADDR], BOOT_PARAM_MAGIC ; Magic Number
+	mov		eax, [dwMemSize]
+	mov		[BOOT_PARAM_ADDR + 4], eax ; memory size
+	mov		eax, BaseOfKernelFile
+	shl		eax, 4
+	add		eax, OffsetOfKernelFile
+	mov		[BOOT_PARAM_ADDR + 8], eax ; phy-addr of kernel.bin
+
 
 	;***************************************************************
 	jmp		SelectorFlatC:KernelEntryPointPhyAddr	; 正式进入内核 *
@@ -465,7 +487,7 @@ LABEL_PM_START:
 	;       A0000h ┃□□□Display adapter reserved□□□┃
 	;              ┣━━━━━━━━━━━━━━━━━━┫
 	;              ┃□□□□□□□□□□□□□□□□□□┃
-	;       9FC00h ┃□□extended BIOS data area (EBDA)□┃
+	;       9F000h ┃□□extended BIOS data area (EBDA)□┃
 	;              ┣━━━━━━━━━━━━━━━━━━┫
 	;              ┃■■■■■■■■■■■■■■■■■■┃
 	;       90000h ┃■■■■■■■LOADER.BIN■■■■■■┃ somewhere in LOADER ← esp

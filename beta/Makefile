@@ -7,33 +7,37 @@ ENTRYOFFSET	= 0x400
 
 # Programs, flags, etc.
 ASM		= nasm
-#DASM		= ndisasm
-DASM		= objdump
+#DASM	= ndisasm
+DASM	= objdump
 CC		= gcc
 LD		= ld
+AR		= ar
 ASMBFLAGS	= -I boot/include/
 ASMKFLAGS	= -I include/ -f elf
 CFLAGS		= -I include/ -c -fno-builtin -m32  -Wall -fno-stack-protector
 LDFLAGS		= -s -Ttext $(ENTRYPOINT) -m elf_i386  -Map ./debug/krnl.map
 #DASMFLAGS	= -u -o $(ENTRYPOINT) -e $(ENTRYOFFSET)
 DASMFLAGS	= -D
+ARFLAGS		= rcs
 
 
 #CFLAGS		= -I include/ -c -fno-builtin -Wall 
 #LDFLAGS	= -Ttext $(ENTRYPOINT) -Map krnl.map  
-
+LIB			= lib/libh.a
 
 # This Program
 BOOT		= boot/boot.bin boot/loader.bin
 KERNEL		= kernel.bin
 OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
-		  kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/syscall.o \
-		  kernel/proc.o kernel/tty.o kernel/console.o \
-		  kernel/systask.o kernel/printf.o kernel/hd.o kernel/global.o \
-		  lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/fslib.o \
-		  lib/proclib.o lib/syslog.o \
+		  kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/proc.o \
+		  kernel/tty.o kernel/console.o kernel/systask.o kernel/hd.o kernel/global.o \
+		  kernel/test.o \
 		  fs/fslib.o fs/main.o fs/disklog.o fs/graph.o \
-		  local/main.o # 注意连接的头
+		  mm/main.o mm/mmlib.o \
+		  local/main.o local/init.o # 注意连接的头
+LIBOBJS		= lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/printf.o lib/syscall.o \
+		  lib/proclib.o lib/fslib.o lib/syslog.o lib/mmlib.o  \
+		  
 DASMOUTPUT	= kernel.bin.asm
 
 IMG			= x.img
@@ -41,7 +45,7 @@ FLOPPY		= /mnt/fd/
 UPTARGET	= tc@192.168.2.13:/home/tc/beta/
 
 # All Phony Targets
-.PHONY : everything final image clean realclean disasm all buildimg
+.PHONY : everything final image clean realclean disasm all buildimg arlib
 
 # Default starting position
 everything : $(BOOT) $(KERNEL)
@@ -53,10 +57,10 @@ final : all clean
 image : final buildimg
 
 clean :
-	rm -f $(OBJS)
+	rm -f $(OBJS) ${LIBOBJS}
 
 realclean :
-	rm -f $(OBJS) $(BOOT) $(KERNEL) $(DASMOUTPUT)
+	rm -f $(OBJS) ${LIBOBJS} ${LIB} $(BOOT) $(KERNEL) $(DASMOUTPUT)
 
 disasm :
 	$(DASM) $(DASMFLAGS) $(KERNEL) > $(DASMOUTPUT)
@@ -72,14 +76,19 @@ buildimg :
 up : ${IMG}
 	scp ${IMG} ${UPTARGET}
 
+arlib : $(LIB)
+
+$(LIB) : $(LIBOBJS)
+	$(AR) $(ARFLAGS) $@ $^
+
 boot/boot.bin : boot/boot.asm 
 	$(ASM) $(ASMBFLAGS) -o $@ $<
 
 boot/loader.bin : boot/loader.asm
 	$(ASM) $(ASMBFLAGS) -o $@ $<
 
-$(KERNEL) : $(OBJS)
-	$(LD) $(LDFLAGS) -o $(KERNEL) $(OBJS)
+$(KERNEL) : $(OBJS) $(LIB)
+	$(LD) $(LDFLAGS) -o $(KERNEL) $^
 
 kernel/kernel.o : kernel/kernel.asm
 	$(ASM) $(ASMKFLAGS) -o $@ $<
@@ -108,9 +117,6 @@ kernel/console.o : kernel/console.c
 kernel/main.o  : kernel/main.c 
 	$(CC) $(CFLAGS) -o $@ $<
 
-kernel/syscall.o : kernel/syscall.asm
-	$(ASM) $(ASMKFLAGS) -o $@ $<
-
 kernel/proc.o : kernel/proc.c
 	$(CC) $(CFLAGS) -o $@ $<
 
@@ -120,10 +126,10 @@ kernel/global.o : kernel/global.c
 kernel/systask.o : kernel/systask.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-kernel/printf.o : kernel/printf.c
-	$(CC) $(CFLAGS) -o $@ $<
-
 kernel/hd.o : kernel/hd.c
+	$(CC) $(CFLAGS) -o $@ $<
+	
+kernel/test.o : kernel/test.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 fs/fslib.o : fs/fslib.c
@@ -137,7 +143,12 @@ fs/disklog.o : fs/disklog.c
 
 fs/graph.o : fs/graph.c
 	$(CC) $(CFLAGS) -o $@ $<
+	
+mm/mmlib.o : mm/mmlib.c
+	$(CC) $(CFLAGS) -o $@ $<
 
+mm/main.o : mm/main.c
+	$(CC) $(CFLAGS) -o $@ $<
 
 lib/klib.o : lib/klib.asm
 	$(ASM) $(ASMKFLAGS) -o $@ $<
@@ -154,15 +165,24 @@ lib/string.o : lib/string.asm
 lib/fslib.o : lib/fslib.c
 	$(CC) $(CFLAGS) -o $@ $<
 
+lib/syscall.o : lib/syscall.asm
+	$(ASM) $(ASMKFLAGS) -o $@ $<
+	
+lib/printf.o : lib/printf.c
+	$(CC) $(CFLAGS) -o $@ $<
+	
 lib/proclib.o : lib/proclib.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 lib/syslog.o : lib/syslog.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-
+lib/mmlib.o : lib/mmlib.c
+	$(CC) $(CFLAGS) -o $@ $<
 
 local/main.o : local/main.c
 	$(CC) $(CFLAGS) -o $@ $<
 
+local/init.o : local/init.c
+	$(CC) $(CFLAGS) -o $@ $<
 

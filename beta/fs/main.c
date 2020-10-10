@@ -11,7 +11,6 @@
 #include "proto.h"
 
 
-
 PRIVATE void init_fs();
 PRIVATE void mkfs();
 PRIVATE int do_open();
@@ -29,6 +28,9 @@ PRIVATE int search_file(char * path);
 PRIVATE void sync_inode(struct inode * p);
 PRIVATE struct inode * new_inode(int dev, int inode_nr, int start_sect);
 PRIVATE void new_dir_entry(struct inode *dir_inode,int inode_nr,char *filename);
+
+PRIVATE int fs_fork();
+PRIVATE int fs_exit();
 
 /*****************************************************************************
  * task_fs
@@ -62,6 +64,12 @@ PUBLIC void task_fs()
 			case RESUME_PROC:
 				src = fs_msg.PROC_NR;
 				break;
+			case FORK:
+				fs_msg.RETVAL = fs_fork();
+				break;
+			case EXIT:
+				fs_msg.RETVAL = fs_exit();
+				break;
 			case CLEAR_LOG:	
 			case DISK_LOG:
 			case READ_LOG:
@@ -73,9 +81,7 @@ PUBLIC void task_fs()
 				assert(0);
 				break;
 		}
- 
 		
-
 #ifdef ENABLE_DISK_LOG
 		switch (msg_type) {
 			case OPEN:
@@ -84,6 +90,8 @@ PUBLIC void task_fs()
 			case WRITE:
 			case RESUME_PROC:
 			case SUSPEND_PROC:
+			case FORK:
+			case EXIT:
 				break;
 			case UNLINK:
 				break;
@@ -206,6 +214,9 @@ PRIVATE void mkfs()
 	/* write the super block */
 	WR_SECT(ROOT_DEV, 1);
 
+	//printl("FS## base:0x%x,log:0x%x00,nr_sects:0x%x\n",geo.base,  (geo.base + 0xF100)*2, sb.nr_sects);
+
+	
 	printl("indoes:%d, indoes_sects:%d, sects:%d, "
 	       "imap: %d, smap: %d, data_1st: %d\n\n",
 	       sb.nr_inodes,
@@ -218,11 +229,12 @@ PRIVATE void mkfs()
 	printl("devbase:0x%x00, sb:0x%x00, imap:0x%x00, smap:0x%x00\n"
 	       "        inodes:0x%x00, 1st_sector:0x%x00\n", 
 	       geo.base * 2,
-	       (geo.base + 1) * 2, /* 超级块 */
-	       (geo.base + 1 + 1) * 2, /* inode map */
-	       (geo.base + 1 + 1 + sb.nr_imap_sects) * 2, /* sect map */
-	       (geo.base + 1 + 1 + sb.nr_imap_sects + sb.nr_smap_sects) * 2, /* nodes */
+	       (geo.base + 1) * 2, // 超级块 
+	       (geo.base + 1 + 1) * 2, // inode map 
+	       (geo.base + 1 + 1 + sb.nr_imap_sects) * 2, // sect map 
+	       (geo.base + 1 + 1 + sb.nr_imap_sects + sb.nr_smap_sects) * 2, // nodes 
 	       (geo.base + sb.n_1st_sect) * 2);
+	
 	
 	
 
@@ -231,14 +243,15 @@ PRIVATE void mkfs()
 	for (i = 0; i < (NR_CONSOLES + 2); i++)
 		fsbuf[0] |= 1 << i;
 
-	assert(fsbuf[0] == 0x1F);/* 0001 1111 : 
-							  *    | ||||
-							  *    | |||`--- bit 0 : reserved   保留
-							  *    | ||`---- bit 1 : the first inode,
-							  *    | ||              which indicates `/'  根 node
-							  *    | |`----- bit 2 : /dev_tty0
-							  *    | `------ bit 3 : /dev_tty1
-							  *    `-------- bit 4 : /dev_tty2
+	assert(fsbuf[0] == 0x1F);/* 0011 1111 : 
+							  *   || ||||
+							  *   || |||`--- bit 0 : reserved   保留
+							  *   || ||`---- bit 1 : the first inode,
+							  *   || ||              which indicates `/'  根 node
+							  *   || |`----- bit 2 : /dev_tty0
+							  *   || `------ bit 3 : /dev_tty1
+							  *   | `--------bit 4 : /dev_tty2
+							  *	  `----------bit 5 : /cmd.tar
 							  */
 	WR_SECT(ROOT_DEV, 2);   // 默认一个扇区 × 8 个 inode
 
@@ -264,15 +277,42 @@ PRIVATE void mkfs()
 		WR_SECT(ROOT_DEV, 2 + sb.nr_imap_sects + i);
 
 
+	/* cmd.tar */
+	/* make sure it'll not be overwritten by the disk log */
+	assert(INSTALL_START_SECT + INSTALL_NR_SECTS < 
+	       sb.nr_sects - NR_SECTS_FOR_LOG);
+	int bit_offset = INSTALL_START_SECT -
+		sb.n_1st_sect + 1; /* sect M <-> bit (M - sb.n_1stsect + 1) */  // 映射表中的位置
+	int bit_off_in_sect = bit_offset % (SECTOR_SIZE * 8);   // 扇区内的偏移
+	int bit_left = INSTALL_NR_SECTS;
+	int cur_sect = bit_offset / (SECTOR_SIZE * 8); // 映射表中的扇区
+	RD_SECT(ROOT_DEV, 2 + sb.nr_imap_sects + cur_sect);
+	while (bit_left) {
+		int byte_off = bit_off_in_sect / 8;
+		/* this line is ineffecient in a loop, but I don't care */
+		fsbuf[byte_off] |= 1 << (bit_off_in_sect % 8);
+		bit_left--;
+		bit_off_in_sect++;
+		if (bit_off_in_sect == (SECTOR_SIZE * 8)) {
+			WR_SECT(ROOT_DEV, 2 + sb.nr_imap_sects + cur_sect);
+			cur_sect++;
+			RD_SECT(ROOT_DEV, 2 + sb.nr_imap_sects + cur_sect);
+			bit_off_in_sect = 0;
+		}
+	}
+	WR_SECT(ROOT_DEV, 2 + sb.nr_imap_sects + cur_sect);
+
+
 
 	/*       inodes         */
 	/* 		inode of `/' 	*/
 	memset(fsbuf, 0, SECTOR_SIZE);
 	struct inode * pi = (struct inode*)fsbuf;
 	pi->i_mode = I_DIRECTORY;
-	pi->i_size = DIR_ENTRY_SIZE * 4; /* 4 files:
+	pi->i_size = DIR_ENTRY_SIZE * 5; /* 5 files:
 									  * `.',
 									  * `dev_tty0', `dev_tty1', `dev_tty2',
+									  * `cmd.tar`
 									  */
 	pi->i_start_sect = sb.n_1st_sect;
 	pi->i_nr_sects = NR_DEFAULT_FILE_SECTS;
@@ -284,6 +324,12 @@ PRIVATE void mkfs()
 		pi->i_start_sect = MAKE_DEV(DEV_CHAR_TTY, i);
 		pi->i_nr_sects = 0;
 	}
+	/* inode of `/cmd.tar' */
+	pi = (struct inode*)(fsbuf + (INODE_SIZE * (NR_CONSOLES + 1)));
+	pi->i_mode = I_REGULAR;
+	pi->i_size = INSTALL_NR_SECTS * SECTOR_SIZE;
+	pi->i_start_sect = INSTALL_START_SECT;
+	pi->i_nr_sects = INSTALL_NR_SECTS;
 	WR_SECT(ROOT_DEV, 2 + sb.nr_imap_sects + sb.nr_smap_sects);
 
 	
@@ -301,6 +347,11 @@ PRIVATE void mkfs()
 		pde->inode_nr = i + 2; /* dev_tty0's inode_nr is 2 */
 		sprintf(pde->name, "dev_tty%d", i);
 	}
+
+	pde++;
+	pde->inode_nr = 5;
+	strcpy(pde->name, "cmd.tar");
+	
 	WR_SECT(ROOT_DEV, sb.n_1st_sect);
 
 	
@@ -405,10 +456,6 @@ PRIVATE int do_open()
 		}
 		if ((fd < 0) || (fd >= NR_FILES))
  		{
-
-			//printl("-----test-----\n");
-			//struct inode *iin = &inode_table[5];
-			//printl("size:%d,num:%d\n",iin->i_size,iin->i_num);
 			//__asm__ __volatile__("hlt");
 			panic("filp[] is full (PID:%d)", proc2pid(pcaller));
 		}
@@ -429,6 +476,7 @@ PRIVATE int do_open()
 		f_desc_table[i].fd_inode = pin;
 
 		f_desc_table[i].fd_mode = flags;
+		f_desc_table[i].fd_cnt = 1;
 		f_desc_table[i].fd_pos = 0;
 
 		int imode = pin->i_mode & I_TYPE_MASK;
@@ -472,6 +520,8 @@ PRIVATE int do_close()
 	assert(fd >= 0);
     //printl("do_close fd_inode: %d\n",pcaller->filp[fd]->fd_inode->i_num);
 	put_inode(pcaller->filp[fd]->fd_inode);
+	if (--pcaller->filp[fd]->fd_cnt == 0)
+		pcaller->filp[fd]->fd_inode = 0;
 	pcaller->filp[fd]->fd_inode = 0;   // f_desc_table 
 	pcaller->filp[fd] = 0;
 
@@ -949,7 +999,7 @@ PRIVATE void read_super_block(int dev)
 			break;
 	if (i == NR_SUPER_BLOCK)
 		panic("super_block slots used up");
-
+	
 	assert(i == 0); /* currently we use only the 1st slot */
 
 	struct super_block * psb = (struct super_block *)fsbuf;
@@ -1072,6 +1122,7 @@ PRIVATE struct inode * get_inode(int dev, int num)
  *****************************************************************************/
 PUBLIC void put_inode(struct inode * pinode)
 {
+	printl("i_num:%d\n", pinode->i_num);
 	assert(pinode->i_cnt > 0);
 	pinode->i_cnt--;
 }
@@ -1207,3 +1258,50 @@ PRIVATE int search_file(char * path)
 	/* file not found */
 	return 0;
 }
+
+/*****************************************************************************
+ *                                fs_fork
+ *****************************************************************************/
+/**
+ * Perform the aspects of fork() that relate to files.
+ *
+ * @return Zero if success, otherwise a negative integer.
+ *****************************************************************************/
+PRIVATE int fs_fork()
+{
+	int i;
+	PROCESS * child = &proc_table[fs_msg.PID];
+	for (i = 0; i < NR_FILES; i++) {
+		if (child->filp[i]) {
+			child->filp[i]->fd_cnt++;
+			child->filp[i]->fd_inode->i_cnt++;
+		}
+	}
+
+	return 0;
+}
+
+
+/*****************************************************************************
+ * Perform the aspects of exit() that relate to files.
+ *
+ * @return Zero if success.
+ *****************************************************************************/
+PRIVATE int fs_exit()
+{
+	int i;
+	PROCESS * p = &proc_table[fs_msg.PID];
+	for (i = 0; i < NR_FILES; i++) {
+		if (p->filp[i]) {
+			/* release the inode */
+			p->filp[i]->fd_inode->i_cnt--;
+			/* release the file desc slot */
+			if (--p->filp[i]->fd_cnt == 0)
+				p->filp[i]->fd_inode = 0;
+
+			p->filp[i] = 0;
+		}
+	}
+	return 0;
+}
+

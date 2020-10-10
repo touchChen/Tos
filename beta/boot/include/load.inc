@@ -12,7 +12,7 @@ BaseOfLoaderPhyAddr	equ	BaseOfLoader * 10h	; LOADER.BIN 被加载到的位置 --
 
 
 BaseOfKernelFile	equ	 07000h	; KERNEL.BIN 被加载到的位置 ----  段地址
-OffsetOfKernelFile	equ	  0100h	; KERNEL.BIN 被加载到的位置 ---- 偏移地址  必须是20h的倍数
+OffsetOfKernelFile	equ	 0		; KERNEL.BIN 被加载到的位置 ---- 偏移地址  必须是20h的倍数
 
 BaseOfKernelFilePhyAddr		equ		BaseOfKernelFile * 10h + OffsetOfKernelFile
 KernelEntryPointPhyAddr		equ		01000h	; 注意：1、必须与 MAKEFILE 中参数 -Ttext 的值相等!!
@@ -20,4 +20,9 @@ KernelEntryPointPhyAddr		equ		01000h	; 注意：1、必须与 MAKEFILE 中参数
 
 PageDirBase		equ	100000h	; 页目录开始地址:		1M
 PageTblBase		equ	101000h	; 页表开始地址:			1M + 4K
+
+;; ATTENTION:
+;; Macros below should corresponding with C source.
+BOOT_PARAM_ADDR		equ	0x900
+BOOT_PARAM_MAGIC	equ	0xB007
 

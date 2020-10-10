@@ -328,5 +328,10 @@ struct hd_info
 					      (lba_highest & 0xF) | 0xA0)
 
 
+#define	ROOT_BASE				0x4681
+
+#define	INSTALL_START_SECT		0xE800
+#define	INSTALL_NR_SECTS		0x800
+
 
 #endif /* _TOS_HD_H_ */

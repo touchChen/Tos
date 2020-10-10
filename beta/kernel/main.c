@@ -43,7 +43,19 @@ PRIVATE void init_process()
 	u8              privilege;
 	u8              rpl;
 	int             eflags;
-	for(i=0;i<NR_TASKS_AND_PROCS;i++){
+	for(i=0;i<NR_TASKS + NR_PROCS;i++){
+		if (i >= NR_TASKS + NR_NATIVE_PROCS) {
+			p_proc->p_flags = FREE_SLOT;
+			p_proc->ldt_sel = selector_ldt;
+
+			if(i<NR_TASKS + NR_PROCS-1)
+			{
+				p_proc++;  
+				selector_ldt += 1 << 3;
+			}
+			continue;
+		}
+
 		if (i < NR_TASKS) {     /* 任务 */
 			p_task    = task_table + i;
 			privilege = PRIVILEGE_TASK;
@@ -54,20 +66,49 @@ PRIVATE void init_process()
 			privilege = PRIVILEGE_USER;
 			rpl       = RPL_USER;
 			eflags    = 0x0202; /* IF=1, bit 2 is always 1 */
- 		} 
- 
+ 		}
+
 		strcpy(p_proc->p_name, p_task->name);	// name of the process
 		p_proc->pid = i;						// pid
 		p_proc->priority = p_proc->ticks = p_task->priority;
 		p_proc->nr_tty = p_task->tty;
 
+		p_proc->p_parent = NO_TASK;
+
 		p_proc->ldt_sel = selector_ldt;  		//在GDT中选择子 一个进程一个选择子
+
+		/*
 		// 描述符已在 protect.c 中初始化
 		memcpy(&p_proc->ldts[0], &gdt[SELECTOR_KERNEL_CS >> 3], sizeof(DESCRIPTOR));
 		p_proc->ldts[0].attr1 = DA_C | privilege << 5;         //左移5位->DPL
 		memcpy(&p_proc->ldts[1], &gdt[SELECTOR_KERNEL_DS >> 3], sizeof(DESCRIPTOR));
 		p_proc->ldts[1].attr1 = DA_DRW | privilege << 5;
+		*/
 
+		if (strcmp(p_task->name, "INIT") != 0) {
+			p_proc->ldts[INDEX_LDT_C]  = gdt[SELECTOR_KERNEL_CS >> 3];
+			p_proc->ldts[INDEX_LDT_RW] = gdt[SELECTOR_KERNEL_DS >> 3];
+
+			/* change the DPLs */
+			p_proc->ldts[INDEX_LDT_C].attr1  = DA_C   | privilege << 5;
+			p_proc->ldts[INDEX_LDT_RW].attr1 = DA_DRW | privilege << 5;
+		}
+		else {		/* INIT process */
+			unsigned int k_base;
+			unsigned int k_limit;
+			int ret = get_kernel_map(&k_base, &k_limit);
+			assert(ret == 0);
+           
+			init_descriptor(&p_proc->ldts[INDEX_LDT_C],
+				  0, 
+				  (k_base + k_limit) >> LIMIT_4K_SHIFT,
+				  DA_32 | DA_LIMIT_4K | DA_C | privilege << 5);
+
+			init_descriptor(&p_proc->ldts[INDEX_LDT_RW],
+				  0,
+				  (k_base + k_limit) >> LIMIT_4K_SHIFT,
+				  DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
+		}
 
 		p_proc->regs.cs	= ((8 * 0) & SA_RPL_MASK & SA_TI_MASK)
 			| SA_TIL | rpl;
@@ -109,6 +150,8 @@ PRIVATE void init_process()
 	}
         
 }
+
+
 
 
 

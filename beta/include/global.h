@@ -13,7 +13,7 @@ EXTERN	GATE		idt[IDT_SIZE];
 EXTERN	TSS			tss;
 
 EXTERN	PROCESS*	p_proc_ready;
-EXTERN	PROCESS		proc_table[NR_TASKS_AND_PROCS];
+EXTERN	PROCESS		proc_table[];
 
 EXTERN	char		task_stack[STACK_SIZE_TOTAL];
 EXTERN	u32			k_reenter;
@@ -44,4 +44,10 @@ EXTERN	struct inode *		root_inode;
 EXTERN	struct dev_drv_map	dd_map[];
 EXTERN  u8   				is_do_mkfs;
 
+
+/* MM */
+EXTERN	MESSAGE			mm_msg;
+extern	u8 *			mmbuf;
+extern	const int		MMBUF_SIZE;
+EXTERN	int				memory_size;
 

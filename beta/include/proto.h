@@ -23,7 +23,9 @@ PUBLIC void port_read(u16 port, void* buf, int n);
 PUBLIC void port_write(u16 port, void* buf, int n);
 
 
-/****** klibc.c ******/  
+/****** klibc.c ******/
+PUBLIC void get_boot_params(struct boot_params * pbp);
+PUBLIC int get_kernel_map(unsigned int * b, unsigned int * l);
 PUBLIC char* itoa(char * str, int num);
 PUBLIC int atoi(char * str);
 PUBLIC void disp_int_c(int input);
@@ -40,6 +42,21 @@ PUBLIC void spin(char *func_name);
 PUBLIC void assertion_failure(char *exp, char *file, char *base_file, int line);
 
 
+/****** syscall.asm ******/  //系统中断
+PUBLIC void printx(char* s);
+PUBLIC int sendrec(int function, int src_dest, MESSAGE* msg);
+PUBLIC int get_ticks();
+//PUBLIC void write(char* buf, int len);
+
+
+/****** printf.c ******/
+PUBLIC int printf(const char *fmt, ...);
+#define	printl	printf
+PUBLIC int sprintf(char *buf, const char *fmt, ...);
+PUBLIC int vsprintf(char *buf, const char *fmt, va_list args);
+PUBLIC void panic(const char *fmt, ...);
+
+
 /****** fslib.c ******/
 PUBLIC int open(const char *pathname, int flags);
 PUBLIC int close(int fd);
@@ -49,6 +66,7 @@ PUBLIC int unlink(const char * pathname);
 
 
 /****** proclib.c ******/
+PUBLIC int send_recv(int function, int src_dest, MESSAGE* msg);
 PUBLIC int getpid();
 PUBLIC int get_u_ticks();
 
@@ -58,6 +76,13 @@ PUBLIC int syslog(const char *fmt, ...);
 PUBLIC int readlog(void *buf);
 PUBLIC void graphlog();
 PUBLIC void clearlog();
+
+
+
+/****** mmlib.c ******/
+PUBLIC int fork();
+PUBLIC void exit(int status);
+PUBLIC int wait(int * status);
 
 
 
@@ -85,6 +110,7 @@ PUBLIC void cstart();  // kernel.asm 跳转 到此函数，c语言开端
 PUBLIC void init_prot();
 PUBLIC u32 seg2phys(u16 seg);
 PUBLIC void spurious_irq(int irq);
+PUBLIC void init_descriptor(DESCRIPTOR * p_desc, u32 base, u32 limit, u16 attribute);
 PUBLIC void exception_handler(int vec_no,int err_code,int eip,int cs,int eflags);
 
 
@@ -98,19 +124,12 @@ PUBLIC void milli_delay(int milli_sec);
 PUBLIC int kernel_main();  //内核主程序
 
 
-/****** syscall.asm ******/  //系统中断
-PUBLIC void printx(char* s);
-PUBLIC int sendrec(int function, int src_dest, MESSAGE* msg);
-PUBLIC int get_ticks();
-//PUBLIC void write(char* buf, int len);
-
-
 /****** proc.c ******/   //进程
 PUBLIC void schedule();
 PUBLIC int sys_sendrec(int function, int src_dest, MESSAGE* m, PROCESS* p);
 PUBLIC int sys_get_ticks();
 
-PUBLIC int send_recv(int function, int src_dest, MESSAGE* msg); // 系统调用sendrec的替代
+//PUBLIC int send_recv(int function, int src_dest, MESSAGE* msg); // 系统调用sendrec的替代
 
 PUBLIC int ldt_seg_linear(PROCESS* p, int idx); // ldt段的段基址
 PUBLIC void* va2la(int pid, void* va); // 虚拟地址转线性地址
@@ -149,14 +168,6 @@ PUBLIC int sys_printx(int _unused1, int _unused2, char* s, PROCESS* p_proc);
 PUBLIC void task_sys();
 
 
-/****** printf.c ******/
-PUBLIC int printf(const char *fmt, ...);
-#define	printl	printf
-PUBLIC int sprintf(char *buf, const char *fmt, ...);
-PUBLIC int vsprintf(char *buf, const char *fmt, va_list args);
-PUBLIC void panic(const char *fmt, ...);
-
-
 /****** hd.c ******/
 PUBLIC void task_hd();
 PUBLIC void hd_handler(int irq);
@@ -189,6 +200,21 @@ PUBLIC int disklog(char * logstr);
 /****** graph.c ******/
 PUBLIC void dump_fd_graph(const char * fmt, ...);
 
+
+
+
+/*************************** mm ***************************************/
+/****** main.c ******/
+PUBLIC void task_mm();
+PUBLIC int alloc_mem(int pid, int memsize);
+PUBLIC int free_mem(int pid);
+
+
+/****** mmlib.c ******/
+PUBLIC int do_fork();
+PUBLIC void do_exit(int status);
+PUBLIC void do_wait();
+
  
 
 
@@ -204,8 +230,14 @@ PUBLIC void TestC();
 PUBLIC void test_fs();
 
 
+/****** init.c ******/
+PUBLIC void Init();
 
 
+
+/*************************** 测试 ***************************************/
+PUBLIC int t_test();
+PUBLIC int  sys_test();
 
 
 

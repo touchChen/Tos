@@ -14,8 +14,6 @@
 /* 本文件内函数声明 */
 PRIVATE void init_idt_desc(unsigned char vector, u8 desc_type,
 			   int_handler handler, unsigned char privilege);
-PRIVATE void init_descriptor(DESCRIPTOR * p_desc, u32 base, u32 limit, u16 attribute);
-
 
 
 PUBLIC void init_prot()
@@ -158,8 +156,10 @@ PUBLIC void init_prot()
 	int i;
 	PROCESS* p_proc	= proc_table;
 	u16 selector_ldt = INDEX_LDT_FIRST << 3;
-	for(i=0;i<NR_TASKS_AND_PROCS;i++)
+	for(i=0;i<NR_TASKS + NR_PROCS;i++)
 	{
+		memset(&proc_table[i], 0, sizeof(struct s_proc));
+
 	    init_descriptor(&gdt[selector_ldt>>3],
 		            vir2phys(seg2phys(SELECTOR_KERNEL_DS), proc_table[i].ldts),
 			    LDT_SIZE * sizeof(DESCRIPTOR) - 1,
@@ -187,7 +187,7 @@ PUBLIC u32 seg2phys(u16 seg)
  *----------------------------------------------------------------------*
  初始化段描述符
  *======================================================================*/
-PRIVATE void init_descriptor(DESCRIPTOR *p_desc, u32 base, u32 limit, u16 attribute)
+PUBLIC void init_descriptor(DESCRIPTOR *p_desc, u32 base, u32 limit, u16 attribute)
 {
 	p_desc->limit_low	= limit & 0x0FFFF;
 	p_desc->base_low	= base & 0x0FFFF;
@@ -196,6 +196,8 @@ PRIVATE void init_descriptor(DESCRIPTOR *p_desc, u32 base, u32 limit, u16 attrib
 	p_desc->limit_high_attr2= ((limit>>16) & 0x0F) | ((attribute>>8) & 0xF0);
 	p_desc->base_high	= (base >> 24) & 0x0FF;
 }
+
+
 
 
 
