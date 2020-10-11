@@ -34,7 +34,9 @@ PUBLIC int syslog(const char *fmt, ...)
 	if (getpid() == TASK_FS) { /* in FS */
 		return disklog(buf);
 	}
-	else {			/* any proc which is not FS */              
+	else {			/* any proc which is not FS */
+		panic("error");
+
 		MESSAGE msg;
 		msg.type = DISK_LOG;
 		msg.BUF= buf;

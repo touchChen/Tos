@@ -54,7 +54,7 @@ void untar(const char * filename)
 	int chunk = sizeof(buf);
 
 	while (1) {
-		read(fd, buf, SECTOR_SIZE);
+		read(fd, buf, SECTOR_SIZE); // pos 有位移
 		if (buf[0] == 0)
 			break;
 
@@ -85,13 +85,10 @@ void untar(const char * filename)
 		printf("INIT##untar>>  copy over\n");
 		close(fdout);
 		printf("INIT##untar>>  close\n");
-		
-		graphlog();
-		while(1){}
 	}
+	graphlog();
 
 	close(fd);
-
 }
 
 
@@ -99,9 +96,10 @@ void debug_fs()
 {
     int fd = open("/cmd.tar", O_RDWR);
 	assert(fd != -1);
-	graphlog();
+	//graphlog();
 	close(fd);
 
+	graphlog();
 	printf("over debug\n");
 }
 
@@ -118,14 +116,16 @@ PUBLIC void Init()
 	assert(fd_stdout == 1);
 	*/
 
-	clearlog();
+	//clearlog();
 
 	/* extract `cmd.tar' */
 	//untar("/cmd.tar");
 
 	//debug_fs();
-	
-	/*
+	//graphlog();
+
+
+	//printf("start fork.....\n");
 	int pid = fork();
 	if (pid == 0) { // child process
 		printf("INIT## child is running, pid:%d\n", getpid());
@@ -139,9 +139,8 @@ PUBLIC void Init()
 		int child = wait(&s);
 		printf("INIT## parent process::child (%d) exited with status: %d.\n", child, s);
 	}
-	*/
-	
 
-    
+
+
 	spin("Init...");
 }

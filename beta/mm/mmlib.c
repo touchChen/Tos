@@ -20,6 +20,7 @@ PRIVATE void cleanup(PROCESS * proc);
  *****************************************************************************/
 PUBLIC int do_fork()
 {
+	printl("MM#do_fork\n");
 	/* find a free slot in proc_table */
 	PROCESS * p = proc_table;
 	int i;

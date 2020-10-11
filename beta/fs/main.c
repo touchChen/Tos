@@ -149,8 +149,10 @@ PRIVATE void init_fs()
 	driver_msg.DEVICE = MINOR(ROOT_DEV);
 	assert(dd_map[MAJOR(ROOT_DEV)].driver_nr != INVALID_DRIVER);
 	send_recv(BOTH, dd_map[MAJOR(ROOT_DEV)].driver_nr, &driver_msg);
-    
-    //if (is_do_mkfs == MK_FS)
+
+	RD_SECT(ROOT_DEV, 1);
+	sb = (struct super_block*)fsbuf;
+    if (sb->magic != MAGIC_V1)
     {
 		/* make FS */
 		mkfs();

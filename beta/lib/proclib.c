@@ -33,7 +33,15 @@ PUBLIC int send_recv(int function, int src_dest, MESSAGE* msg)
 
 	switch (function) {
 		case BOTH:
+			if(src_dest==TASK_MM)
+			{
+				//printf("before...\n");
+			}
 			ret = sendrec(SEND, src_dest, msg);
+			if(src_dest==TASK_MM)
+			{
+				printf("after...\n");
+			}
 			if (ret == 0)
 				ret = sendrec(RECEIVE, src_dest, msg);
 			break;

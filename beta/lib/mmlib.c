@@ -25,7 +25,9 @@ PUBLIC int fork()
 	MESSAGE msg;
 	msg.type = FORK;
 
+	//printf("befor send\n");
 	send_recv(BOTH, TASK_MM, &msg);
+	printf("after recv\n");
 	assert(msg.type == SYSCALL_RET);
 	assert(msg.RETVAL == 0);
 

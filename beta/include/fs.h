@@ -124,8 +124,5 @@ struct file_desc {
 #endif
 
 
-#define MK_FS  1
-#define UN_MK_FS 0
-
 
 #endif /* _TOS_FS_H_ */
