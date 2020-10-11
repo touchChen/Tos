@@ -150,7 +150,7 @@ PRIVATE void init_fs()
 	assert(dd_map[MAJOR(ROOT_DEV)].driver_nr != INVALID_DRIVER);
 	send_recv(BOTH, dd_map[MAJOR(ROOT_DEV)].driver_nr, &driver_msg);
     
-    if (is_do_mkfs == MK_FS)
+    //if (is_do_mkfs == MK_FS)
     {
 		/* make FS */
 		mkfs();
@@ -240,10 +240,10 @@ PRIVATE void mkfs()
 
 	/*       inode map    bit-> node   */
 	memset(fsbuf, 0, SECTOR_SIZE);
-	for (i = 0; i < (NR_CONSOLES + 2); i++)
+	for (i = 0; i < (NR_CONSOLES + 3); i++)
 		fsbuf[0] |= 1 << i;
 
-	assert(fsbuf[0] == 0x1F);/* 0011 1111 : 
+	assert(fsbuf[0] == 0x3F);/* 0011 1111 :
 							  *   || ||||
 							  *   || |||`--- bit 0 : reserved   保留
 							  *   || ||`---- bit 1 : the first inode,
