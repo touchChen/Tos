@@ -99,8 +99,9 @@ void debug_fs()
 {
     int fd = open("/cmd.tar", O_RDWR);
 	assert(fd != -1);
-	close(fd);
 	graphlog();
+	close(fd);
+
 	printf("over debug\n");
 }
 
@@ -122,8 +123,9 @@ PUBLIC void Init()
 	/* extract `cmd.tar' */
 	//untar("/cmd.tar");
 
-	debug_fs();
+	//debug_fs();
 	
+	/*
 	int pid = fork();
 	if (pid == 0) { // child process
 		printf("INIT## child is running, pid:%d\n", getpid());
@@ -137,6 +139,7 @@ PUBLIC void Init()
 		int child = wait(&s);
 		printf("INIT## parent process::child (%d) exited with status: %d.\n", child, s);
 	}
+	*/
 	
 
     
