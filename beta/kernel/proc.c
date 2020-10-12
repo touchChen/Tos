@@ -432,12 +432,6 @@ PRIVATE int msg_receive(PROCESS* current, int src, MESSAGE* m)
 	}
 	else {
 
-
-if(src==TASK_MM)
-{
-	printl("waiting receive from MM \n");
-}
-
 		/* p_who_wanna_recv wants to receive a message from
 		 * a certain proc: src.
 		 */

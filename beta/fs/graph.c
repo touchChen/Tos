@@ -13,7 +13,6 @@
 
 static char _buf[SECTOR_SIZE];
 
-
 /*****************************************************************************
  * Output a dot graph.
  *****************************************************************************/
@@ -179,12 +178,12 @@ PUBLIC void dump_fd_graph(const char * fmt, ...)
 	SYSLOG("\n\t\tcolor=lightgrey;\n");
 	int smap_flag = 0;
 	int bit_start = 0;
-	/* i:     sector index */
-	int j; /* byte index */
-	/* k:     bit index */
+	// i:sector index	j:byte index	k:bit index
+	int j; 
+
 	struct super_block * sb = get_super_block(root_inode->i_dev);
 	int smap_blk0_nr = 1 + 1 + sb->nr_imap_sects;
-	for (i = 0; i < sb->nr_smap_sects; i++) { /* smap_blk0_nr + i : current sect nr. */
+	for (i = 0; i < sb->nr_smap_sects; i++) { // smap_blk0_nr + i : current sect nr. 
 		RD_SECT(root_inode->i_dev, smap_blk0_nr + i);
 		memcpy(_buf, fsbuf, SECTOR_SIZE);
 		for (j = 0; j < SECTOR_SIZE; j++) {
@@ -227,11 +226,11 @@ PUBLIC void dump_fd_graph(const char * fmt, ...)
 	SYSLOG("\n\t\tcolor=lightgrey;\n");
 	SYSLOG("\t\t\"imap\" [\n");
 	SYSLOG("\t\t\tlabel = \"<f0>bits");
-	/* i:     sector index */
-	/* j:     byte index */
-	/* k:     bit index */
+	// i:     sector index 
+	// j:     byte index 
+	// k:     bit index 
 	int imap_blk0_nr = 1 + 1;
-	for (i = 0; i < sb->nr_imap_sects; i++) { /* smap_blk0_nr + i : current sect nr. */
+	for (i = 0; i < sb->nr_imap_sects; i++) { // smap_blk0_nr + i : current sect nr. 
 		RD_SECT(root_inode->i_dev, imap_blk0_nr + i);
 		memcpy(_buf, fsbuf, SECTOR_SIZE);
 		for (j = 0; j < SECTOR_SIZE; j++) {

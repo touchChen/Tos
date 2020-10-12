@@ -32,7 +32,6 @@ PUBLIC void task_mm()
 
 		switch (msgtype) {
 			case FORK:
-				printl("ddddddd\n");
 				mm_msg.RETVAL = do_fork();
 				break;
 			case EXIT:
