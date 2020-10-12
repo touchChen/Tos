@@ -21,7 +21,7 @@ PUBLIC  TASK  task_table[NR_TASKS] = {{task_tty, TIMESLICE_TASK, 0, STACK_SIZE_T
 									  {task_mm, TIMESLICE_TASK, 2, STACK_SIZE_MM,  "mm"}};
 
 
-PUBLIC  TASK  user_proc_table[NR_NATIVE_PROCS] = {{Init, TIMESLICE_USER_PROC, 2, STACK_SIZE_INIT, "INIT"},
+PUBLIC  TASK  user_proc_table[NR_NATIVE_PROCS] = {{Init, TIMESLICE_USER_PROC, 1, STACK_SIZE_INIT, "INIT"},
 											{TestA, 0, 0, STACK_SIZE_TESTA, "TestA"},
 					   						{TestB, TIMESLICE_USER_PROC, 2, STACK_SIZE_TESTB, "TestB"},
 					  						{TestC, 0, 0, STACK_SIZE_TESTC, "TestC"},

@@ -116,13 +116,14 @@ PUBLIC void Init()
 	assert(fd_stdout == 1);
 	*/
 
-	//clearlog();
-
-	/* extract `cmd.tar' */
+	clearlog();
+	syslog("dislog init");
+	
 	//untar("/cmd.tar");
 
 	//debug_fs();
-	//graphlog();
+	graphlog();
+
 
 
 	//printf("start fork.....\n");
@@ -139,6 +140,7 @@ PUBLIC void Init()
 		int child = wait(&s);
 		printf("INIT## parent process::child (%d) exited with status: %d.\n", child, s);
 	}
+
 
 
 

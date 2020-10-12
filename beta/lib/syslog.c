@@ -35,7 +35,7 @@ PUBLIC int syslog(const char *fmt, ...)
 		return disklog(buf);
 	}
 	else {			/* any proc which is not FS */
-		panic("error");
+		//panic("error");
 
 		MESSAGE msg;
 		msg.type = DISK_LOG;

@@ -24,6 +24,7 @@ PUBLIC void task_mm()
 
 	while (1) {
 		send_recv(RECEIVE, ANY, &mm_msg);
+		printl("mm receive\n");
 		int src = mm_msg.source;
 		int reply = 1;
 
