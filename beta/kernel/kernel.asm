@@ -387,10 +387,10 @@ sys_call:                             ; 没有往堆栈里读取数据
 ;                                   restart
 ; ====================================================================================
 restart:
-	mov	esp, [p_proc_ready]
-	lldt	[esp + P_LDT_SEL]
-	lea	eax, [esp + P_STACKTOP]   ; 栈顶， 高 -> 低
-	mov	dword [tss + TSS3_S_SP0], eax
+	mov		esp, [p_proc_ready]
+	lldt	[esp + P_LDT_SEL]			; GDT 中的选择子，指向 LDT---> 导入LDT
+	lea		eax, [esp + P_STACKTOP]		; 栈顶， 高 -> 低
+	mov		dword [tss + TSS3_S_SP0], eax
 
 reenter:	
 	dec	dword [k_reenter]
