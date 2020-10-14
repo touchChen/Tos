@@ -126,9 +126,9 @@ _start:
         
  
         
-    xor	eax, eax
+    xor		eax, eax
 	; 把 esp 从 LOADER 挪到 KERNEL
-	mov	esp, StackTop	; 堆栈在 bss 段中
+	mov		esp, StackTop	; 堆栈在 bss 段中
     
     xor     eax, eax
 
@@ -138,14 +138,14 @@ _start:
         
 	lidt	[idt_ptr]
 
-	jmp	SELECTOR_KERNEL_CS:csinit
+	jmp		SELECTOR_KERNEL_CS:csinit
         
 csinit:		; “这个跳转指令强制使用刚刚初始化的结构”——<<OS:D&I 2nd>> P90.        
-	xor	eax, eax
-	mov	ax, SELECTOR_TSS
-	ltr	ax
-        
-        jmp    kernel_main
+	xor		eax, eax
+	mov		ax, SELECTOR_TSS
+	ltr		ax
+
+	jmp    kernel_main
         
 	hlt
         
@@ -158,7 +158,7 @@ csinit:		; “这个跳转指令强制使用刚刚初始化的结构”——<<O
 	in	al, INT_M_CTLMASK	; `.
 	or	al, (1 << %1)		;  | 屏蔽当前中断
 	out	INT_M_CTLMASK, al	; /
-	mov	al, EOI			; `. 置EOI位
+	mov	al, EOI				; `. 置EOI位
 	out	INT_M_CTL, al		; /
 	sti	; CPU在响应中断的过程中会自动关中断，这句之后就允许响应新的中断
 	push	%1			; `.
@@ -351,7 +351,7 @@ save:
         jne     .1                          ;{
         mov     esp, StackTop               ;  mov esp, StackTop <--切换到内核栈
         push    restart                     ;  push restart
-        jmp     [esi + RETADR - P_STACKBASE];  return;  RETADR:call 下一句指令;
+        jmp     [esi + RETADR - P_STACKBASE];  return;  RETADR:call 下一句指令; 为Call服务
 .1:                                         ;} else { 已经在内核栈，不需要再切换
         push    reenter                     ;  push restart_reenter
         jmp     [esi + RETADR - P_STACKBASE];  return;

@@ -144,6 +144,7 @@ PRIVATE void init_process()
 		}
 
 		p_task_stack -= p_task->stacksize;
+
 		p_proc++;
 		p_task++;
 		selector_ldt += 1 << 3;
