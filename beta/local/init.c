@@ -37,9 +37,6 @@ struct posix_tar_header
 };
 
 /*****************************************************************************
- *                                untar
- *****************************************************************************/
-/**
  * Extract the tar file and store them.
  * 
  * @param filename The tar file.
@@ -92,41 +89,16 @@ void untar(const char * filename)
 }
 
 
-void debug_fs()
-{
-    int fd = open("/cmd.tar", O_RDWR);
-	assert(fd != -1);
-	//graphlog();
-	close(fd);
-
-	graphlog();
-	printf("over debug\n");
-}
-
 /*****************************************************************************
  *                                Init
  *****************************************************************************/
 
 PUBLIC void Init()
 {
-	/*
-	int fd_stdin  = open("/dev_tty0", O_RDWR);
-	assert(fd_stdin  == 0);
-	int fd_stdout = open("/dev_tty0", O_RDWR);
-	assert(fd_stdout == 1);
-	*/
-
 	clearlog();
-	syslog("dislog init");
 	
-	//untar("/cmd.tar");
+	untar("/cmd.tar");
 
-	//debug_fs();
-	graphlog();
-
-
-
-	//printf("start fork.....\n");
 	int pid = fork();
 	if (pid == 0) { // child process
 		printf("INIT## child is running, pid:%d\n", getpid());
