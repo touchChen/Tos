@@ -24,7 +24,7 @@ PUBLIC void task_mm()
 
 	while (1) {
 		send_recv(RECEIVE, ANY, &mm_msg);
-		printl("mm receive\n");
+		
 		int src = mm_msg.source;
 		int reply = 1;
 
@@ -38,9 +38,9 @@ PUBLIC void task_mm()
 				do_exit(mm_msg.STATUS);
 				reply = 0;
 				break;
-			/* case EXEC: */
-			/* 	mm_msg.RETVAL = do_exec(); */
-			/* 	break; */
+			case EXEC:
+				mm_msg.RETVAL = do_exec();
+				break;
 			case WAIT:
 				do_wait();
 				reply = 0;

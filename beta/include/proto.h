@@ -78,11 +78,16 @@ PUBLIC void graphlog();
 PUBLIC void clearlog();
 
 
-
 /****** mmlib.c ******/
 PUBLIC int fork();
 PUBLIC void exit(int status);
 PUBLIC int wait(int * status);
+PUBLIC int exec(const char * path);
+PUBLIC int execl(const char *path, const char *arg, ...);
+PUBLIC int execv(const char *path, char * argv[]);
+
+
+
 
 
 
@@ -214,6 +219,7 @@ PUBLIC int free_mem(int pid);
 PUBLIC int do_fork();
 PUBLIC void do_exit(int status);
 PUBLIC void do_wait();
+PUBLIC int do_exec();
 
  
 
