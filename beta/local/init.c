@@ -97,12 +97,14 @@ PUBLIC void Init()
 {
 	clearlog();
 	
-	untar("/cmd.tar");
+	//untar("/cmd.tar");
 
 	int pid = fork();
 	if (pid == 0) { // child process
 		printf("INIT## child is running, pid:%d\n", getpid());
-
+		
+		//execl("/echo", "echo", "hello world", " tc! ", 0);
+		
 		exit(99);
 	}
 	else {	// parent process
@@ -114,7 +116,12 @@ PUBLIC void Init()
 	}
 
 
+	while(1) {
+		int s;
+		int child = wait(&s);
+		printf("INIT## parent process::child (%d) exited with status: %d.\n", child, s);
+	}
 
-
+	// 不会到这一步
 	spin("Init...");
 }

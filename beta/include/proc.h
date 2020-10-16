@@ -301,6 +301,7 @@ enum msgtype {
 #define	DEVICE		u.m3.m3i4
 #define	POSITION	u.m3.m3l1
 #define	BUF			u.m3.m3p2
+#define BUF_LEN		u.m3.m3i5
 #define	RETVAL		u.m3.m3i1
 
 #define	PID			u.m3.m3i2

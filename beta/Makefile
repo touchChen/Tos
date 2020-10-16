@@ -36,7 +36,7 @@ OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
 		  mm/main.o mm/mmlib.o \
 		  local/main.o local/init.o # 注意连接的头
 LIBOBJS		= lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/printf.o lib/syscall.o \
-		  lib/proclib.o lib/fslib.o lib/syslog.o lib/mmlib.o  \
+		  lib/proclib.o lib/fslib.o lib/syslog.o lib/mmlib.o \
 		  
 DASMOUTPUT	= kernel.bin.asm
 
@@ -179,6 +179,7 @@ lib/syslog.o : lib/syslog.c
 
 lib/mmlib.o : lib/mmlib.c
 	$(CC) $(CFLAGS) -o $@ $<
+
 
 local/main.o : local/main.c
 	$(CC) $(CFLAGS) -o $@ $<
