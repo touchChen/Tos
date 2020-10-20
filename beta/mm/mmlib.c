@@ -216,7 +216,7 @@ PUBLIC int do_exec()
 	proc_table[src].regs.eip = elf_hdr->e_entry; /* @see _start.asm */
 	proc_table[src].regs.esp = PROC_IMAGE_SIZE_DEFAULT - PROC_ORIGIN_STACK;
 
-	strcpy(proc_table[src].name, pathname);
+	strcpy(proc_table[src].p_name, pathname);
 
 	return 0;
 }

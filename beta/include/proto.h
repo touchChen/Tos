@@ -63,6 +63,7 @@ PUBLIC int close(int fd);
 PUBLIC int read(int fd, void *buf, int count);
 PUBLIC int write(int fd, const void *buf, int count);
 PUBLIC int unlink(const char * pathname);
+PUBLIC int stat(const char *path, struct stat *buf);
 
 
 /****** proclib.c ******/
