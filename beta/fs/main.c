@@ -162,7 +162,7 @@ PRIVATE void init_fs()
 
 	RD_SECT(ROOT_DEV, 1);
 	sb = (struct super_block*)fsbuf;
-    //if (sb->magic != MAGIC_V1)
+    if (sb->magic != MAGIC_V1)
     {
 		/* make FS */
 		mkfs();
