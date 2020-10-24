@@ -32,6 +32,9 @@ PRIVATE void new_dir_entry(struct inode *dir_inode,int inode_nr,char *filename);
 PRIVATE int fs_fork();
 PRIVATE int fs_exit();
 
+PRIVATE int do_stat();
+PRIVATE int do_lseek();
+
 /*****************************************************************************
  * task_fs
  * <Ring 1> The main loop of TASK FS.
@@ -70,6 +73,12 @@ PUBLIC void task_fs()
 			case EXIT:
 				fs_msg.RETVAL = fs_exit();
 				break;
+			case STAT:
+				fs_msg.RETVAL = do_stat();
+				break;
+			case LSEEK:
+				fs_msg.OFFSET = do_lseek();
+				break;
 			case CLEAR_LOG:	
 			case DISK_LOG:
 			case READ_LOG:
@@ -92,7 +101,8 @@ PUBLIC void task_fs()
 			case SUSPEND_PROC:
 			case FORK:
 			case EXIT:
-				break;
+			case STAT:
+			case LSEEK:
 			case UNLINK:
 				break;
  			case READ_LOG:
@@ -415,35 +425,47 @@ PRIVATE int do_open()
 	//printl("open filename(ring 1): %s\n", pathname);
 
 
+	struct inode * pin = 0;
     int inode_nr = search_file(pathname); // 根目录下
     //printl("inode_nr of search_file: %d\n",inode_nr); 
 
-	struct inode * pin = 0;
-	if (flags & O_CREAT) {
-		if (inode_nr) {
-			printl("file exists.\n");
-			return -1;
-		}
-		else {
+	if (!inode_nr) {
+		if (flags & O_CREAT) {
 			pin = create_file(pathname, flags);
 		}
+		else {
+			printl("file not exists: %s\n", pathname);
+			return -1;
+		}
 	}
-	else {
-			assert(flags & O_RDWR);
-		    
-			if (inode_nr) {
-				char filename[MAX_PATH];
-				struct inode * dir_inode;
-				        
-				if (strip_path(filename, pathname, &dir_inode) != 0)
-					return -1;
-				        
-				pin = get_inode(dir_inode->i_dev, inode_nr); // inode_table 中的 inode
-			}else{
-				printl("file does not exist.\n");
-				return -1;
-			}
+	else if (flags & O_RDWR) { /* file exists */
+		if ((flags & O_CREAT) && (!(flags & O_TRUNC))) {
+			assert(flags == (O_RDWR | O_CREAT));
+			printl("file exists: %s\n", pathname);
+			return -1;
+		}
+		assert((flags ==  O_RDWR                     ) ||
+		       (flags == (O_RDWR | O_TRUNC          )) ||
+		       (flags == (O_RDWR | O_TRUNC | O_CREAT)));
+
+		char filename[MAX_PATH];
+		struct inode * dir_inode;
+		if (strip_path(filename, pathname, &dir_inode) != 0)
+			return -1;
+		pin = get_inode(dir_inode->i_dev, inode_nr);
 	}
+	else { /* file exists, no O_RDWR flag */
+		printl("file exists: %s\n", pathname);
+		return -1;
+	}
+
+	if (flags & O_TRUNC) {
+		assert(pin);
+		pin->i_size = 0;
+		sync_inode(pin);
+	}
+
+
 
 
 	if (pin) {
@@ -835,6 +857,46 @@ PRIVATE int do_unlink()
 
 	return 0;
 }
+
+
+/*****************************************************************************
+ * Handle the message LSEEK.
+ * 
+ * @return The new offset in bytes from the beginning of the file if successful,
+ *         otherwise a negative number.
+ *****************************************************************************/
+PRIVATE int do_lseek()
+{
+	int fd = fs_msg.FD;
+	int off = fs_msg.OFFSET;
+	int whence = fs_msg.WHENCE;
+
+	int pos = pcaller->filp[fd]->fd_pos;
+	int f_size = pcaller->filp[fd]->fd_inode->i_size;
+
+	switch (whence) {
+		case SEEK_SET:
+			pos = off;
+			break;
+		case SEEK_CUR:
+			pos += off;
+			break;
+		case SEEK_END:
+			pos = f_size + off;
+			break;
+		default:
+			return -1;
+			break;
+	}
+
+	if ((pos > f_size) || (pos < 0)) {
+		return -1;
+	}
+
+	pcaller->filp[fd]->fd_pos = pos;
+	return pos;
+}
+
 
 
 /*****************************************************************************
@@ -1303,6 +1365,60 @@ PRIVATE int fs_exit()
 			p->filp[i] = 0;
 		}
 	}
+	return 0;
+}
+
+/*****************************************************************************
+ * Perform the stat() syscall.
+ * 
+ * @return  On success, zero is returned. On error, -1 is returned.
+ *****************************************************************************/
+PRIVATE int do_stat()
+{
+	char pathname[MAX_PATH]; /* parameter from the caller */
+	char filename[MAX_PATH]; /* directory has been stipped */
+
+	/* get parameters from the message */
+	int name_len = fs_msg.NAME_LEN;	/* length of filename */
+	int src = fs_msg.source;	/* caller proc nr. */
+	assert(name_len < MAX_PATH);
+	phys_copy((void*)va2la(TASK_FS, pathname),    /* to   */
+		  (void*)va2la(src, fs_msg.PATHNAME), /* from */
+		  name_len);
+	pathname[name_len] = 0;	/* terminate the string */
+
+	int inode_nr = search_file(pathname);
+	if (inode_nr == INVALID_INODE) {	/* file not found */
+		printl("{FS} FS::do_stat():: search_file() returns "
+		       "invalid inode: %s\n", pathname);
+		return -1;
+	}
+
+	struct inode * pin = 0;
+
+	struct inode * dir_inode;
+	if (strip_path(filename, pathname, &dir_inode) != 0) {
+		/* theoretically never fail here
+		 * (it would have failed earlier when
+		 *  search_file() was called)
+		 */
+		assert(0);
+	}
+	pin = get_inode(dir_inode->i_dev, inode_nr);
+
+	struct stat s;		/* the thing requested */
+	s.st_dev = pin->i_dev;
+	s.st_ino = pin->i_num;
+	s.st_mode= pin->i_mode;
+	s.st_rdev= is_special(pin->i_mode) ? pin->i_start_sect : NO_DEV;
+	s.st_size= pin->i_size;
+
+	put_inode(pin);
+
+	phys_copy((void*)va2la(src, fs_msg.BUF), /* to   */
+		  (void*)va2la(TASK_FS, &s),	 /* from */
+		  sizeof(struct stat));
+
 	return 0;
 }
 

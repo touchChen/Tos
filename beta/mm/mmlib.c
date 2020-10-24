@@ -159,7 +159,7 @@ PUBLIC int do_exec()
 	struct stat s;
 	int ret = stat(pathname, &s);
 	if (ret != 0) {
-		printl("{MM} MM::do_exec()::stat() returns error. %s", pathname);
+		printl("MM# do_stat of (%s) returns error\n", pathname);
 		return -1;
 	}
 
@@ -216,7 +216,7 @@ PUBLIC int do_exec()
 	proc_table[src].regs.eip = elf_hdr->e_entry; /* @see _start.asm */
 	proc_table[src].regs.esp = PROC_IMAGE_SIZE_DEFAULT - PROC_ORIGIN_STACK;
 
-	strcpy(proc_table[src].name, pathname);
+	strcpy(proc_table[src].p_name, pathname);
 
 	return 0;
 }

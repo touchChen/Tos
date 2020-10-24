@@ -55,3 +55,16 @@ struct dev_drv_map dd_map[] = {
  */
 PUBLIC	u8 *		fsbuf		= (u8*)0x600000;
 PUBLIC	const int	FSBUF_SIZE	= 0x100000;
+
+
+/**
+ * 7MB~8MB: buffer for MM
+ */
+PUBLIC	u8 *		mmbuf		= (u8*)0x700000;
+PUBLIC	const int	MMBUF_SIZE	= 0x100000;
+
+
+
+
+
+

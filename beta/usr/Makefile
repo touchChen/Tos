@@ -25,8 +25,7 @@ nop : over
 everything : $(BIN)
 
 install : all clean
-	cp ../kernel.bin ./ -v
-	tar vcf inst.tar kernel.bin $(BIN)
+	tar vcf inst.tar $(BIN)
 	dd if=inst.tar of=$(HD) seek=`echo "obase=10;ibase=16;(\`grep -e '#define[[:space:]]*ROOT_BASE' ../include/hd.h | sed -e 's/.*0x//g'\`+\`grep -e '#define[[:space:]]*INSTALL_START_SECT' ../include/hd.h | sed -e 's/.*0x//g'\`)*200" | bc` bs=1 count=`ls -l inst.tar | awk -F " " '{print $$5}'` conv=notrunc
 
 	
@@ -43,13 +42,9 @@ clean :
 
 realclean :
 	rm -f  $(BIN) *.o
-	#echo 'hello world' 
 
 realallclean :
-	rm -f inst.tar kernel.bin $(BIN) *.o 
-
-kernel.bin :
-	cp ../kernel.bin ./
+	rm -f inst.tar $(BIN) *.o 
 
 start.o : start.asm
 	$(ASM) $(ASMFLAGS) -o $@ $<

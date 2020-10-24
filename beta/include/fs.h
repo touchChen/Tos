@@ -85,6 +85,20 @@ struct file_desc {
 
 
 /**
+ * @struct stat
+ * @brief  File status, returned by syscall stat();
+ */
+struct stat {
+	int st_dev;		/* major/minor device number */
+	int st_ino;		/* i-node number */
+	int st_mode;	/* file mode, protection bits, etc. */
+	int st_rdev;	/* device ID (if special file) */
+	int st_size;	/* file size */
+};
+
+
+
+/**
  * Since all invocations of `rw_sector()' in FS look similar (most of the
  * params are the same), we use this macro to make code more readable.
  */
@@ -105,6 +119,11 @@ struct file_desc {
 
 #define	O_CREAT		1
 #define	O_RDWR		2
+#define O_TRUNC		4
+
+#define SEEK_SET	1
+#define SEEK_CUR	2
+#define SEEK_END	3
 
 #define	MAX_PATH	128
 

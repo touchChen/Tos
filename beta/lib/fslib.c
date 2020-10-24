@@ -129,5 +129,52 @@ PUBLIC int unlink(const char * pathname)
 }
 
 
+/*****************************************************************************
+ * @param path 
+ * @param buf 
+ * 
+ * @return  On success, zero is returned. On error, -1 is returned.
+ *****************************************************************************/
+PUBLIC int stat(const char *path, struct stat *buf)
+{
+	MESSAGE msg;
+
+	msg.type		= STAT;
+
+	msg.PATHNAME	= (void*)path;
+	msg.BUF			= (void*)buf;
+	msg.NAME_LEN	= strlen(path);
+
+	send_recv(BOTH, TASK_FS, &msg);
+	assert(msg.type == SYSCALL_RET);
+
+	return msg.RETVAL;
+}
+
+
+/*****************************************************************************
+ * Reposition r/w file offset.
+ * 
+ * @param fd      File descriptor.
+ * @param offset  The offset according to `whence'.
+ * @param whence  SEEK_SET, SEEK_CUR or SEEK_END.
+ * 
+ * @return  The resulting offset location as measured in bytes from the
+ *          beginning of the file.
+ *****************************************************************************/
+PUBLIC int lseek(int fd, int offset, int whence)
+{
+	MESSAGE msg;
+	msg.type   = LSEEK;
+	msg.FD     = fd;
+	msg.OFFSET = offset;
+	msg.WHENCE = whence;
+
+	send_recv(BOTH, TASK_FS, &msg);
+
+	return msg.OFFSET;
+}
+
+
 
 
