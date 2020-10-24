@@ -24,8 +24,6 @@ PUBLIC void port_write(u16 port, void* buf, int n);
 
 
 /****** klibc.c ******/
-PUBLIC void get_boot_params(struct boot_params * pbp);
-PUBLIC int get_kernel_map(unsigned int * b, unsigned int * l);
 PUBLIC char* itoa(char * str, int num);
 PUBLIC int atoi(char * str);
 PUBLIC void disp_int_c(int input);
@@ -222,6 +220,8 @@ PUBLIC int do_fork();
 PUBLIC void do_exit(int status);
 PUBLIC void do_wait();
 PUBLIC int do_exec();
+PUBLIC void get_boot_params(struct boot_params * pbp);
+PUBLIC int get_kernel_map(unsigned int * b, unsigned int * l);
 
  
 

@@ -112,6 +112,7 @@ PUBLIC void Init()
 	
 	untar("/cmd.tar");
 
+
 	int pid = fork();
 	if (pid == 0) { // child process
 		printf("INIT## child is running, pid:%d\n", getpid());
