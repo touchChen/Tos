@@ -161,10 +161,7 @@ PUBLIC int disklog(char * logstr)
 	static int pos = 0;
     if (!pos)
     {
-		if (is_do_mkfs == UN_MK_FS) 
-        {  
-            pos = read_pos();
-        }
+    	pos = read_pos();
     }
     
 	//printl("static pos:%d, &pos:%0x%x\n", pos, &pos);

@@ -18,12 +18,12 @@ PUBLIC  TASK  task_table[NR_TASKS] = {{task_tty, TIMESLICE_TASK, 0, STACK_SIZE_T
                                       {task_sys, TIMESLICE_TASK, 0, STACK_SIZE_SYS, "sys"},
                                       {task_hd, TIMESLICE_TASK, 0, STACK_SIZE_HD,  "hd"},
                                       {task_fs, TIMESLICE_TASK, 1, STACK_SIZE_FS,  "fs"},
-									  {task_mm, TIMESLICE_TASK, 1, STACK_SIZE_MM,  "mm"}};
+									  {task_mm, TIMESLICE_TASK, 2, STACK_SIZE_MM,  "mm"}};
 
 
-PUBLIC  TASK  user_proc_table[NR_NATIVE_PROCS] = {{Init, TIMESLICE_USER_PROC, 2, STACK_SIZE_INIT, "INIT"},
+PUBLIC  TASK  user_proc_table[NR_NATIVE_PROCS] = {{Init, TIMESLICE_USER_PROC, 1, STACK_SIZE_INIT, "INIT"},
 											{TestA, 0, 0, STACK_SIZE_TESTA, "TestA"},
-					   						{TestB, TIMESLICE_USER_PROC, 2, STACK_SIZE_TESTB, "TestB"}, 
+					   						{TestB, TIMESLICE_USER_PROC, 2, STACK_SIZE_TESTB, "TestB"},
 					  						{TestC, 0, 0, STACK_SIZE_TESTC, "TestC"},
                                            	{test_fs, 0, 1, STACK_SIZE_TESTFS, "user proc"}};
 
@@ -55,8 +55,3 @@ struct dev_drv_map dd_map[] = {
  */
 PUBLIC	u8 *		fsbuf		= (u8*)0x600000;
 PUBLIC	const int	FSBUF_SIZE	= 0x100000;
-
- 
-PUBLIC  u8   is_do_mkfs = UN_MK_FS;
-
-

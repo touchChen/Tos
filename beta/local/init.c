@@ -37,9 +37,6 @@ struct posix_tar_header
 };
 
 /*****************************************************************************
- *                                untar
- *****************************************************************************/
-/**
  * Extract the tar file and store them.
  * 
  * @param filename The tar file.
@@ -54,7 +51,7 @@ void untar(const char * filename)
 	int chunk = sizeof(buf);
 
 	while (1) {
-		read(fd, buf, SECTOR_SIZE);
+		read(fd, buf, SECTOR_SIZE); // pos 有位移
 		if (buf[0] == 0)
 			break;
 
@@ -85,25 +82,12 @@ void untar(const char * filename)
 		printf("INIT##untar>>  copy over\n");
 		close(fdout);
 		printf("INIT##untar>>  close\n");
-		
-		graphlog();
-		while(1){}
 	}
-
-	close(fd);
-
-}
-
-
-void debug_fs()
-{
-    int fd = open("/cmd.tar", O_RDWR);
-	assert(fd != -1);
 	graphlog();
-	close(fd);
 
-	printf("over debug\n");
+	close(fd);
 }
+
 
 /*****************************************************************************
  *                                Init
@@ -111,25 +95,16 @@ void debug_fs()
 
 PUBLIC void Init()
 {
-	/*
-	int fd_stdin  = open("/dev_tty0", O_RDWR);
-	assert(fd_stdin  == 0);
-	int fd_stdout = open("/dev_tty0", O_RDWR);
-	assert(fd_stdout == 1);
-	*/
-
 	clearlog();
-
-	/* extract `cmd.tar' */
+	
 	//untar("/cmd.tar");
 
-	//debug_fs();
-	
-	/*
 	int pid = fork();
 	if (pid == 0) { // child process
 		printf("INIT## child is running, pid:%d\n", getpid());
-
+		
+		//execl("/echo", "echo", "hello world", " tc! ", 0);
+		
 		exit(99);
 	}
 	else {	// parent process
@@ -139,9 +114,14 @@ PUBLIC void Init()
 		int child = wait(&s);
 		printf("INIT## parent process::child (%d) exited with status: %d.\n", child, s);
 	}
-	*/
-	
 
-    
+
+	while(1) {
+		int s;
+		int child = wait(&s);
+		printf("INIT## parent process::child (%d) exited with status: %d.\n", child, s);
+	}
+
+	// 不会到这一步
 	spin("Init...");
 }

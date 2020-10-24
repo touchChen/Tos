@@ -431,6 +431,7 @@ PRIVATE int msg_receive(PROCESS* current, int src, MESSAGE* m)
 		}
 	}
 	else {
+
 		/* p_who_wanna_recv wants to receive a message from
 		 * a certain proc: src.
 		 */
