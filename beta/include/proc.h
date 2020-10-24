@@ -264,7 +264,7 @@ enum msgtype {
 	OPEN, CLOSE, READ, WRITE, LSEEK, STAT, UNLINK,
 
 	/* FS & TTY */
-	SUSPEND_PROC, RESUME_PROC,
+	SUSPEND_PROC, RESUME_PROC, 
 
 	/* MM */
 	EXEC, WAIT,
@@ -307,6 +307,9 @@ enum msgtype {
 #define POS         u.m3.m3i5
 
 #define STATUS      u.m3.m3i6
+
+#define	OFFSET		u.m3.m3i2
+#define	WHENCE		u.m3.m3i3
 
 
 #define	STR_DEFAULT_LEN	1024

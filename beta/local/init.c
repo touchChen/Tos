@@ -50,13 +50,15 @@ void untar(const char * filename)
 	char buf[SECTOR_SIZE * 16];
 	int chunk = sizeof(buf);
 
+	int untar_files = 0;
+
 	while (1) {
 		read(fd, buf, SECTOR_SIZE); // pos 有位移
 		if (buf[0] == 0)
 			break;
 
 		struct posix_tar_header * phdr = (struct posix_tar_header *)buf;
-		printf("*****%s*******\n",phdr->name);
+		untar_files ++;
 
 		/* calculate the file size */
 		char * p = phdr->size;
@@ -65,7 +67,7 @@ void untar(const char * filename)
 			f_len = (f_len * 8) + (*p++ - '0'); /* octal */
 
 		int bytes_left = f_len;
-		int fdout = open(phdr->name, O_CREAT | O_RDWR);
+		int fdout = open(phdr->name, O_CREAT | O_RDWR | O_TRUNC);
 		if (fdout == -1) {
 			printf("INIT##untar>> failed to extract file: %s\n", phdr->name);
 			printf("INIT##untar>> aborted\n");
@@ -81,11 +83,22 @@ void untar(const char * filename)
 		}
 		printf("INIT##untar>>  copy over\n");
 		close(fdout);
-		printf("INIT##untar>>  close\n");
 	}
-	graphlog();
+	//graphlog();
+
+
+	if (untar_files)
+	{
+		lseek(fd, 0, SEEK_SET);
+		buf[0] = 0;
+		int bytes = write(fd, buf, 1);
+		assert(bytes == 1);
+	}
 
 	close(fd);
+
+	printf("INIT##untar>> done, %d files extracted]\n", untar_files);
+
 }
 
 
@@ -97,13 +110,15 @@ PUBLIC void Init()
 {
 	clearlog();
 	
-	//untar("/cmd.tar");
+	untar("/cmd.tar");
 
 	int pid = fork();
 	if (pid == 0) { // child process
 		printf("INIT## child is running, pid:%d\n", getpid());
 		
-		//execl("/echo", "echo", "hello world", " tc! ", 0);
+		//execl("/echo", "echo", "hello", " tc! ", 0);
+		execl("/pwd", "pwd",  0);
+		printf("INIT## do not run here!\n");
 		
 		//exit(99);
 	}

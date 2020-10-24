@@ -159,7 +159,7 @@ PUBLIC int do_exec()
 	struct stat s;
 	int ret = stat(pathname, &s);
 	if (ret != 0) {
-		printl("{MM} MM::do_exec()::stat() returns error. %s", pathname);
+		printl("MM# do_stat of (%s) returns error\n", pathname);
 		return -1;
 	}
 
