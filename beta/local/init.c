@@ -105,7 +105,7 @@ PUBLIC void Init()
 		
 		//execl("/echo", "echo", "hello world", " tc! ", 0);
 		
-		exit(99);
+		//exit(99);
 	}
 	else {	// parent process
 		printf("INIT## parent is running, child pid:%d\n", pid);
