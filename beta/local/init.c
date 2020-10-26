@@ -119,9 +119,9 @@ PUBLIC void Init()
 		
 		//execl("/echo", "echo", "hello", " tc! ", 0);
 		execl("/pwd", "pwd",  0);
-		printf("INIT## do not run here!\n");
-		
-		//exit(99);
+
+		printf("INIT## do not run here!\n");	
+		exit(99);
 	}
 	else {	// parent process
 		printf("INIT## parent is running, child pid:%d\n", pid);
