@@ -15,7 +15,8 @@ AR		= ar
 ASMBFLAGS	= -I boot/include/
 ASMKFLAGS	= -I include/ -f elf
 CFLAGS		= -I include/ -c -fno-builtin -m32  -Wall -fno-stack-protector
-LDFLAGS		= -s -Ttext $(ENTRYPOINT) -m elf_i386  -Map ./debug/krnl.map
+LDFLAGS		= -Ttext $(ENTRYPOINT) -m elf_i386  -Map ./debug/krnl.map
+#LDFLAGS	= -s -Ttext $(ENTRYPOINT) -m elf_i386  -Map ./debug/krnl.map
 #DASMFLAGS	= -u -o $(ENTRYPOINT) -e $(ENTRYOFFSET)
 DASMFLAGS	= -D
 ARFLAGS		= rcs
@@ -42,7 +43,7 @@ DASMOUTPUT	= kernel.bin.asm
 
 IMG			= x.img
 FLOPPY		= /mnt/fd/
-UPTARGET	= tc@192.168.2.13:/home/tc/beta/
+UPTARGET	= tc@192.168.2.10:/home/tc/beta/
 
 # All Phony Targets
 .PHONY : everything final image clean realclean disasm all buildimg arlib

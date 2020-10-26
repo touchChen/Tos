@@ -1,6 +1,5 @@
-# commands/Makefile
+# usr/Makefile
 
-#ENTRYPOINT	= 0x1000
 HD		= ../50m.img
 
 ASM		= nasm
