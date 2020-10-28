@@ -27,10 +27,10 @@ SelectorVideo		equ		LABEL_DESC_VIDEO	- LABEL_GDT + SA_RPL3
 ; GDT 选择子 ----------------------------------------------------------------------------------
 
 
-BaseOfStack	equ	0100h
+BaseOfStack		equ		0100h
 
 
-LABEL_START:			; <--- 从这里开始 *************
+LABEL_START:					; <--- 从这里开始 *************
 	mov 	ax, cs
 	mov		ds, ax
 	mov		es, ax
@@ -47,7 +47,7 @@ LABEL_START:			; <--- 从这里开始 *************
 	mov		eax, 0E820h			; eax = 0000E820h
 	mov		ecx, 20				; ecx = 地址范围描述符结构的大小
 	mov		edx, 0534D4150h		; edx = 'SMAP'
-	int		15h			; int 15h
+	int		15h					; int 15h
 	jc		.MemChkFail
 	add		di, 20
 	inc		dword [_dwMCRNumber]	; dwMCRNumber = ARDS 的个数
@@ -58,7 +58,7 @@ LABEL_START:			; <--- 从这里开始 *************
 	mov		dword [_dwMCRNumber], 0
 .MemChkOK:
 	; 下面在 A 盘的根目录寻找 KERNEL.BIN
-	mov		word [wSectorNo], SectorNoOfRootDirectory	
+	mov		word [wSectorNo], SectorNoOfRootDirectory	  ; 根目录的扇区号
 	xor		ah, ah	; ┓
 	xor		dl, dl	; ┣ 软驱复位
 	int		13h		; ┛
@@ -68,13 +68,13 @@ LABEL_SEARCH_IN_ROOT_DIR_BEGIN:
 	jz		LABEL_NO_KERNELBIN				; ┣ 判断根目录区是不是已经读完, 如果读完表示没有找到 KERNEL.BIN
 	dec		word [wRootDirSizeForLoop]		; ┛
 	mov		ax, BaseOfKernelFile
-	mov		es, ax			; es <- BaseOfKernelFile
-	mov		bx, OffsetOfKernelFile	; bx <- OffsetOfKernelFile	于是, es:bx = BaseOfKernelFile:OffsetOfKernelFile
-	mov		ax, [wSectorNo]		; ax <- Root Directory 中的某 Sector 号
+	mov		es, ax							; es <- BaseOfKernelFile
+	mov		bx, OffsetOfKernelFile			; bx <- OffsetOfKernelFile	于是, es:bx = BaseOfKernelFile:OffsetOfKernelFile
+	mov		ax, [wSectorNo]					; ax <- Root Directory 中的某 Sector 号
 	mov		cl, 1
 	call	ReadSector
 	
-	mov		di, OffsetOfKernelFile	; es:di -> BaseOfKernelFile:???? = BaseOfKernelFile*10h+????
+	mov		di, OffsetOfKernelFile			; es:di -> BaseOfKernelFile:???? = BaseOfKernelFile*10h+????
 	cld
 	mov		dx, 10h
 
@@ -94,7 +94,7 @@ LABEL_CMP_FILENAME:
 	jmp		LABEL_DIFFERENT
 LABEL_GO_ON:
 	inc		di
-	jmp		LABEL_CMP_FILENAME	   ;	继续循环
+	jmp		LABEL_CMP_FILENAME	   	;	继续循环
 
 LABEL_DIFFERENT:
 	and		di, 0FFE0h		        ; else┓	这时di的值不知道是什么, di &= e0 为了让它是 20h 的倍数
@@ -146,10 +146,13 @@ LABEL_GOON_LOADING_FILE:
 	jz		LABEL_FILE_LOADED
 	push	ax				; 保存 Sector 在 FAT 中的序号
     add 	ax, SectorFakeDataArea  	; -> ax: fat值对应真实的数据区所在的扇区号
-	add		bx, [BPB_BytsPerSec]        ; 下一个扇区
+	add		bx, [BPB_BytsPerSec]        ; 下一个扇区  bx 指向内存的偏移地址
 	jc		.1				; 如果 bx 溢出了，即 bx = 0 ，说明内核大于 64KB
 	jmp		.2
-.1:
+
+.1:							; 超过了64k
+	;mov		dh, 3				; "OUT OF 64K"
+	;call		DispStrRealMode		; 显示字符串	
 	;hlt
 
 	push	ax				; es += 0x1000  ← es 指向下一个段
@@ -162,7 +165,7 @@ LABEL_GOON_LOADING_FILE:
 LABEL_FILE_LOADED:
 	call	KillMotor		; 关闭软驱马达
 	mov		dh, 1			; "Ready."
-	call	DispStrRealMode		; 显示字符串
+	call	DispStrRealMode	; 显示字符串
 ; 下面准备跳入保护模式 -------------------------------------------
 
 ; 加载 GDTR
@@ -198,10 +201,11 @@ dwKernelSize			dd	0		; KERNEL.BIN 文件大小
 ;----------------------------------------------------------------------------
 KernelFileName		db		"KERNEL  BIN", 0	; KERNEL.BIN 之文件名
 ; 为简化代码, 下面每个字符串的长度均为 MessageLength
-MessageLength		equ		9
-LoadMessage:		db		"Loading  "
-Message1			db		"Ready.   "
-Message2			db		"No KERNEL"
+MessageLength		equ		10
+LoadMessage:		db		"Loading   "
+Message1			db		"Ready.    "
+Message2			db		"No KERNEL "
+Message3			db      "OUT OF 64K"
 ;============================================================================
 
 ;----------------------------------------------------------------------------
@@ -299,8 +303,8 @@ GetFATEntry:
 	div		bx			; dx:ax / 2  ==>  ax <- 商, dx <- 余数
 	cmp		dx, 0
 	jz		LABEL_EVEN
-	mov		byte [bOdd], 1
-LABEL_EVEN:					;偶数
+	mov		byte [bOdd], 1	; 奇数
+LABEL_EVEN:					
 	xor		dx, dx			; 现在 ax 中是 FATEntry 在 FAT 中的偏移量. 下面来计算 FATEntry 在哪个扇区中(FAT占用不止一个扇区)
 	mov		bx, [BPB_BytsPerSec]
 	div		bx				; dx:ax / BPB_BytsPerSec  ==>	ax <- 商   (FATEntry 所在的扇区相对于 FAT 来说的扇区号)
@@ -364,7 +368,6 @@ LABEL_PM_START:
 	mov		ss, 	ax
 	mov		esp, 	TopOfStack
 
-
 	push	szMemChkTitle
 	call	DispStr
 	add		esp, 	4
@@ -375,18 +378,18 @@ LABEL_PM_START:
     call	InitKernel
 	;call	ClearMem
 
-	mov		ah, 	0Fh				; 0000: 黑底    1111: 白字
+	mov		ah, 	0Fh						; 0000: 黑底    1111: 白字
 	mov		al, 	'P'
 	mov		[gs:((80 * 0 + 39) * 2)],	ax	; 屏幕第 0 行, 第 39 列。
 
 	;; fill in BootParam[]
-	mov		dword [BOOT_PARAM_ADDR], BOOT_PARAM_MAGIC ; Magic Number
+	mov		dword [BOOT_PARAM_ADDR], BOOT_PARAM_MAGIC 	; Magic Number
 	mov		eax, [dwMemSize]
-	mov		[BOOT_PARAM_ADDR + 4], eax ; memory size
+	mov		[BOOT_PARAM_ADDR + 4], eax					; memory size
 	mov		eax, BaseOfKernelFile
 	shl		eax, 4
 	add		eax, OffsetOfKernelFile
-	mov		[BOOT_PARAM_ADDR + 8], eax ; phy-addr of kernel.bin
+	mov		[BOOT_PARAM_ADDR + 8], eax 					; phy-addr of kernel.bin
 
 
 	;***************************************************************
