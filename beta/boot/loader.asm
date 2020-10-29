@@ -760,32 +760,32 @@ SetupPaging:
 	mov		eax, [dwMemSize]
 	mov		ebx, 400000h	; 400000h = 4M = 4096 * 1024, 一个页表对应的内存大小
 	div		ebx
-	mov		ecx, eax	; 此时 ecx 为页表的个数，也即 PDE 应该的个数
+	mov		ecx, eax		; 此时 ecx 为页表的个数，也即 PDE 应该的个数
 	test	edx, edx
 	jz		.no_remainder
-	inc		ecx		; 如果余数不为 0 就需增加一个页表
+	inc		ecx				; 如果余数不为 0 就需增加一个页表
 .no_remainder:
-	push	ecx		; 暂存页表个数
+	push	ecx				; 暂存页表个数
 
 	; 为简化处理, 所有线性地址对应相等的物理地址. 并且不考虑内存空洞.
 
 	; 首先初始化页目录
 	mov		ax, SelectorFlatRW
 	mov		es, ax
-	mov		edi, PageDirBase	; 此段首地址为 PageDirBase
+	mov		edi, PageDirBase		; 此段首地址为 PageDirBase
 	xor		eax, eax
 	mov		eax, PageTblBase | PG_P  | PG_USU | PG_RWW
 .1:
-	stosd
+	stosd					; eax 写入到 edi
 	add		eax, 4096		; 为了简化, 所有页表在内存中是连续的.
 	loop	.1
 
 	; 再初始化所有页表
-	pop		eax			; 页表个数
+	pop		eax				; 页表个数
 	mov		ebx, 1024		; 每个页表 1024 个 PTE
 	mul		ebx
-	mov		ecx, eax		; PTE个数 = 页表个数 * 1024
-	mov		edi, PageTblBase	; 此段首地址为 PageTblBase
+	mov		ecx, eax		; PTE个数 = 页表个数 * 1024  *因为页表是连续的
+	mov		edi, PageTblBase		; 此段首地址为 PageTblBase
 	xor		eax, eax
 	mov		eax, PG_P  | PG_USU | PG_RWW
 .2:
@@ -810,7 +810,7 @@ SetupPaging:
 ; InitKernel ---------------------------------------------------------------------------------
 ; 将 KERNEL.BIN 的内容经过整理对齐后放到新的位置
 ; --------------------------------------------------------------------------------------------
-InitKernel:			; 遍历每一个 Program Header，根据 Program Header 中的信息来确定把什么放进内存，放到什么位置，以及放多少。
+InitKernel:											; 遍历每一个 Program Header，根据 Program Header 中的信息来确定把什么放进内存，放到什么位置，以及放多少。
 	xor		esi, esi
 	mov		cx, word [BaseOfKernelFilePhyAddr + 2Ch]; ┓ ecx <- pELFHdr->e_phnum  Program header table 中的条数
 	movzx	ecx, cx								    ; ┛
