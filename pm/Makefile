@@ -8,13 +8,16 @@ BIN:=$(subst .asm,.com,$(SRC))
 SRCT:=run.asm
 BINT:=$(subst .asm,.com,$(SRCT))
 
-.PHONY : everything
+.PHONY : everything	clean
 
 everything : $(BIN) $(BINT) 
 	sudo mount -o loop pm.img /mnt/fd/
 	sudo cp $(BIN) /mnt/fd/ -v
 	sudo cp $(BINT) /mnt/fd/ -v
 	sudo umount /mnt/fd/
+
+clean :
+	rm -f $(BIN) $(BINT)
 
 $(BIN) : $(SRC)
 	nasm $< -o $@
