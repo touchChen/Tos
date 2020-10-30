@@ -836,44 +836,6 @@ InitKernel:											; 遍历每一个 Program Header，根据 Program Header �
 ; InitKernel ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-; 清除 BaseOfKernelFilePhyAddr 的内存
-ClearMem:
-	push	ebp
-	mov		ebp, esp
-
-	push	eax
-	push	esi
-	push	edi
-	push	ecx
-
-	mov		eax, BaseOfKernelFile * 10h  ; 地址
-    mov     edi, eax
-	mov     eax, 0                       ; 替换为零
-	mov		edx, eax
-    mov     eax, kernelFileLen
-	mov		ecx, eax					 ; Counter
-.1:
-	cmp		ecx, 0		; 判断计数器
-	jz		.2		; 计数器为零时跳出
-
-	mov		byte [edi], dl		; ┓
-	inc		edi					; ┛
-
-	dec		ecx		; 计数器减一
-	jmp		.1		; 循环
-.2:
-
-	pop		ecx
-	pop		edi
-	pop		esi
-	pop 	eax
-	mov		esp, ebp
-	pop		ebp
-
-	ret			; 函数结束，返回
-; ------------------------------------------------------------------------
-
-
 ; SECTION .data1 之开始 ---------------------------------------------------------------------------------------------
 [SECTION .data1]
 
