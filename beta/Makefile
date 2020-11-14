@@ -74,7 +74,7 @@ buildimg :
 	sudo cp -fv kernel.bin $(FLOPPY)
 	sudo umount $(FLOPPY)
 
-up : ${IMG}
+up : $(IMG)
 	scp ${IMG} ${UPTARGET}
 
 arlib : $(LIB)

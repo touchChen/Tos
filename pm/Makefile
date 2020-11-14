@@ -8,13 +8,21 @@ BIN:=$(subst .asm,.com,$(SRC))
 SRCT:=run.asm
 BINT:=$(subst .asm,.com,$(SRCT))
 
-.PHONY : everything	clean
+
+IMG			= pm.img
+FLOPPY		= /mnt/fd/
+UPTARGET	= tc@192.168.2.10:/home/tc/Tos/pm
+
+.PHONY : everything	clean up
 
 everything : $(BIN) $(BINT) 
-	sudo mount -o loop pm.img /mnt/fd/
-	sudo cp $(BIN) /mnt/fd/ -v
-	sudo cp $(BINT) /mnt/fd/ -v
-	sudo umount /mnt/fd/
+	sudo mount -o loop $(IMG) $(FLOPPY)
+	sudo cp $(BIN) $(FLOPPY) -v
+	sudo cp $(BINT) $(FLOPPY) -v
+	sudo umount $(FLOPPY)
+	
+up : $(IMG)
+	scp ${IMG} ${UPTARGET}
 
 clean :
 	rm -f $(BIN) $(BINT)
