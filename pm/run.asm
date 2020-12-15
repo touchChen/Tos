@@ -528,7 +528,7 @@ CodeALen	equ	$ - LABEL_CODE_A
 ALIGN	32
 [BITS	32]
 LABEL_CODE_RETURN:
-	jmp	SelectorCode16:0
+	jmp		SelectorCode16:0
 
 CodeReturnLen	equ	$ - LABEL_CODE_RETURN
 ; END of [SECTION .lr]
