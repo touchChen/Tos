@@ -9,7 +9,7 @@ org	0100h
 
 [SECTION .gdt]
 ; GDT
-;                              段基址,        段界限     ,       属性
+;                              段基址,        	段界限    ,       属性
 LABEL_GDT:	   Descriptor       	0,                  0,       0           		; 空描述符
 LABEL_DESC_NORMAL: Descriptor       0,             0ffffh,       DA_DRW      		; Normal 描述符
 LABEL_DESC_DATA:   Descriptor       0,          DataLen-1,       DA_DRW + DA_DPL2   ; Data
@@ -24,7 +24,7 @@ LABEL_DESC_CODE_RING3: Descriptor   0,  SegCodeRing3Len-1,       DA_C + DA_32 + 
 LABEL_DESC_STACK3:     Descriptor   0,        TopOfStack3,       DA_DRWA + DA_32 + DA_DPL3
 LABEL_DESC_TSS:        Descriptor   0,           TSSLen-1,       DA_386TSS	   		;TSS
 ; 门									目标选择子,		偏移,		DCount,		属性
-LABEL_CALL_GATE:	Gate	SelectorCodeDest,		0,			0,			DA_386CGate + DA_DPL3
+LABEL_CALL_GATE:	Gate	SelectorCodeDest,		0,			0,			DA_386CGate + DA_DPL1
 ; GDT 结束
 
 GdtLen		equ		$ - LABEL_GDT	; GDT长度
@@ -398,7 +398,7 @@ LABEL_SEG_CODE32:
 	push	TopOfStack3
 	push	SelectorCodeRing3
 	push	0
-	retf
+	retf	; 特权级从高到低
    
 	jmp		SelectorCode16:0
 

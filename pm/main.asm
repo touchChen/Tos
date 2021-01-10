@@ -10,11 +10,11 @@ PageDirBase1		equ	210000h	; 页目录开始地址:	2M + 64K
 PageTblBase1		equ	211000h	; 页表开始地址:		2M + 64K + 4K
 
 
-LinearAddrDemo	equ	00401000h
-ProcFoo		equ	00401000h
-ProcBar		equ	00501000h
+LinearAddrDemo		equ	00401000h
+ProcFoo				equ	00401000h
+ProcBar				equ	00501000h
 
-ProcPagingDemo	equ	00301000h
+ProcPagingDemo		equ	00301000h
 	
 
 org	0100h
@@ -22,19 +22,19 @@ org	0100h
 
 [SECTION .gdt]
 ; GDT
-;                                         段基址,       段界限     , 属性
-LABEL_GDT:		Descriptor	       0,                 0, 0			           ; 空描述符
-LABEL_DESC_NORMAL:	Descriptor	       0,            0ffffh, DA_DRW		           ; Normal 描述符
-LABEL_DESC_PAGE_DIR:	Descriptor   PageDirBase,              4095, DA_DRW		           ; Page Directory
-LABEL_DESC_PAGE_TBL:	Descriptor   PageTblBase,      4096 * 8 - 1, DA_DRW		           ; Page Tables
-LABEL_DESC_CODE32:	Descriptor	       0,  SegCode32Len - 1, DA_CR + DA_32	           ; 非一致代码段, 32
-LABEL_DESC_CODE16:	Descriptor	       0,            0ffffh, DA_C		           ; 非一致代码段, 16
-LABEL_DESC_DATA:	Descriptor	       0,	DataLen - 1, DA_DRW		           ; Data
-LABEL_DESC_STACK:	Descriptor	       0,        TopOfStack, DA_DRWA + DA_32	           ; Stack, 32 位
-LABEL_DESC_VIDEO:	Descriptor	 0B8000h,            0ffffh, DA_DRW + DA_DPL3	           ; 显存首地址
+;                              			段基址,        	段界限,       	属性
+LABEL_GDT:				Descriptor			0,			 	0, 			0			           ; 空描述符
+LABEL_DESC_NORMAL:		Descriptor	       	0,         	0ffffh,			DA_DRW		           ; Normal 描述符
+LABEL_DESC_PAGE_DIR:	Descriptor	PageDirBase,		 4095, 			DA_DRW		           ; Page Directory
+LABEL_DESC_PAGE_TBL:	Descriptor  PageTblBase, 	4096 * 8 - 1, 		DA_DRW		           ; Page Tables
+LABEL_DESC_CODE32:		Descriptor	      	0,	SegCode32Len - 1, 		DA_CR + DA_32	       ; 非一致代码段, 32
+LABEL_DESC_CODE16:		Descriptor			0,			 0ffffh, 		DA_C		           ; 非一致代码段, 16
+LABEL_DESC_DATA:		Descriptor	       	0,		DataLen - 1, 		DA_DRW		           ; Data
+LABEL_DESC_STACK:		Descriptor	       	0,       TopOfStack, 		DA_DRWA + DA_32	       ; Stack, 32 位
+LABEL_DESC_VIDEO:		Descriptor	  0B8000h,           0ffffh, 		DA_DRW + DA_DPL3	   ; 显存首地址
 
-LABEL_DESC_FLAT_C:      Descriptor             0,           0fffffh, DA_CR|DA_32|DA_LIMIT_4K       ; 0~4G
-LABEL_DESC_FLAT_RW:     Descriptor             0,           0fffffh, DA_DRW|DA_LIMIT_4K            ; 0~4G
+LABEL_DESC_FLAT_C:      Descriptor          0,          0fffffh,		DA_CR|DA_32|DA_LIMIT_4K       ; 0~4G
+LABEL_DESC_FLAT_RW:     Descriptor          0,          0fffffh, 		DA_DRW|DA_LIMIT_4K            ; 0~4G
 
 ; 新增加
 LABEL_DESC_LDT:         Descriptor             0,         LDTLen - 1, DA_LDT	                   ; LDT
@@ -48,9 +48,9 @@ LABEL_DESC_TSS:         Descriptor             0,           TSSLen-1, DA_386TSS	
 LABEL_CALL_GATE:        Gate      SelectorCodeDest,       0,       0,    DA_386CGate + DA_DPL3
 ; GDT 结束
 
-GdtLen		equ	$ - LABEL_GDT	; GDT长度
-GdtPtr		dw	GdtLen - 1	; GDT界限
-		dd	0		; GDT基地址
+GdtLen		equ		$ - LABEL_GDT	; GDT长度
+GdtPtr		dw		GdtLen - 1		; GDT界限
+			dd		0				; GDT基地址
 
 ; GDT 选择子
 SelectorNormal		equ	LABEL_DESC_NORMAL	- LABEL_GDT
