@@ -5,9 +5,9 @@
 %include	"pm.inc"	; 常量, 宏, 以及一些说明
 
 PageDirBase			equ	200000h	; 页目录开始地址:	2M
-PageTblBase			equ	201000h	; 页表开始地址:		2M + 4K
+PageTblBase			equ	201000h	; 页表开始地址:	2M + 4K
 PageDirBase1		equ	210000h	; 页目录开始地址:	2M + 64K
-PageTblBase1		equ	211000h	; 页表开始地址:		2M + 64K + 4K
+PageTblBase1		equ	211000h	; 页表开始地址:	2M + 64K + 4K
 
 
 LinearAddrDemo		equ	00401000h
