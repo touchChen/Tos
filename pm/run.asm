@@ -24,7 +24,7 @@ LABEL_DESC_CODE_RING3: Descriptor   0,  SegCodeRing3Len-1,       DA_C + DA_32 + 
 LABEL_DESC_STACK3:     Descriptor   0,        TopOfStack3,       DA_DRWA + DA_32 + DA_DPL3
 LABEL_DESC_TSS:        Descriptor   0,           TSSLen-1,       DA_386TSS	   		;TSS
 ; 门									目标选择子,		偏移,		DCount,		属性
-LABEL_CALL_GATE:	Gate	SelectorCodeDest,		0,			0,			DA_386CGate + DA_DPL1
+LABEL_CALL_GATE:	Gate	SelectorCodeDest,		0,			0,			DA_386CGate + DA_DPL3
 ; GDT 结束
 
 GdtLen		equ		$ - LABEL_GDT	; GDT长度
@@ -40,7 +40,7 @@ SelectorCode16		equ	LABEL_DESC_CODE16	- LABEL_GDT
 SelectorStack32		equ	LABEL_DESC_STACK32	- LABEL_GDT
 SelectorLDT			equ	LABEL_DESC_LDT		- LABEL_GDT
 SelectorCodeDest	equ	LABEL_DESC_CODE_DEST	- LABEL_GDT
-SelectorCodeRing3	equ	LABEL_DESC_CODE_RING3	- LABEL_GDT + SA_RPL2
+SelectorCodeRing3	equ	LABEL_DESC_CODE_RING3	- LABEL_GDT + SA_RPL3
 SelectorCallGate	equ	LABEL_CALL_GATE 	- LABEL_GDT + SA_RPL3
 SelectorStack3		equ	LABEL_DESC_STACK3	- LABEL_GDT + SA_RPL3
 SelectorTSS			equ	LABEL_DESC_TSS		- LABEL_GDT
@@ -132,11 +132,12 @@ LABEL_BEGIN:
 	mov		[SPValueInRealMode], sp
  
 	call    DispStr
-	mov     di, (80 * 3 + 0) * 2
+
+	; 调试
+	mov     di, (80 * 10 + 0) * 2
 	push    cs
 	call    DispInt
          
-
 
 	; 初始化 16 位代码段描述符
 	mov		ax, cs
@@ -561,7 +562,7 @@ LABEL_CODE_RING3:
 	mov		ax, SelectorVideo
 	mov		gs, ax
 
-	mov		edi, (80 * 6 + 0) * 2
+	mov		edi, (80 * 5 + 0) * 2
 	mov		ah, 0Ch
 	mov		al, '3'
 	mov		[gs:edi], ax
