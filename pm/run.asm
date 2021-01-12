@@ -21,7 +21,7 @@ LABEL_DESC_LDT:    Descriptor       0,         LDTLen - 1,       DA_LDT				; LDT
 LABEL_DESC_CODE_DEST: Descriptor    0,   SegCodeDestLen-1,       DA_C + DA_32		; 非一致代码段,32
 
 LABEL_DESC_CODE_RING3: Descriptor   0,  SegCodeRing3Len-1,       DA_C + DA_32 + DA_DPL3
-LABEL_DESC_STACK3:     Descriptor   0,        TopOfStack3,       DA_DRWA + DA_32 + DA_DPL3
+LABEL_DESC_STACK_RING3: Descriptor  0,        TopOfStack3,       DA_DRWA + DA_32 + DA_DPL3
 LABEL_DESC_TSS:        Descriptor   0,           TSSLen-1,       DA_386TSS	   		;TSS
 ; 门									目标选择子,		偏移,		DCount,		属性
 LABEL_CALL_GATE:	Gate	SelectorCodeDest,		0,			0,			DA_386CGate + DA_DPL3
@@ -42,7 +42,7 @@ SelectorLDT			equ	LABEL_DESC_LDT		- LABEL_GDT
 SelectorCodeDest	equ	LABEL_DESC_CODE_DEST	- LABEL_GDT
 SelectorCodeRing3	equ	LABEL_DESC_CODE_RING3	- LABEL_GDT + SA_RPL3
 SelectorCallGate	equ	LABEL_CALL_GATE 	- LABEL_GDT + SA_RPL3
-SelectorStack3		equ	LABEL_DESC_STACK3	- LABEL_GDT + SA_RPL3
+SelectorStackRing3	equ	LABEL_DESC_STACK_RING3	- LABEL_GDT + SA_RPL3
 SelectorTSS			equ	LABEL_DESC_TSS		- LABEL_GDT
 ; END of [SECTION .gdt]
 
@@ -184,10 +184,10 @@ LABEL_BEGIN:
 	mov		ax, ds
 	shl		eax, 4
 	add		eax, LABEL_STACK3
-	mov		word [LABEL_DESC_STACK3 + 2], ax
+	mov		word [LABEL_DESC_STACK_RING3 + 2], ax
 	shr		eax, 16
-	mov		byte [LABEL_DESC_STACK3 + 4], al
-	mov		byte [LABEL_DESC_STACK3 + 7], ah
+	mov		byte [LABEL_DESC_STACK_RING3 + 4], al
+	mov		byte [LABEL_DESC_STACK_RING3 + 7], ah
 
 	; 初始化 LDT 在 GDT 中的描述符
 	xor		eax, eax
@@ -395,7 +395,7 @@ LABEL_SEG_CODE32:
         
 	mov		ax, SelectorTSS
 	ltr		ax                  ; 在任务内发生特权级变换时要切换堆栈，而内层堆栈的指针存放在当前任务的TSS中，所以要设置任务状态段寄存器 TR。
-	push	SelectorStack3
+	push	SelectorStackRing3
 	push	TopOfStack3
 	push	SelectorCodeRing3
 	push	0
