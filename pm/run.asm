@@ -12,13 +12,16 @@ org	0100h
 ;                              段基址,        	段界限    ,       属性
 LABEL_GDT:	   Descriptor       	0,                  0,       0           		; 空描述符
 LABEL_DESC_NORMAL: Descriptor       0,             0ffffh,       DA_DRW      		; Normal 描述符
-LABEL_DESC_DATA:   Descriptor       0,          DataLen-1,       DA_DRW + DA_DPL2   ; Data
+LABEL_DESC_DATA:   Descriptor       0,          DataLen-1,       DA_DRW + DA_DPL3   ; Data
 LABEL_DESC_CODE32: Descriptor       0,   SegCode32Len - 1,       DA_C + DA_32		; 非一致代码段
 LABEL_DESC_CODE16: Descriptor       0,             0ffffh,       DA_C        		; 非一致代码段, 16
 LABEL_DESC_VIDEO:  Descriptor 0B8000h,             0ffffh,       DA_DRW	+ DA_DPL3	; 显存首地址
 LABEL_DESC_STACK32:  Descriptor     0,         TopOfStack,       DA_DRWA + DA_32	; Stack, 32位
 LABEL_DESC_LDT:    Descriptor       0,         LDTLen - 1,       DA_LDT				; LDT
 LABEL_DESC_CODE_DEST: Descriptor    0,   SegCodeDestLen-1,       DA_C + DA_32		; 非一致代码段,32
+
+LABEL_DESC_CODE_RING2: Descriptor   0,  SegCodeRing2Len-1,       DA_C + DA_32 + DA_DPL2
+LABEL_DESC_STACK_RING2: Descriptor  0,        TopOfStack2,       DA_DRWA + DA_32 + DA_DPL2
 
 LABEL_DESC_CODE_RING3: Descriptor   0,  SegCodeRing3Len-1,       DA_C + DA_32 + DA_DPL3
 LABEL_DESC_STACK_RING3: Descriptor  0,        TopOfStack3,       DA_DRWA + DA_32 + DA_DPL3
@@ -33,15 +36,17 @@ GdtPtr		dw		GdtLen - 1		; GDT界限
 
 ; GDT 选择子
 SelectorNormal		equ	LABEL_DESC_NORMAL	- LABEL_GDT
-SelectorData		equ	LABEL_DESC_DATA		- LABEL_GDT + SA_RPL1
+SelectorData		equ	LABEL_DESC_DATA		- LABEL_GDT + SA_RPL3
 SelectorCode32		equ	LABEL_DESC_CODE32	- LABEL_GDT 
 SelectorVideo		equ	LABEL_DESC_VIDEO	- LABEL_GDT
 SelectorCode16		equ	LABEL_DESC_CODE16	- LABEL_GDT
 SelectorStack32		equ	LABEL_DESC_STACK32	- LABEL_GDT
-SelectorLDT			equ	LABEL_DESC_LDT		- LABEL_GDT
+SelectorLDT			equ	LABEL_DESC_LDT		- LABEL_GDT + SA_RPL3
 SelectorCodeDest	equ	LABEL_DESC_CODE_DEST	- LABEL_GDT
-SelectorCodeRing3	equ	LABEL_DESC_CODE_RING3	- LABEL_GDT + SA_RPL3
 SelectorCallGate	equ	LABEL_CALL_GATE 	- LABEL_GDT + SA_RPL3
+SelectorCodeRing2	equ	LABEL_DESC_CODE_RING2	- LABEL_GDT + SA_RPL2
+SelectorStackRing2	equ	LABEL_DESC_STACK_RING2	- LABEL_GDT + SA_RPL2
+SelectorCodeRing3	equ	LABEL_DESC_CODE_RING3	- LABEL_GDT + SA_RPL3
 SelectorStackRing3	equ	LABEL_DESC_STACK_RING3	- LABEL_GDT + SA_RPL3
 SelectorTSS			equ	LABEL_DESC_TSS		- LABEL_GDT
 ; END of [SECTION .gdt]
@@ -67,6 +72,17 @@ LABEL_STACK:
 
 TopOfStack	equ	$ - LABEL_STACK - 1
 ; END of [SECTION .gs]
+
+
+; 堆栈段ring2
+[SECTION .s2]
+ALIGN	32
+[BITS	32]
+LABEL_STACK2:
+	times 512 db 0
+
+TopOfStack2	equ	$ - LABEL_STACK2 - 1
+; END of [SECTION .s2]
 
 
 ; 堆栈段ring3
@@ -178,6 +194,16 @@ LABEL_BEGIN:
 	shr		eax, 16
 	mov		byte [LABEL_DESC_STACK32 + 4], al
 	mov		byte [LABEL_DESC_STACK32 + 7], ah
+
+	; 初始化堆栈段描述符(STACK2)
+	xor		eax, eax
+	mov		ax, ds
+	shl		eax, 4
+	add		eax, LABEL_STACK2
+	mov		word [LABEL_DESC_STACK_RING2 + 2], ax
+	shr		eax, 16
+	mov		byte [LABEL_DESC_STACK_RING2 + 4], al
+	mov		byte [LABEL_DESC_STACK_RING2 + 7], ah
         
 	; 初始化堆栈段描述符(STACK3)
 	xor		eax, eax
@@ -219,6 +245,16 @@ LABEL_BEGIN:
 	mov		byte [LABEL_LDT_DESC_CODE_RETURN + 4], al
 	mov		byte [LABEL_LDT_DESC_CODE_RETURN + 7], ah
 
+	; 初始化 LDT Ring3 中的描述符
+	xor		eax, eax
+	mov		ax, ds
+	shl		eax, 4
+	add		eax, LABEL_CODE_L_RING3
+	mov		word [LABEL_LDT_DESC_CODERING3 + 2], ax
+	shr		eax, 16
+	mov		byte [LABEL_LDT_DESC_CODERING3 + 4], al
+	mov		byte [LABEL_LDT_DESC_CODERING3 + 7], ah
+
 	; 初始化测试调用门的代码段描述符
 	xor		eax, eax
 	mov		ax, cs
@@ -228,6 +264,16 @@ LABEL_BEGIN:
 	shr		eax, 16
 	mov		byte [LABEL_DESC_CODE_DEST + 4], al
 	mov		byte [LABEL_DESC_CODE_DEST + 7], ah
+
+	; 初始化Ring2描述符
+	xor		eax, eax
+	mov		ax, ds
+	shl		eax, 4
+	add		eax, LABEL_CODE_RING2
+	mov		word [LABEL_DESC_CODE_RING2 + 2], ax
+	shr		eax, 16
+	mov		byte [LABEL_DESC_CODE_RING2 + 4], al
+	mov		byte [LABEL_DESC_CODE_RING2 + 7], ah
 
 	; 初始化Ring3描述符
 	xor		eax, eax
@@ -277,7 +323,7 @@ LABEL_BEGIN:
 	jmp		dword SelectorCode32:0	; 执行这一句会把 SelectorCode32 装入 cs,
 									; 并跳转到 Code32Selector:0  处
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;检验
 
 DispStr:
 	mov		ax, BootMessage
@@ -391,13 +437,16 @@ LABEL_SEG_CODE32:
 	mov		ax, SelectorLDT
 	lldt	ax
 
-	call	SelectorLDTCodeA:0	; 跳入局部任务
+	;call	SelectorLDTCodeA:0	; 跳入局部任务
+	;call	SelectorLDTCodeRing3:0
         
 	mov		ax, SelectorTSS
 	ltr		ax                  ; 在任务内发生特权级变换时要切换堆栈，而内层堆栈的指针存放在当前任务的TSS中，所以要设置任务状态段寄存器 TR。
+
 	push	SelectorStackRing3
 	push	TopOfStack3
-	push	SelectorCodeRing3
+	;push	SelectorCodeRing3
+	push	SelectorLDTCodeRing3
 	push	0
 	retf	; 特权级从高到低
    
@@ -494,12 +543,14 @@ LABEL_LDT:
 ;                            段基址       段界限      属性
 LABEL_LDT_DESC_CODEA: Descriptor 0, CodeALen - 1, DA_C + DA_32 ; Code, 32 位
 LABEL_LDT_DESC_CODE_RETURN: Descriptor 0, CodeReturnLen - 1, DA_C + DA_32 ; Code, 32 位
+LABEL_LDT_DESC_CODERING3: Descriptor 0, CodeLRINGLen3 - 1, DA_C + DA_32 ; Code, 32 位
 
 LDTLen		equ	$ - LABEL_LDT
 
 ; LDT 选择子
 SelectorLDTCodeA		equ		LABEL_LDT_DESC_CODEA	- LABEL_LDT + SA_TIL
 SelectorLDTCodeReturn	equ		LABEL_LDT_DESC_CODE_RETURN	- LABEL_LDT + SA_TIL
+SelectorLDTCodeRing3	equ		LABEL_LDT_DESC_CODERING3	- LABEL_LDT + SA_TIL
 ; END of [SECTION .ldt]
 
 
@@ -519,6 +570,26 @@ LABEL_CODE_A:
 	retf
 
 CodeALen	equ	$ - LABEL_CODE_A
+; END of [SECTION .la]
+
+
+; CodeA (LDT, 32 位代码段)
+[SECTION .l3]
+ALIGN	32
+[BITS	32]
+LABEL_CODE_L_RING3:
+	mov		ax, SelectorVideo
+	mov		gs, ax			; 视频段选择子(目的)
+
+	mov		edi, (80 * 4 + 0) * 2	; 屏幕第 10 行, 第 0 列。
+	mov		ah, 0Ch			; 0000: 黑底    1100: 红字
+	mov		al, '9'
+	mov		[gs:edi], ax
+
+	;retf
+	call	SelectorCallGate:0
+
+CodeLRINGLen3	equ	$ - LABEL_CODE_L_RING3
 ; END of [SECTION .la]
 
 
@@ -553,6 +624,24 @@ LABEL_SEG_CODE_DEST:
 SegCodeDestLen	equ	$ - LABEL_SEG_CODE_DEST
 ; END of [SECTION .sdest]
 
+
+; CodeRing2
+[SECTION .ring2]
+ALIGN	32
+[BITS	32]
+LABEL_CODE_RING2:
+	mov		ax, SelectorVideo
+	mov		gs, ax
+
+	mov		edi, (80 * 6 + 0) * 2
+	mov		ah, 0Ch
+	mov		al, '2'
+	mov		[gs:edi], ax
+
+	call	SelectorCallGate:0
+
+SegCodeRing2Len	equ	$ - LABEL_CODE_RING2
+; END of [SECTION .ring2]
 
 ; CodeRing3
 [SECTION .ring3]

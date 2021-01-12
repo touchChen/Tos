@@ -28,7 +28,7 @@
 5、堆栈
    1) 短调用(call、ret)，入栈出栈的值只有ip(eip)
    2) 长调用(call、retf), 入栈出栈的值包含cs、ip(eip);如果有特权级改变，还要先入栈ss、esp，再压入cs、ip(eip);
-      出栈是逆过程
+      出栈是逆过程 可以理解为有调用门参与
    3）中断(int、iretd), 入栈顺序: ss、esp、eflags、cs、eip
 
 

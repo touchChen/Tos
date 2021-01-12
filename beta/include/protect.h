@@ -66,11 +66,11 @@ typedef struct s_tss {
 
 /* GDT */
 /* 描述符索引 */
-#define	INDEX_DUMMY		0	// ┓
+#define	INDEX_DUMMY			0	// ┓
 #define	INDEX_FLAT_C		1	// ┣ LOADER 里面已经确定了的.
 #define	INDEX_FLAT_RW		2	// ┃
-#define	INDEX_VIDEO		3	// ┛
-#define	INDEX_TSS		4
+#define	INDEX_VIDEO			3	// ┛
+#define	INDEX_TSS			4
 #define	INDEX_LDT_FIRST		5
 
 /* 选择子 */
@@ -78,7 +78,7 @@ typedef struct s_tss {
 #define	SELECTOR_FLAT_C		0x08		// ┣ LOADER 里面已经确定了的.
 #define	SELECTOR_FLAT_RW	0x10		// ┃
 #define	SELECTOR_VIDEO		(0x18+3)	// ┛<-- RPL=3
-#define	SELECTOR_TSS		0x20	/* TSS                       */
+#define	SELECTOR_TSS		0x20		/* TSS                       */
 #define SELECTOR_LDT_FIRST	0x28
 
 
