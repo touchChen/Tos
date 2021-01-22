@@ -25,3 +25,6 @@ tags
 beta/lib/libh.a
 *.a
 
+# img
+*/pm.img
+*/x.img
