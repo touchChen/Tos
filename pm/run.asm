@@ -101,7 +101,7 @@ TopOfStack3	equ	$ - LABEL_STACK3 - 1
 ALIGN	32
 [BITS	32]
 LABEL_TSS:
-		DD	0			; Back
+		DD	0			; Back 没使用
 		DD	TopOfStack			; 0 级堆栈
 		DD	SelectorStack32		; 0 级堆栈描述符
 		DD	0			; 1 级堆栈
@@ -443,10 +443,10 @@ LABEL_SEG_CODE32:
 	mov		ax, SelectorTSS
 	ltr		ax                  ; 在任务内发生特权级变换时要切换堆栈，而内层堆栈的指针存放在当前任务的TSS中，所以要设置任务状态段寄存器 TR。
 
-	push	SelectorStackRing3
-	push	TopOfStack3
-	;push	SelectorCodeRing3
-	push	SelectorLDTCodeRing3
+	push	SelectorStackRing2
+	push	TopOfStack2
+	push	SelectorCodeRing2
+	;push	SelectorLDTCodeRing3
 	push	0
 	retf	; 特权级从高到低
    
