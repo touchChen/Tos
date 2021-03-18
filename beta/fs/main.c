@@ -1416,7 +1416,7 @@ PRIVATE int do_stat()
 	put_inode(pin);
 
 	phys_copy((void*)va2la(src, fs_msg.BUF), /* to   */
-		  (void*)va2la(TASK_FS, &s),	 /* from */
+		  		(void*)va2la(TASK_FS, &s),	 /* from */
 		  sizeof(struct stat));
 
 	return 0;
