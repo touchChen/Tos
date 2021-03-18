@@ -459,7 +459,7 @@ DisMessage:
 	xor		esi, esi
 	xor		edi, edi
 	mov		esi, OffsetPMMessage	; 源数据偏移
-	mov		edi, (80 * 3 + 0) * 2	; 目的数据偏移。屏幕第 10 行, 第 0 列。
+	mov		edi, (80 * 2 + 0) * 2	; 目的数据偏移。屏幕第 10 行, 第 0 列。
 	cld
 .1:
 	lodsb
@@ -540,10 +540,10 @@ Code16Len	equ	$ - LABEL_SEG_CODE16
 [SECTION .ldt]
 ALIGN	32
 LABEL_LDT:
-;                            段基址       段界限      属性
-LABEL_LDT_DESC_CODEA: Descriptor 0, CodeALen - 1, DA_C + DA_32 ; Code, 32 位
-LABEL_LDT_DESC_CODE_RETURN: Descriptor 0, CodeReturnLen - 1, DA_C + DA_32 ; Code, 32 位
-LABEL_LDT_DESC_CODERING3: Descriptor 0, CodeLRINGLen3 - 1, DA_C + DA_32 ; Code, 32 位
+;                            段基址       	段界限     			 属性
+LABEL_LDT_DESC_CODEA: 		Descriptor 0, 	CodeALen - 1, 		DA_C + DA_32 ; Code, 32 位
+LABEL_LDT_DESC_CODE_RETURN: Descriptor 0, 	CodeReturnLen - 1, 	DA_C + DA_32 ; Code, 32 位
+LABEL_LDT_DESC_CODERING3: 	Descriptor 0, 	CodeLRINGLen3 - 1, 	DA_C + DA_32 ; Code, 32 位
 
 LDTLen		equ	$ - LABEL_LDT
 
@@ -562,7 +562,7 @@ LABEL_CODE_A:
 	mov		ax, SelectorVideo
 	mov		gs, ax			; 视频段选择子(目的)
 
-	mov		edi, (80 * 4 + 0) * 2	; 屏幕第 10 行, 第 0 列。
+	mov		edi, (80 * 3 + 0) * 2	; 屏幕第 3 行, 第 0 列。
 	mov		ah, 0Ch			; 0000: 黑底    1100: 红字
 	mov		al, 'L'
 	mov		[gs:edi], ax
@@ -581,9 +581,14 @@ LABEL_CODE_L_RING3:
 	mov		ax, SelectorVideo
 	mov		gs, ax			; 视频段选择子(目的)
 
-	mov		edi, (80 * 4 + 0) * 2	; 屏幕第 10 行, 第 0 列。
+	mov		edi, (80 * 4 + 0) * 2	; 屏幕第 4 行, 第 0 列。
 	mov		ah, 0Ch			; 0000: 黑底    1100: 红字
-	mov		al, '9'
+	mov		al, 'L'
+	mov		[gs:edi], ax
+
+	mov		edi, (80 * 4 + 1) * 2	; 屏幕第 4 行, 第 1 列。
+	mov		ah, 0Ch			; 0000: 黑底    1100: 红字
+	mov		al, '3'
 	mov		[gs:edi], ax
 
 	;retf
@@ -613,7 +618,7 @@ LABEL_SEG_CODE_DEST:
 	mov		ax, SelectorVideo
 	mov		gs, ax			; 视频段选择子(目的)
 
-	mov		edi, (80 * 7 + 0) * 2	; 屏幕第 12 行, 第 0 列。
+	mov		edi, (80 * 7 + 0) * 2	; 屏幕第 7 行, 第 0 列。
 	mov		ah, 0Ch			; 0000: 黑底    1100: 红字
 	mov		al, 'G'
 	mov		[gs:edi], ax
@@ -633,7 +638,7 @@ LABEL_CODE_RING2:
 	mov		ax, SelectorVideo
 	mov		gs, ax
 
-	mov		edi, (80 * 6 + 0) * 2
+	mov		edi, (80 * 5 + 0) * 2
 	mov		ah, 0Ch
 	mov		al, '2'
 	mov		[gs:edi], ax
@@ -651,7 +656,7 @@ LABEL_CODE_RING3:
 	mov		ax, SelectorVideo
 	mov		gs, ax
 
-	mov		edi, (80 * 5 + 0) * 2
+	mov		edi, (80 * 6 + 0) * 2
 	mov		ah, 0Ch
 	mov		al, '3'
 	mov		[gs:edi], ax

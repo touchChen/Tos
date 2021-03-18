@@ -11,7 +11,7 @@ BINT:=$(subst .asm,.com,$(SRCT))
 
 IMG			= pm.img
 FLOPPY		= /mnt/fd/
-UPTARGET	= tc@192.168.2.10:/home/tc/Tos/pm
+UPTARGET	= tc@192.168.2.12:/home/tc/Tos/pm
 
 .PHONY : everything	clean up
 
