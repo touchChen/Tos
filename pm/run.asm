@@ -586,11 +586,7 @@ LABEL_CODE_L_RING3:
 	mov		al, 'L'
 	mov		[gs:edi], ax
 
-<<<<<<< HEAD
 	mov		edi, (80 * 4 + 1) * 2	; 屏幕第 4 行, 第 1 列。
-=======
-	mov		edi, (80 * 4 + 1) * 2	; 屏幕第 10 行, 第 0 列。
->>>>>>> 8e7a33f9fbc60c2cc48bd13cc037476c1b99beca
 	mov		ah, 0Ch			; 0000: 黑底    1100: 红字
 	mov		al, '3'
 	mov		[gs:edi], ax
