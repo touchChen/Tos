@@ -2,7 +2,7 @@
 SUPER_BLK_SEG		equ	0x70
 
 
-;; where loader is loaded
+;; where_loader_is_loaded
 LOADER_SEG		equ	0x9000
 LOADER_OFF		equ	0x100
 LOADER_PHY_ADDR		equ	LOADER_SEG * 0x10

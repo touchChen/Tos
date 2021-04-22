@@ -27,7 +27,7 @@ ARFLAGS		= rcs
 LIB			= lib/libh.a
 
 # This Program
-BOOT		= boot/boot.bin boot/loader.bin
+BOOT		= boot/boot.bin boot/loader.bin boot/hdboot.bin
 KERNEL		= kernel.bin
 OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
 		  kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/proc.o \
@@ -42,6 +42,7 @@ LIBOBJS		= lib/klib.o lib/klibc.o lib/string.o lib/misc.o lib/printf.o lib/sysca
 DASMOUTPUT	= kernel.bin.asm
 
 IMG			= x.img
+HD			= 50m.img
 FLOPPY		= /mnt/fd/
 UPTARGET	= tc@192.168.2.10:/home/tc/beta/
 
@@ -69,6 +70,8 @@ disasm :
 # We assume that "x.img" exists in current folder
 buildimg :
 	dd if=boot/boot.bin of=$(IMG) bs=512 count=1 conv=notrunc
+	dd if=boot/hdboot.bin of=$(HD) bs=1 count=446 conv=notrunc
+	dd if=boot/hdboot.bin of=$(HD) seek=510 skip=510 bs=1 count=2 conv=notrunc
 	sudo mount -o loop $(IMG) $(FLOPPY)
 	sudo cp -fv boot/loader.bin $(FLOPPY)
 	sudo cp -fv kernel.bin $(FLOPPY)
@@ -83,6 +86,9 @@ $(LIB) : $(LIBOBJS)
 	$(AR) $(ARFLAGS) $@ $^
 
 boot/boot.bin : boot/boot.asm 
+	$(ASM) $(ASMBFLAGS) -o $@ $<
+	
+boot/hdboot.bin : boot/hdboot.asm 
 	$(ASM) $(ASMBFLAGS) -o $@ $<
 
 boot/loader.bin : boot/loader.asm

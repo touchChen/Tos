@@ -20,9 +20,7 @@ floppya: 1_44=x.img, status=inserted
 #ata0-master: type=disk, path=c.img, 
 #boot: c
 
-
-
-boot: a
+boot: c
 #boot: disk  cylinders=60, heads=16, spt=63
 
 log: ./debug/log.txt
