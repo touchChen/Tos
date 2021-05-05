@@ -19,7 +19,7 @@ OffsetOfLoader		equ	0100h	; LOADER.BIN 被加载到的位置 ---- 偏移地址
 
 
 	jmp	short LABEL_START		; Start to boot.
-	nop				; 这个 nop 不可少
+	nop							; 这个 nop 不可少
 
 	%include	"fat12hdr.inc"
 

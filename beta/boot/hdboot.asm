@@ -37,8 +37,6 @@ boot_start:
 	mov		dh, 0			; "Booting  "
 	call	disp_str		; display the string
 
-	jmp		$
-
 
 	;; read the super block to SUPER_BLK_SEG::0
 	mov		dword [disk_address_packet +  8], ROOT_BASE + 1
@@ -70,7 +68,7 @@ boot_start:
 	cmp		al, byte [es:bx]
 	jz		.2
 	jmp		.different		; oops
-.2:		; so far so good
+.2:							; so far so good
 	cmp		al, 0			; both arrive at a '\0', match
 	jz		.found
 	inc		bx				; next char @ disk
@@ -102,10 +100,10 @@ load_loader:
 	call	read_sector
 	cmp		ecx, SECT_BUF_SIZE
 	jl		.done
-	sub		ecx, SECT_BUF_SIZE	; bytes_left -= SECT_BUF_SIZE
-	add		word  [disk_address_packet + 4], SECT_BUF_SIZE ; transfer buffer
+	sub		ecx, SECT_BUF_SIZE								; bytes_left -= SECT_BUF_SIZE
+	add		word  [disk_address_packet + 4], SECT_BUF_SIZE 	; transfer buffer
 	jc		err
-	add		dword [disk_address_packet + 8], TRANS_SECT_NR ; LBA
+	add		dword [disk_address_packet + 8], TRANS_SECT_NR 	; LBA
 	jmp		load_loader
 .done:
 	mov		dh, 1
