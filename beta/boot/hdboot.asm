@@ -115,7 +115,7 @@ load_loader:
 ;============================================================================
 ;字符串
 ;----------------------------------------------------------------------------
-LoaderFileName		db	"hdldr.bin", 0	; LOADER 之文件名
+LoaderFileName		db	"hdloader.bin", 0	; LOADER 之文件名
 ; 为简化代码, 下面每个字符串的长度均为 MessageLength
 MessageLength		equ		9
 BootMessage:		db	"Booting  "; 9字节, 不够则用空格补齐. 序号 0

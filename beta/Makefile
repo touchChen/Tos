@@ -27,7 +27,7 @@ ARFLAGS		= rcs
 LIB			= lib/libh.a
 
 # This Program
-BOOT		= boot/boot.bin boot/loader.bin boot/hdboot.bin
+BOOT		= boot/boot.bin boot/loader.bin boot/hdboot.bin boot/hdloader.bin
 KERNEL		= kernel.bin
 OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
 		  kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/proc.o \
@@ -87,12 +87,16 @@ $(LIB) : $(LIBOBJS)
 
 boot/boot.bin : boot/boot.asm 
 	$(ASM) $(ASMBFLAGS) -o $@ $<
+
+boot/loader.bin : boot/loader.asm
+	$(ASM) $(ASMBFLAGS) -o $@ $<
 	
 boot/hdboot.bin : boot/hdboot.asm 
 	$(ASM) $(ASMBFLAGS) -o $@ $<
 
-boot/loader.bin : boot/loader.asm
+boot/hdloader.bin : boot/hdloader.asm 
 	$(ASM) $(ASMBFLAGS) -o $@ $<
+
 
 $(KERNEL) : $(OBJS) $(LIB)
 	$(LD) $(LDFLAGS) -o $(KERNEL) $^

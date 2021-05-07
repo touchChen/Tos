@@ -2,12 +2,15 @@ org  0100h
 
 	jmp	LABEL_START		; Start
 
+;;%include	"include/hdload.inc"
+;;%include	"include/load.inc"
+;;%include	"include/pm.inc"
 %include	"hdload.inc"
+%include	"load.inc"
 %include	"pm.inc"
 
-
 TRANS_SECT_NR		equ	2
-SECT_BUF_SIZE		equ	TRANS_SECT_NR * 512
+SECT_BUF_SIZE		equ	TRANS_SECT_NR * 512	; 1k
 
 disk_address_packet:	db	0x10			; [ 0] Packet size in bytes. Must be 0x10 or greater.
 						db	0				; [ 1] Reserved, must be 0.
@@ -119,18 +122,18 @@ LABEL_START:			; <--- 从这里开始 *************
 	pop		bx
 	add		bx, [fs:SB_DIR_ENT_INODE_OFF]
 	mov		eax, [es:bx]		; eax <- inode nr of kernel
-	call	get_inode		; eax <- start sector nr of kernel
-	mov		dword [disk_address_packet +  8], eax
+	call	get_inode			; eax <- start sector nr of kernel
+	mov		dword [disk_address_packet +  8], eax ; kernel 文件在磁盘中的初始扇区
 load_kernel:
 	call	read_sector
 	cmp		ecx, SECT_BUF_SIZE
 	jl		.done
-	sub		ecx, SECT_BUF_SIZE	; bytes_left -= SECT_BUF_SIZE
-	add		word  [disk_address_packet + 4], SECT_BUF_SIZE ; transfer buffer
-	jc		.1
+	sub		ecx, SECT_BUF_SIZE								; bytes_left -= SECT_BUF_SIZE
+	add		word  [disk_address_packet + 4], SECT_BUF_SIZE 	; transfer buffer  内存的地址
+	jc		.1			; kernel文件大于64k
 	jmp		.2
 .1:
-	add		word  [disk_address_packet + 6], 1000h
+	add		word  [disk_address_packet + 6], 1000h   ; kernel 大于64k,即内存地址到下一段
 .2:
 	add		dword [disk_address_packet + 8], TRANS_SECT_NR ; LBA
 	jmp		load_kernel
@@ -161,6 +164,8 @@ load_kernel:
 	jmp		dword 	SelectorFlatC:(LOADER_PHY_ADDR+LABEL_PM_START)
 
 	jmp		$		; never arrive here
+
+
 
 ;============================================================================
 ;变量
@@ -320,73 +325,8 @@ LABEL_PM_START:
 	mov		[BOOT_PARAM_ADDR + 8], eax			; BootParam[2] = KernelFilePhyAddr;
 
 	;***************************************************************
-	jmp	SelectorFlatC:KRNL_ENT_PT_PHY_ADDR	; 正式进入内核 *
+	jmp	SelectorFlatC:KernelEntryPointPhyAddr	; 正式进入内核 *
 	;***************************************************************
-	; 内存看上去是这样的：
-	;              ┃                                    ┃
-	;              ┃                 .                  ┃
-	;              ┃                 .                  ┃
-	;              ┃                 .                  ┃
-	;              ┣━━━━━━━━━━━━━━━━━━┫
-	;              ┃■■■■■■■■■■■■■■■■■■┃
-	;              ┃■■■■■■Page  Tables■■■■■■┃
-	;              ┃■■■■■(大小由LOADER决定)■■■■┃
-	;    00101000h ┃■■■■■■■■■■■■■■■■■■┃ PAGE_TBL_BASE
-	;              ┣━━━━━━━━━━━━━━━━━━┫
-	;              ┃■■■■■■■■■■■■■■■■■■┃
-	;    00100000h ┃■■■■Page Directory Table■■■■┃ PAGE_DIR_BASE  <- 1M
-	;              ┣━━━━━━━━━━━━━━━━━━┫
-	;              ┃□□□□□□□□□□□□□□□□□□┃
-	;       F0000h ┃□□□□□□□System ROM□□□□□□┃
-	;              ┣━━━━━━━━━━━━━━━━━━┫
-	;              ┃□□□□□□□□□□□□□□□□□□┃
-	;       E0000h ┃□□□□Expansion of system ROM □□┃
-	;              ┣━━━━━━━━━━━━━━━━━━┫
-	;              ┃□□□□□□□□□□□□□□□□□□┃
-	;       C0000h ┃□□□Reserved for ROM expansion□□┃
-	;              ┣━━━━━━━━━━━━━━━━━━┫
-	;              ┃□□□□□□□□□□□□□□□□□□┃ B8000h ← gs
-	;       A0000h ┃□□□Display adapter reserved□□□┃
-	;              ┣━━━━━━━━━━━━━━━━━━┫
-	;              ┃□□□□□□□□□□□□□□□□□□┃
-	;       9FC00h ┃□□extended BIOS data area (EBDA)□┃
-	;              ┣━━━━━━━━━━━━━━━━━━┫
-	;              ┃■■■■■■■■■■■■■■■■■■┃
-	;       90000h ┃■■■■■■■LOADER.BIN■■■■■■┃ somewhere in LOADER ← esp
-	;              ┣━━━━━━━━━━━━━━━━━━┫
-	;              ┃■■■■■■■■■■■■■■■■■■┃
-	;       80000h ┃■■■■■■■KERNEL.BIN■■■■■■┃
-	;              ┣━━━━━━━━━━━━━━━━━━┫
-	;              ┃■■■■■■■■■■■■■■■■■■┃
-	;       30000h ┃■■■■■■■■KERNEL■■■■■■■┃ 30400h ← KERNEL 入口 (KRNL_ENT_PT_PHY_ADDR)
-	;              ┣━━━━━━━━━━━━━━━━━━┫
-	;              ┃                                    ┃
-	;        7E00h ┃              F  R  E  E            ┃
-	;              ┣━━━━━━━━━━━━━━━━━━┫
-	;              ┃■■■■■■■■■■■■■■■■■■┃
-	;        7C00h ┃■■■■■■BOOT  SECTOR■■■■■■┃
-	;              ┣━━━━━━━━━━━━━━━━━━┫
-	;              ┃                                    ┃
-	;         500h ┃              F  R  E  E            ┃
-	;              ┣━━━━━━━━━━━━━━━━━━┫
-	;              ┃□□□□□□□□□□□□□□□□□□┃
-	;         400h ┃□□□□ROM BIOS parameter area □□┃
-	;              ┣━━━━━━━━━━━━━━━━━━┫
-	;              ┃◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇┃
-	;           0h ┃◇◇◇◇◇◇Int  Vectors◇◇◇◇◇◇┃
-	;              ┗━━━━━━━━━━━━━━━━━━┛ ← cs, ds, es, fs, ss
-	;
-	;
-	;		┏━━━┓		┏━━━┓
-	;		┃■■■┃ 我们使用 	┃□□□┃ 不能使用的内存
-	;		┗━━━┛		┗━━━┛
-	;		┏━━━┓		┏━━━┓
-	;		┃      ┃ 未使用空间	┃◇◇◇┃ 可以覆盖的内存
-	;		┗━━━┛		┗━━━┛
-	;
-	; 注：KERNEL 的位置实际上是很灵活的，可以通过同时改变 LOAD.INC 中的 KRNL_ENT_PT_PHY_ADDR 和 MAKEFILE 中参数 -Ttext 的值来改变。
-	;     比如，如果把 KRNL_ENT_PT_PHY_ADDR 和 -Ttext 的值都改为 0x400400，则 KERNEL 就会被加载到内存 0x400000(4M) 处，入口在 0x400400。
-	;
 
 
 

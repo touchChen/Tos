@@ -12,7 +12,7 @@ KernelEntryPointPhyAddr		equ		01000h	; 注意：1、必须与 MAKEFILE 中参数
 											;2、这是个地址而非仅仅是个偏移，如果 -Ttext 的值为 0x400400，则它的值也应该是 0x400400。
 
 PageDirBase		equ	100000h	; 页目录开始地址:		1M
-PageTblBase		equ	101000h	; 页表开始地址:			1M + 4K
+PageTblBase		equ	101000h	; 页表开始地址:		1M + 4K
 
 ;; ATTENTION:
 ;; Macros below should corresponding with C source.

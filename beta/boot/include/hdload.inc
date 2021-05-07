@@ -2,10 +2,20 @@
 SUPER_BLK_SEG		equ	0x70
 
 
+;; paging
+PAGE_DIR_BASE		equ	0x100000
+PAGE_TBL_BASE		equ	0x101000
+
 ;; where_loader_is_loaded
 LOADER_SEG		equ	0x9000
 LOADER_OFF		equ	0x100
 LOADER_PHY_ADDR		equ	LOADER_SEG * 0x10
+
+;; where_kernel_is_loaded
+KERNEL_FILE_SEG		equ	0x7000
+KERNEL_FILE_OFF		equ	0
+KERNEL_FILE_PHY_ADDR	equ	KERNEL_FILE_SEG * 0x10
+
 
 ;; we don't calculate the base sector nr of the root device while loading
 ;; but define it as a macro for two reasons:
