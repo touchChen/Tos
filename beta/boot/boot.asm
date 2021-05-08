@@ -38,7 +38,7 @@ LABEL_START:
 	int		10h				; int 10h
 
 	mov		dh, 0			; "Booting  "
-	call	DispStr		; 显示字符串
+	call	DispStr			; 显示字符串
 
 
 	xor		ah, ah	; `.

@@ -24,13 +24,11 @@ nop : over
 everything : $(BIN)
 
 install : all clean
-	cp ../boot/hdloader.bin ./ -v
+	cp ../boot/hdl.bin ./ -v
 	cp ../kernel.bin ./ -v
-	tar vcf inst.tar hdloader.bin $(BIN) kernel.bin
+	tar vcf inst.tar hdl.bin $(BIN) kernel.bin
 	dd if=inst.tar of=$(HD) seek=`echo "obase=10;ibase=16;(\`grep -e '#define[[:space:]]*ROOT_BASE' ../include/hd.h | sed -e 's/.*0x//g'\`+\`grep -e '#define[[:space:]]*INSTALL_START_SECT' ../include/hd.h | sed -e 's/.*0x//g'\`)*200" | bc` bs=1 count=`ls -l inst.tar | awk -F " " '{print $$5}'` conv=notrunc
 
-	
-	
 
 over : install realallclean
 
@@ -61,3 +59,4 @@ pwd.o: pwd.c  ../include/stdio.h
 
 pwd : pwd.o start.o $(LIB)
 	$(LD) $(LDFLAGS) -o $@ $?
+	
