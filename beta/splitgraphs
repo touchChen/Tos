@@ -6,7 +6,7 @@ do
     if [ "$kw" == "digraph" ]; then
 		gname=`echo $line | awk -F "[ ]" '{print $2}'`
 		fname=./debug/$gname".dot"
-		pname=$gname".png"
+		pname=./debug/$gname".png"
 		echo $kw" "$gname
 
 		echo $line > $fname
