@@ -4,7 +4,7 @@
 #define	INVALID_INODE		0
 #define	ROOT_INODE		1
 
-#define	NR_DEFAULT_FILE_SECTS	32 /* 32 * 512 = 16k */
+#define	NR_DEFAULT_FILE_SECTS	256 /* 32 * 512 = 16k */
 
 struct dev_drv_map {
 	int driver_nr; 
@@ -60,7 +60,7 @@ struct inode {
  */
 #define	INODE_SIZE	32
 
-#define	MAX_FILENAME_LEN	12
+#define	MAX_FILENAME_LEN	28
 
 
 /**
@@ -135,7 +135,7 @@ struct stat {
 #define ENABLE_DISK_LOG
 #define SET_LOG_SECT_SMAP_AT_STARTUP
 #define MEMSET_LOG_SECTS
-#define	NR_SECTS_FOR_LOG	NR_DEFAULT_FILE_SECTS * 8
+#define	NR_SECTS_FOR_LOG	NR_DEFAULT_FILE_SECTS
 
 
 #ifdef ENABLE_DISK_LOG

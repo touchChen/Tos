@@ -127,19 +127,18 @@ load_kernel:
 	jl		.done
 	sub		ecx, SECT_BUF_SIZE								; bytes_left -= SECT_BUF_SIZE
 	add		word  [disk_address_packet + 4], SECT_BUF_SIZE 	; transfer buffer  内存的地址
-	jc		.1			; kernel文件大于64k
+	jc		.1												; kernel文件大于64k
 	jmp		.2
 .1:
-	add		word  [disk_address_packet + 6], 1000h   ; kernel 大于64k,即内存地址到下一段
+	add		word  [disk_address_packet + 6], 1000h   		; kernel 大于64k,即内存地址到下一段
 .2:
-	add		dword [disk_address_packet + 8], TRANS_SECT_NR ; LBA
+	add		dword [disk_address_packet + 8], TRANS_SECT_NR 	; LBA
 	jmp		load_kernel
 .done:
 	mov		dh, 2
 	call	real_mode_disp_str
 
-	mov		dh, 6
-	call	real_mode_disp_str
+
 ; 下面准备跳入保护模式 -------------------------------------------
 
 ; 加载 GDTR
@@ -185,6 +184,7 @@ Message3			db	"No KERNEL"
 Message4			db	"Too Large"
 Message5			db	"Error 0  "
 Message6			db	"OK......."
+;Message6			db	"file>=64k"
 ;============================================================================
 
 ;============================================================================
@@ -196,6 +196,7 @@ clear_screen:
 	mov		dx, 0x184f		; 右下角: (80, 50)
 	int		0x10			; int 0x10
 	ret
+
 
 ;----------------------------------------------------------------------------
 ; 函数名: disp_str

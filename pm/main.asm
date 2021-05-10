@@ -17,8 +17,8 @@ ProcBar				equ	00501000h
 ProcPagingDemo		equ	00301000h
 	
 
-org	0100h
-	jmp	LABEL_BEGIN
+org		0100h
+	jmp		LABEL_BEGIN
 
 [SECTION .gdt]
 ; GDT
@@ -65,14 +65,14 @@ SelectorVideo		equ	LABEL_DESC_VIDEO	- LABEL_GDT
 SelectorFlatRW		equ	LABEL_DESC_FLAT_RW	- LABEL_GDT
 SelectorFlatC		equ	LABEL_DESC_FLAT_C	- LABEL_GDT
 
-SelectorLDT		equ	LABEL_DESC_LDT		- LABEL_GDT
+SelectorLDT			equ	LABEL_DESC_LDT		- LABEL_GDT
 SelectorCodeDest	equ	LABEL_DESC_CODE_DEST	- LABEL_GDT
 SelectorCodeRing2	equ	LABEL_DESC_CODE_RING2	- LABEL_GDT + SA_RPL2
 SelectorCodeRing3	equ	LABEL_DESC_CODE_RING3	- LABEL_GDT + SA_RPL3
 SelectorCallGate	equ	LABEL_CALL_GATE 	- LABEL_GDT + SA_RPL0
 SelectorStack2		equ	LABEL_DESC_STACK2	- LABEL_GDT + SA_RPL2
 SelectorStack3		equ	LABEL_DESC_STACK3	- LABEL_GDT + SA_RPL3
-SelectorTSS		equ	LABEL_DESC_TSS		- LABEL_GDT
+SelectorTSS			equ	LABEL_DESC_TSS		- LABEL_GDT
 
 
 ; END of [SECTION .gdt]

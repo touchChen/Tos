@@ -51,12 +51,21 @@ start.o : start.asm
 echo.o: echo.c ../include/stdio.h
 	$(CC) $(CFLAGS) -o $@ $<
 
-echo : echo.o start.o $(LIB)
-	$(LD) $(LDFLAGS) -o $@ $?
-
 pwd.o: pwd.c  ../include/stdio.h
 	$(CC) $(CFLAGS) -o $@ $<
 
+
+
+echo : echo.o start.o $(LIB)
+	$(LD) $(LDFLAGS) -o $@ $?
+
 pwd : pwd.o start.o $(LIB)
 	$(LD) $(LDFLAGS) -o $@ $?
+	
+	
+	
+tar : all clean
+	cp ../boot/hdl.bin ./ -v
+	cp ../kernel.bin ./ -v
+	tar vcf inst.tar hdl.bin $(BIN) kernel.bin
 	

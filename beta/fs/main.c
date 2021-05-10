@@ -288,9 +288,6 @@ PRIVATE void mkfs()
 	for (i = 1; i < sb.nr_smap_sects; i++)  // 从 i = 1 开始
 		WR_SECT(ROOT_DEV, 2 + sb.nr_imap_sects + i);
 
-
-	/* cmd.tar */
-	/* make sure it'll not be overwritten by the disk log */
 	assert(INSTALL_START_SECT + INSTALL_NR_SECTS < 
 	       sb.nr_sects - NR_SECTS_FOR_LOG);
 	int bit_offset = INSTALL_START_SECT -
