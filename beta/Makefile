@@ -76,6 +76,10 @@ buildimg :
 	sudo cp -fv boot/loader.bin $(FLOPPY)
 	sudo cp -fv kernel.bin $(FLOPPY)
 	sudo umount $(FLOPPY)
+	
+minhd :
+	dd if=boot/hdboot.bin of=$(HD) seek=`echo "obase=10;ibase=16;\`grep -e '#define[[:space:]]*ROOT_BASE' ./include/hd.h | sed -e 's/.*0x//g'\`*200" | bc` bs=1 count=446 conv=notrunc
+	dd if=boot/hdboot.bin of=$(HD) seek=`echo "obase=10;ibase=16;\`grep -e '#define[[:space:]]*ROOT_BASE' ./include/hd.h | sed -e 's/.*0x//g'\`*200+1FE" | bc` skip=510 bs=1 count=2 conv=notrunc
 
 up : $(IMG)
 	scp ${IMG} ${UPTARGET}
