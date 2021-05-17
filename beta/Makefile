@@ -77,12 +77,21 @@ buildimg :
 	sudo cp -fv kernel.bin $(FLOPPY)
 	sudo umount $(FLOPPY)
 	
-minhd :
+boothd :
 	dd if=boot/hdboot.bin of=$(HD) seek=`echo "obase=10;ibase=16;\`grep -e '#define[[:space:]]*ROOT_BASE' ./include/hd.h | sed -e 's/.*0x//g'\`*200" | bc` bs=1 count=446 conv=notrunc
 	dd if=boot/hdboot.bin of=$(HD) seek=`echo "obase=10;ibase=16;\`grep -e '#define[[:space:]]*ROOT_BASE' ./include/hd.h | sed -e 's/.*0x//g'\`*200+1FE" | bc` skip=510 bs=1 count=2 conv=notrunc
 
+pour :
+	cp boot/hdl.bin ./ -v
+	tar vcf inst.tar hdl.bin 
+	dd if=inst.tar of=$(HD) seek=`echo "obase=10;ibase=16;(\`grep -e '#define[[:space:]]*ROOT_BASE' ./include/hd.h | sed -e 's/.*0x//g'\`+\`grep -e '#define[[:space:]]*INSTALL_START_SECT' ./include/hd.h | sed -e 's/.*0x//g'\`)*200" | bc` bs=1 count=`ls -l inst.tar | awk -F " " '{print $$5}'` conv=notrunc
+	rm -f hdl.bin inst.tar 
+
 up : $(IMG)
 	scp ${IMG} ${UPTARGET}
+	
+de : image pour
+	
 
 arlib : $(LIB)
 
