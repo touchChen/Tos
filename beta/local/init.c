@@ -112,7 +112,7 @@ PUBLIC void Init()
 	
 	untar("/cmd.tar");
 
-	//graphlog();
+	graphlog();
 	int pid = fork();
 	if (pid == 0) { // child process
 		printf("INIT## child is running, pid:%d\n", getpid());

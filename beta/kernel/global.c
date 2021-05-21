@@ -18,7 +18,7 @@ PUBLIC  TASK  task_table[NR_TASKS] = {{task_tty, TIMESLICE_TASK, 0, STACK_SIZE_T
                                       {task_sys, TIMESLICE_TASK, 0, STACK_SIZE_SYS, "sys"},
                                       {task_hd, TIMESLICE_TASK, 0, STACK_SIZE_HD,  "hd"},
                                       {task_fs, TIMESLICE_TASK, 1, STACK_SIZE_FS,  "fs"},
-									  {task_mm, TIMESLICE_TASK, 2, STACK_SIZE_MM,  "mm"}};
+									  {task_mm, TIMESLICE_TASK, 1, STACK_SIZE_MM,  "mm"}};
 
 
 PUBLIC  TASK  user_proc_table[NR_NATIVE_PROCS] = {{Init, TIMESLICE_USER_PROC, 1, STACK_SIZE_INIT, "INIT"},

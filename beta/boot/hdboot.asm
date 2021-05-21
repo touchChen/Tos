@@ -3,7 +3,7 @@ org		0x7c00			; bios always loads boot sector to 0000:7C00
 
 		jmp	boot_start
 
-%include		"hdload.inc"
+%include		"load.inc"
 
 STACK_BASE			equ		0x7C00			; base address of stack when booting
 TRANS_SECT_NR		equ		2
@@ -44,8 +44,8 @@ boot_start:
 	mov		ax, SUPER_BLK_SEG
 	mov		fs, ax
 
-	mov		dword [disk_address_packet +  4], LOADER_OFF
-	mov		dword [disk_address_packet +  6], LOADER_SEG
+	mov		dword [disk_address_packet +  4], OffsetOfLoader
+	mov		dword [disk_address_packet +  6], BaseOfLoader
 
 	;; get the sector nr of `/' (ROOT_INODE), it'll be stored in eax
 	mov		eax, [fs:SB_ROOT_INODE]
@@ -108,7 +108,7 @@ load_loader:
 .done:
 	mov		dh, 1
 	call	disp_str
-	jmp		LOADER_SEG:LOADER_OFF
+	jmp		BaseOfLoader:OffsetOfLoader
 	jmp		$
 
 
@@ -219,5 +219,5 @@ get_inode:
 	ret
 
 
-times 	510-($-$$) db 0 ; 填充剩下的空间，使生成的二进制代码恰好为512字节
-dw 	0xaa55		; 结束标志
+times 	510-($-$$) db 0 			; 填充剩下的空间，使生成的二进制代码恰好为512字节
+dw 		0xaa55						; 结束标志

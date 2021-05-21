@@ -2,21 +2,20 @@ org  0100h
 
 	jmp	LABEL_START		; Start
 
-%include	"hdload.inc"
 %include	"load.inc"
 %include	"pm.inc"
 
 TRANS_SECT_NR		equ	2
 SECT_BUF_SIZE		equ	TRANS_SECT_NR * 512	; 1k
 
-disk_address_packet:	db	0x10			; [ 0] Packet size in bytes. Must be 0x10 or greater.
-						db	0				; [ 1] Reserved, must be 0.
-sect_cnt:				db	TRANS_SECT_NR	; [ 2] Number of blocks to transfer.
-						db	0				; [ 3] Reserved, must be 0.
-						dw	KERNEL_FILE_OFF	; [ 4] Address of transfer buffer. Offset
-						dw	KERNEL_FILE_SEG	; [ 6]                             Seg
-lba_addr:				dd	0				; [ 8] Starting LBA address. Low  32-bits.
-						dd	0				; [12] Starting LBA address. High 32-bits.
+disk_address_packet:	db	0x10				; [ 0] Packet size in bytes. Must be 0x10 or greater.
+						db	0					; [ 1] Reserved, must be 0.
+sect_cnt:				db	TRANS_SECT_NR		; [ 2] Number of blocks to transfer.
+						db	0					; [ 3] Reserved, must be 0.
+						dw	OffsetOfKernelFile	; [ 4] Address of transfer buffer. Offset
+						dw	BaseOfKernelFile	; [ 6]                             Seg
+lba_addr:				dd	0					; [ 8] Starting LBA address. Low  32-bits.
+						dd	0					; [12] Starting LBA address. High 32-bits.
 
 
 ; GDT ------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -28,8 +27,8 @@ LABEL_DESC_VIDEO:		Descriptor	 	 0B8000h,               0ffffh, DA_DRW | DA_DPL3
 ; GDT ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 GdtLen		equ	$ - LABEL_GDT
-GdtPtr		dw	GdtLen - 1						; 段界限
-			dd	LOADER_PHY_ADDR + LABEL_GDT		; 基地址 (让基地址八字节对齐将起到优化速度之效果，目前懒得改)
+GdtPtr		dw	GdtLen - 1							; 段界限
+			dd	BaseOfLoaderPhyAddr + LABEL_GDT		; 基地址 (让基地址八字节对齐将起到优化速度之效果，目前懒得改)
 ; The GDT is not a segment itself; instead, it is a data structure in linear address space.
 ; The base linear address and limit of the GDT must be loaded into the GDTR register. 
 ;-- IA-32 Software Developer’s Manual, Vol.3A
@@ -158,7 +157,7 @@ load_kernel:
 	mov		cr0, eax
 
 ; 真正进入保护模式
-	jmp		dword 	SelectorFlatC:(LOADER_PHY_ADDR+LABEL_PM_START)
+	jmp		dword 	SelectorFlatC:(BaseOfLoaderPhyAddr + LABEL_PM_START)
 
 	jmp		$			; never arrive here
 
@@ -565,7 +564,7 @@ MemCpy:
 	dec		ecx					; 计数器减一
 	jmp		.1					; 循环
 .2:
-	mov		eax, [ebp + 8]	; 返回值
+	mov		eax, [ebp + 8]		; 返回值
 
 	pop		ecx
 	pop		edi
@@ -573,7 +572,7 @@ MemCpy:
 	mov		esp, ebp
 	pop		ebp
 
-	ret			; 函数结束，返回
+	ret							; 函数结束，返回
 ; MemCpy 结束-------------------------------------------------------------
 
 
