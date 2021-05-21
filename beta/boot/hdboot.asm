@@ -60,8 +60,8 @@ boot_start:
 	push	bx				; <- save
 .str_cmp:
 	;; before comparation:
-	;;     es:bx -> dir_entry @ disk
-	;;     ds:si -> filename we want
+	;; es:bx -> dir_entry @ disk
+	;; ds:si -> filename we want
 	add		bx, [fs:SB_DIR_ENT_FNAME_OFF]
 .1:
 	lodsb					; ds:si -> al
@@ -115,7 +115,7 @@ load_loader:
 ;============================================================================
 ;字符串
 ;----------------------------------------------------------------------------
-LoaderFileName		db	"hdl.bin", 0	; LOADER 之文件名
+LoaderFileName		db	"hdloader.bin", 0	; LOADER 之文件名
 ; 为简化代码, 下面每个字符串的长度均为 MessageLength
 MessageLength		equ		9
 BootMessage:		db	"Booting  "; 9字节, 不够则用空格补齐. 序号 0

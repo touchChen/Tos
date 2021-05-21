@@ -68,7 +68,7 @@ struct inode {
  * @brief  Directory Entry
  */
 struct dir_entry {
-	int		inode_nr;		/**< inode nr. */
+	int		inode_nr;				/**< inode nr. */
 	char	name[MAX_FILENAME_LEN];	/**< Filename */
 };
 

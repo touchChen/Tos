@@ -27,7 +27,7 @@ ARFLAGS		= rcs
 LIB			= lib/libh.a
 
 # This Program
-BOOT		= boot/boot.bin boot/loader.bin boot/hdboot.bin boot/hdl.bin
+BOOT		= boot/boot.bin boot/loader.bin boot/hdboot.bin boot/hdloader.bin
 KERNEL		= kernel.bin
 OBJS		= kernel/kernel.o kernel/start.o kernel/main.o kernel/protect.o \
 		  kernel/i8259.o kernel/clock.o kernel/keyboard.o kernel/proc.o \
@@ -76,16 +76,17 @@ buildimg :
 	sudo cp -fv boot/loader.bin $(FLOPPY)
 	sudo cp -fv kernel.bin $(FLOPPY)
 	sudo umount $(FLOPPY)
-	
+
+# for grub	
 boothd :
 	dd if=boot/hdboot.bin of=$(HD) seek=`echo "obase=10;ibase=16;\`grep -e '#define[[:space:]]*ROOT_BASE' ./include/hd.h | sed -e 's/.*0x//g'\`*200" | bc` bs=1 count=446 conv=notrunc
 	dd if=boot/hdboot.bin of=$(HD) seek=`echo "obase=10;ibase=16;\`grep -e '#define[[:space:]]*ROOT_BASE' ./include/hd.h | sed -e 's/.*0x//g'\`*200+1FE" | bc` skip=510 bs=1 count=2 conv=notrunc
 
 pour :
-	cp boot/hdl.bin ./ -v
-	tar vcf inst.tar hdl.bin 
+	cp boot/hdloader.bin ./ -v
+	tar vcf inst.tar hdloader.bin 
 	dd if=inst.tar of=$(HD) seek=`echo "obase=10;ibase=16;(\`grep -e '#define[[:space:]]*ROOT_BASE' ./include/hd.h | sed -e 's/.*0x//g'\`+\`grep -e '#define[[:space:]]*INSTALL_START_SECT' ./include/hd.h | sed -e 's/.*0x//g'\`)*200" | bc` bs=1 count=`ls -l inst.tar | awk -F " " '{print $$5}'` conv=notrunc
-	rm -f hdl.bin inst.tar 
+	rm -f hdloader.bin inst.tar 
 
 up : $(IMG)
 	scp ${IMG} ${UPTARGET}
@@ -107,7 +108,7 @@ boot/loader.bin : boot/loader.asm
 boot/hdboot.bin : boot/hdboot.asm 
 	$(ASM) $(ASMBFLAGS) -o $@ $<
 
-boot/hdl.bin : boot/hdloader.asm 
+boot/hdloader.bin : boot/hdloader.asm 
 	$(ASM) $(ASMBFLAGS) -o $@ $<
 
 
