@@ -70,6 +70,7 @@ disasm :
 # We assume that "x.img" exists in current folder
 buildimg :
 	dd if=boot/boot.bin of=$(IMG) bs=512 count=1 conv=notrunc
+	# 磁盘分区表：考虑有分区表，所以分成两段
 	dd if=boot/hdboot.bin of=$(HD) bs=1 count=446 conv=notrunc
 	dd if=boot/hdboot.bin of=$(HD) seek=510 skip=510 bs=1 count=2 conv=notrunc
 	sudo mount -o loop $(IMG) $(FLOPPY)

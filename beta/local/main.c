@@ -43,7 +43,7 @@ void TestB()
 		rdbuf[r] = 0;
 
 		if (strcmp(rdbuf, "hello") == 0) {
-			write(fd_stdout, "hello world!\n", 13);
+			write(fd_stdout, "this is a user proc\n", 20);
 		}
 		else {
 			if (rdbuf[0]) {

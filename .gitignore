@@ -29,3 +29,9 @@ beta/lib/libh.a
 */pm.img
 pm/pm.img
 */x.img
+beta/x.img
+
+# user *.tar application
+beta/usr/*.tar
+beta/usr/echo
+beta/usr/pwd
