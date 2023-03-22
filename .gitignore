@@ -30,6 +30,10 @@ beta/lib/libh.a
 pm/pm.img
 */x.img
 beta/x.img
+beta/50.img
+*.img
+*/*.img
+*.img
 
 # user *.tar application
 beta/usr/*.tar
