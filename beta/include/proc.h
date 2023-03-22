@@ -165,7 +165,7 @@ typedef struct s_task {
 #define NR_SYS_CALL     4
 
 /* TTY */
-#define NR_CONSOLES	3	
+#define NR_CONSOLES		3
 
 
 /**

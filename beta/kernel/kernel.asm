@@ -160,10 +160,10 @@ csinit:		; “这个跳转指令强制使用刚刚初始化的结构”——<<O
 	out	INT_M_CTLMASK, al	; /
 	mov	al, EOI				; `. 置EOI位
 	out	INT_M_CTL, al		; /
-	sti	; CPU在响应中断的过程中会自动关中断，这句之后就允许响应新的中断
-	push	%1			; `.
+	sti						; CPU在响应中断的过程中会自动关中断，这句之后就允许响应新的中断
+	push	%1				; `.
 	call	[irq_table + 4 * %1]	;  | 中断处理程序
-	pop	ecx			; /
+	pop	ecx					; /
 	cli
 	in	al, INT_M_CTLMASK	; `.
 	and	al, ~(1 << %1)		;  | 恢复接受当前中断
@@ -211,14 +211,14 @@ hwint07:                ; Interrupt routine for irq 7 (printer)
 	in	al, INT_S_CTLMASK	; `.
 	or	al, (1 << (%1 - 8))	;  | 屏蔽当前中断
 	out	INT_S_CTLMASK, al	; /
-	mov	al, EOI			; `. 置EOI位(master)
+	mov	al, EOI				; `. 置EOI位(master)
 	out	INT_M_CTL, al		; /
-	nop				; `. 置EOI位(slave)
+	nop						; `. 置EOI位(slave)
 	out	INT_S_CTL, al		; /  一定注意：slave和master都要置EOI
-	sti	; CPU在响应中断的过程中会自动关中断，这句之后就允许响应新的中断
-	push	%1			; `.
+	sti						; CPU在响应中断的过程中会自动关中断，这句之后就允许响应新的中断
+	push	%1				; `.
 	call	[irq_table + 4 * %1]	;  | 中断处理程序
-	pop	ecx			; /
+	pop	ecx					; /
 	cli
 	in	al, INT_S_CTLMASK	; `.
 	and	al, ~(1 << (%1 - 8))	;  | 恢复接受当前中断
@@ -380,7 +380,7 @@ sys_call:                             ; 没有往堆栈里读取数据
 
         cli
 
-        ret     ; 跳到restart
+        ret     ; 跳到restart，重入跳到reenter
 
 
 ; ====================================================================================
