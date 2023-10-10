@@ -2,6 +2,6 @@
 
 int main(int argc, char * argv[])
 {
-	printf("hello world,pwd!,pour.....\n");
+	printf("hello pwd command,this is a pour program.....\n");
 	return 8;
 }

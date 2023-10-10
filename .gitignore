@@ -30,7 +30,7 @@ beta/lib/libh.a
 pm/pm.img
 */x.img
 beta/x.img
-beta/50.img
+beta/50m.img
 *.img
 */*.img
 *.img
