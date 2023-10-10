@@ -85,7 +85,7 @@ boothd :
 
 pour :
 	cp boot/hdloader.bin ./ -v
-	tar vcf inst.tar hdloader.bin 
+	tar vcf inst.tar hdloader.bin kernel.bin
 	dd if=inst.tar of=$(HD) seek=`echo "obase=10;ibase=16;(\`grep -e '#define[[:space:]]*ROOT_BASE' ./include/hd.h | sed -e 's/.*0x//g'\`+\`grep -e '#define[[:space:]]*INSTALL_START_SECT' ./include/hd.h | sed -e 's/.*0x//g'\`)*200" | bc` bs=1 count=`ls -l inst.tar | awk -F " " '{print $$5}'` conv=notrunc
 	rm -f hdloader.bin inst.tar 
 
